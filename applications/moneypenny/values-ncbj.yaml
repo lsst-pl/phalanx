@@ -1,0 +1,17 @@
+
+
+orders:
+  commission:
+    - name: initcommission
+      image: lsstsqre/inituserhome
+      securityContext:
+        runAsUser: 0
+        runAsNonRootUser: false
+      volumeMounts:
+        - mountPath: /homedirs #todo_kn
+          name: homedirs #todo_kn
+  volumes:
+    - name: homedirs
+      nfs:
+        server: 192.41.122.33 #todo_kn
+        path: /jhome #todo_kn
