@@ -1,0 +1,12 @@
+argo-cd:
+  server:
+    ingress:
+      hosts:
+        - "rsp.ncbj.gov.pl"
+
+    config:
+      url: "https://rsp.ncbj.gov.pl/argo-cd"
+
+  configs:
+    secret:
+      createSecret: true
