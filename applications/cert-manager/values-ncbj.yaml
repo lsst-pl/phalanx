@@ -1,5 +1,2 @@
 config:
-  email: "rsp@ncbj.gov.pl"
-  route53:
-    awsAccessKeyId: ""
-    hostedZone: ""
+  createIssuer: false
