@@ -2,9 +2,9 @@ argo-cd:
   server:
     ingress:
       hosts:
-        - "data-dev.lsst.eu"
+        - "rsp.ncbj.gov.pl"
     config:
-      url: https://data-dev.lsst.eu/argo-cd
+      url: https://rsp.ncbj.gov.pl/argo-cd
       dex.config: |
         connectors:
           # Auth using GitHub.
