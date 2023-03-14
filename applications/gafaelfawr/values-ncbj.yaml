@@ -1,0 +1,55 @@
+redis:
+  persistence:
+    enabled: false
+
+config:
+  databaseUrl: "postgresql://gafaelfawr@postgres.postgres/gafaelfawr"
+
+  github:
+    clientId: ""
+
+  # Allow access by GitHub team.
+  groupMapping:
+    "exec:admin":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "exec:notebook":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "exec:internal-tools":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "exec:portal":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "exec:user":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "read:workspace":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "read:workspace/user":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "write:workspace/user":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "read:image":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+    "read:tap":
+      - github:
+          organization: "lsp-pl"
+          team: "dev"
+
+  initialAdmins:
+    - "stvoutsin"
