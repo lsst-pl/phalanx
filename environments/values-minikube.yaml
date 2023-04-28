@@ -5,27 +5,27 @@ vaultPathPrefix: secret/k8s_operator/minikube.lsst.codes
 alert-stream-broker:
   enabled: false
 cachemachine:
-  enabled: true
+  enabled: false
 cert-manager:
   enabled: true
 datalinker:
-  enabled: true
+  enabled: false
 exposurelog:
   enabled: false
 gafaelfawr:
   enabled: true
 hips:
-  enabled: true
+  enabled: false
 ingress-nginx:
-  enabled: true
+  enabled: false # incompatible with minikube
 mobu:
-  enabled: true
+  enabled: false
 moneypenny:
-  enabled: true
+  enabled: false
 narrativelog:
   enabled: false
 noteburst:
-  enabled: true
+  enabled: false
 nublado:
   enabled: false
 nublado2:
@@ -53,9 +53,9 @@ strimzi:
 strimzi-registry-operator:
   enabled: false
 tap:
-  enabled: true
+  enabled: false
 tap-schema:
-  enabled: true
+  enabled: false
 telegraf:
   enabled: false
 telegraf-ds:

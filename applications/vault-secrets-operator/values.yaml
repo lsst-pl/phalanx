@@ -16,6 +16,7 @@ vault-secrets-operator:
           key: VAULT_TOKEN_LEASE_DURATION
   vault:
     # -- URL of the underlying Vault implementation
-    address: "https://vault.lsst.codes"
+    #address: "https://vault.lsst.codes"
+    address: "http://vault.vault:8200"
     # -- Sync secrets from vault on this cadence
     reconciliationTime: 60
