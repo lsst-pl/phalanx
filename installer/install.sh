@@ -2,10 +2,10 @@
 USAGE="Usage: ./install.sh ENVIRONMENT VAULT_TOKEN"
 ENVIRONMENT=${1:?$USAGE}
 export VAULT_TOKEN=${2:?$USAGE}
-#export VAULT_ADDR=https://vault.lsst.codes
-export VAULT_ADDR=http://192.168.49.2:31287
+export VAULT_ADDR=https://vault.lsst.codes
 VAULT_PATH_PREFIX=`yq -r .vaultPathPrefix ../environments/values-$ENVIRONMENT.yaml`
 ARGOCD_PASSWORD=`vault kv get --field=argocd.admin.plaintext_password $VAULT_PATH_PREFIX/installer`
+
 
 GIT_URL=`git config --get remote.origin.url`
 # Github runs in a detached head state, but sets GITHUB_REF,
@@ -23,9 +23,9 @@ kubectl create secret generic vault-secrets-operator \
   --dry-run=client -o yaml | kubectl apply -f -
 
 echo "Set up docker pull secret for vault-secrets-operator..."
-vault kv get --field=.dockerconfigjson $VAULT_PATH_PREFIX/pull-secret > docker-creds
+#vault kv get --field=.dockerconfigjson $VAULT_PATH_PREFIX/pull-secret > docker-creds
 kubectl create secret generic pull-secret -n vault-secrets-operator \
-    --from-file=.dockerconfigjson=docker-creds \
+    --from-file=.dockerconfigjson=/home/tfruboes/.docker/config.json \
     --type=kubernetes.io/dockerconfigjson \
     --dry-run=client -o yaml | kubectl apply -f -
 

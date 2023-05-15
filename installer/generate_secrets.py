@@ -37,23 +37,37 @@ class SecretGenerator:
         self.regenerate = regenerate
 
     def generate(self):
+        # ./generate_secrets.py --regenerate minikube.lsst.codes
         """Generate secrets for each component based on the `secrets`
         attribute, and regenerating secrets if applicable when the
         `regenerate` attribute is `True`.
         """
         self._pull_secret()
+        print("AA")
         self._rsp_alerts()
-        self._butler_secret()
+        #print("AB")
+        #self._butler_secret() ## basic data access
+        print("AC")
         self._postgres()
+        print("AD")
         self._tap()
+        print("AE")
         self._nublado2()
+        print("AF")
         self._mobu()
+        print("AG") # !!!
         self._gafaelfawr()
+        print("AH") #!!!
         self._argocd()
+        print("AI")
         self._portal()
-        self._vo_cutouts()
-        self._telegraf()
+        #print("AJ")
+        # self._vo_cutouts() requires AWS creds
+        #print("AK")
+        #self._telegraf() metrics/monitoring
+        print("AL")
         self._sherlock()
+        print("AM")
 
         self.input_field("cert-manager", "enabled", "Use cert-manager? (y/n):")
         use_cert_manager = self.secrets["cert-manager"]["enabled"]
