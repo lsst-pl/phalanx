@@ -5,6 +5,9 @@ redis:
 config:
   databaseUrl: "postgresql://gafaelfawr@postgres.postgres/gafaelfawr"
 
+  oidcServer: ## temp./fixme XXX
+    enabled: false
+
   github:
     clientId: ""
 
