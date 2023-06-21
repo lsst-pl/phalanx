@@ -1,5 +1,5 @@
 environment: ncbj
-fqdn: rsp.ncbj.gov.pl
+fqdn: rsp.ncbj.gov.pl:32724
 vaultPathPrefix: secret/k8s_operator/ncbj
 
 alert-stream-broker:
@@ -17,7 +17,7 @@ gafaelfawr:  #
 hips:
   enabled: false
 ingress-nginx: #
-  enabled: true
+  enabled: false
 mobu:
   enabled: false ###
 moneypenny:
