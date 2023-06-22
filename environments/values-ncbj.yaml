@@ -1,5 +1,5 @@
 environment: ncbj
-fqdn: rsp.ncbj.gov.pl:32724
+fqdn: rsp.ncbj.gov.pl
 vaultPathPrefix: secret/k8s_operator/ncbj
 
 alert-stream-broker:
