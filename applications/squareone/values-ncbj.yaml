@@ -1,0 +1,5 @@
+config:
+  siteName: "Rubin Science Platform @ NCBJ"
+
+ingress:
+  tls: false
