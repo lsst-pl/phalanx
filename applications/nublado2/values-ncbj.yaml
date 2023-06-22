@@ -1,12 +1,12 @@
 jupyterhub:
   ingress:
-    hosts: ["rsp.ncbj.gov.pl"]
+    hosts: ["rsp.cis.gov.pl"]
     annotations:
-      nginx.ingress.kubernetes.io/auth-signin: "https://rsp.ncbj.gov.pl/login"
-      nginx.ingress.kubernetes.io/auth-url: "https://rsp.ncbj.gov.pl/auth?scope=exec:notebook&notebook=true"
+      nginx.ingress.kubernetes.io/auth-signin: "https://rsp.cis.gov.pl/login"
+      nginx.ingress.kubernetes.io/auth-url: "https://rsp.cis.gov.pl/auth?scope=exec:notebook&notebook=true"
 
 config:
-  base_url: "https://rsp.ncbj.gov.pl"
+  base_url: "https://rsp.cis.gov.pl"
   butler_secret_path: "secret/k8s_operator/roe/butler-secret"
   pull_secret_path: "secret/k8s_operator/roe/pull-secret"
   lab_environment:

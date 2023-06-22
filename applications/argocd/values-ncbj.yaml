@@ -6,4 +6,4 @@ argo-cd:
   server:
     ingress:
       hosts:
-        - "rsp.ncbj.gov.pl"
+        - "rsp.cis.gov.pl"
