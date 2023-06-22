@@ -9,7 +9,7 @@ config:
     enabled: false
 
   github:
-    clientId: ""
+    clientId: "64d11db34c968448381e" # FIXME
 
   # Allow access by GitHub team.
   groupMapping:
