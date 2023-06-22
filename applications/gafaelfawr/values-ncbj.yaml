@@ -8,8 +8,24 @@ config:
   oidcServer: ## temp./fixme XXX
     enabled: false
 
-  github:
-    clientId: "64d11db34c968448381e" # FIXME
+  #github:
+  #  clientId: "64d11db34c968448381e" # FIXME
+
+
+  oidc:
+    clientId: "32c4628a28d2a8cba91fa1f59d97f3a073025f4d62f0957e0719f5f851b459e7"
+    client_secret: "02ccfaebbbf67b638b3632432c7f93e7134e0353a76737850d7d29878cff6d58"
+    loginUrl: "https://code.cis.gov.pl/oauth/authorize"
+    tokenUrl: "https://code.cis.gov.pl/oauth/token"
+    # scopes:
+    #   - "openid"
+    issuer: "https://code.cis.gov.pl/auth/realms/ncbj.cis.gov.pl" # ???
+    gidClaim: "gid_number"
+    uidClaim: "uid_number"
+    groupsClaim: "groups"
+    usernameClaim: "preferred_username"
+
+
 
   # Allow access by GitHub team.
   groupMapping:
