@@ -19,10 +19,10 @@ config:
     # scopes:
     #   - "openid"
     issuer: "https://code.cis.gov.pl"
-    gidClaim: "gid_number"
-    uidClaim: "uid_number"
+    gidClaim: "sub"
+    uidClaim: "sub"
     groupsClaim: "groups"
-    usernameClaim: "preferred_username"
+    usernameClaim: "nickname"
 
 
 
