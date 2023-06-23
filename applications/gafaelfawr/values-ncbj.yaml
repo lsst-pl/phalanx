@@ -13,8 +13,7 @@ config:
 
 
   oidc:
-    clientId: "32c4628a28d2a8cba91fa1f59d97f3a073025f4d62f0957e0719f5f851b459e7"
-    client_secret: "02ccfaebbbf67b638b3632432c7f93e7134e0353a76737850d7d29878cff6d58"
+    clientId: "53dcc7ed261ab3137c1153ecc5bf8c632b172d27e29ee343ba79187832e16063"
     loginUrl: "https://code.cis.gov.pl/oauth/authorize"
     tokenUrl: "https://code.cis.gov.pl/oauth/token"
     # scopes:
