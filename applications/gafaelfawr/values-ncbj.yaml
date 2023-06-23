@@ -18,7 +18,7 @@ config:
     tokenUrl: "https://code.cis.gov.pl/oauth/token"
     # scopes:
     #   - "openid"
-    issuer: "https://code.cis.gov.pl/auth/realms/ncbj.cis.gov.pl" # ???
+    issuer: "https://code.cis.gov.pl"
     gidClaim: "gid_number"
     uidClaim: "uid_number"
     groupsClaim: "groups"
