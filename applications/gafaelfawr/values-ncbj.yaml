@@ -24,7 +24,8 @@ config:
     gidClaim: "sub"
     uidClaim: "sub"
     groupsClaim: "groups"
-    usernameClaim: "nickname"
+    #usernameClaim: "nickname"
+    usernameClaim: "sub" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
 
 
