@@ -26,7 +26,7 @@ config:
     uidClaim: "sub"
     groupsClaim: "groups"
     #usernameClaim: "nickname"
-    usernameClaim: "sub" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
+    usernameClaim: "sub_legacy" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
   initialAdmins:
     - "20"
