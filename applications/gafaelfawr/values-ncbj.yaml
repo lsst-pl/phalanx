@@ -16,8 +16,9 @@ config:
     clientId: "53dcc7ed261ab3137c1153ecc5bf8c632b172d27e29ee343ba79187832e16063"
     loginUrl: "https://code.cis.gov.pl/oauth/authorize"
     tokenUrl: "https://code.cis.gov.pl/oauth/token"
-    # scopes:
-    #   - "openid"
+    scopes:
+       - "openid"
+    #   - "profile"
     issuer: "https://code.cis.gov.pl"
     gidClaim: "sub"
     uidClaim: "sub"
