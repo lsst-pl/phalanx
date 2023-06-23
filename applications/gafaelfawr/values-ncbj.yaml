@@ -12,6 +12,7 @@ config:
   #  clientId: "64d11db34c968448381e" # FIXME
 
 
+  # https://gafaelfawr.lsst.io/dev/internals/gafaelfawr.config.OIDCConfig.html
   oidc:
     clientId: "53dcc7ed261ab3137c1153ecc5bf8c632b172d27e29ee343ba79187832e16063"
     loginUrl: "https://code.cis.gov.pl/oauth/authorize"
@@ -27,50 +28,70 @@ config:
     #usernameClaim: "nickname"
     usernameClaim: "sub" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
+  initialAdmins:
+    - "20"
+
+  groupMapping:
+    "admin:token": "lssttest"
+    "user:token": "lssttest"
+    "exec:admin": "lssttest"
+    "read:all":
+      - "lssttest"
+    "exec:internal-tools":
+      - "lssttest"
+    "exec:notebook":
+      - "lssttest"
+    "exec:portal":
+      - "lssttest"
+    "read:tap":
+      - "lssttest"
+    "read:image":
+      - "lssttest"
+
+
+
 
 
   # Allow access by GitHub team.
-  groupMapping:
-    "exec:admin":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "exec:notebook":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "exec:internal-tools":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "exec:portal":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "exec:user":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "read:workspace":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "read:workspace/user":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "write:workspace/user":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "read:image":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-    "read:tap":
-      - github:
-          organization: "lsp-pl"
-          team: "dev"
-
-  initialAdmins:
-    - "stvoutsin"
+  #  groupMapping:
+  #    "exec:admin":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "exec:notebook":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "exec:internal-tools":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "exec:portal":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "exec:user":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "read:workspace":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "read:workspace/user":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "write:workspace/user":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "read:image":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #    "read:tap":
+  #      - github:
+  #          organization: "lsp-pl"
+  #          team: "dev"
+  #
