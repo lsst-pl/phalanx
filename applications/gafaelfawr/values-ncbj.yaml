@@ -29,7 +29,7 @@ config:
     usernameClaim: "sub_legacy" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
   initialAdmins:
-    - "20"
+    - "71ed25ae7c690b0cba764a442410d55a5c5be7a52f6788b118735235c1062351"
 
   groupMapping:
     "admin:token": "lssttest"
