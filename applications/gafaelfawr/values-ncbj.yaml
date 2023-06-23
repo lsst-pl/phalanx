@@ -18,7 +18,7 @@ config:
     tokenUrl: "https://code.cis.gov.pl/oauth/token"
     scopes:
        - "openid"
-    #   - "profile"
+       - "profile"
     issuer: "https://code.cis.gov.pl"
     gidClaim: "sub"
     uidClaim: "sub"
