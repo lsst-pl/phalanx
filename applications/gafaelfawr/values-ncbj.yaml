@@ -19,6 +19,7 @@ config:
     scopes:
        - "openid"
        - "profile"
+       - "read_user"
     issuer: "https://code.cis.gov.pl"
     gidClaim: "sub"
     uidClaim: "sub"
