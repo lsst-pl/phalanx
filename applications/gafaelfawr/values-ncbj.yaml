@@ -24,7 +24,7 @@ config:
     issuer: "https://code.cis.gov.pl"
     gidClaim: "sub"
     uidClaim: "sub"
-    groupsClaim: "groups"
+    groupsClaim: "groups_direct"
     #usernameClaim: "nickname"
     usernameClaim: "sub_legacy" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
