@@ -30,6 +30,7 @@ config:
 
   initialAdmins:
     - "71ed25ae7c690b0cba764a442410d55a5c5be7a52f6788b118735235c1062351"
+    - "8646951cffac794fe9e3ff53b8ad6884e88bb709d22e5f0ff9600b8e7b902fe6"
 
   groupMapping:
     "admin:token": "lssttest"
