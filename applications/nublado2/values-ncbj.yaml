@@ -7,8 +7,8 @@ jupyterhub:
 
 config:
   base_url: "https://rsp.cis.gov.pl"
-  butler_secret_path: "secret/k8s_operator/roe/butler-secret"
-  pull_secret_path: "secret/k8s_operator/roe/pull-secret"
+  butler_secret_path: "secret/k8s_operator/ncbj/butler-secret"
+  pull_secret_path: "secret/k8s_operator/ncbj/pull-secret"
   lab_environment:
     AUTO_REPO_URLS: "https://github.com/lsst-sqre/system-test"
     AUTO_REPO_BRANCH: "prod"
@@ -17,28 +17,34 @@ config:
     - image_url: registry.hub.docker.com/lsstsqre/sciplat-lab:recommended
       name: Recommended
   volumes:
-    - name: data
-      nfs:
-        path: /data #todo_kn
-        server: 192.41.122.33 #todo_kn
     - name: home
-      nfs:
-        path: /jhome #todo_kn
-        server: 192.41.122.33 #todo_kn
-    - name: datasets
-      nfs:
-        path: /datasets #todo_kn
-        server: 192.41.122.33 #todo_kn
+      emptyDir: {}
   volume_mounts:
-    - name: data
-      mountPath: /data #todo_kn
     - name: home
-      mountPath: /home #todo_kn
-    - name: datasets
-      mountPath: /datasets #todo_kn
+      mountPath: /home
+#  volumes:
+#    - name: data
+#      nfs:
+#        path: /data #todo_kn
+#        server: 192.41.122.33 #todo_kn
+#    - name: home
+#      nfs:
+#        path: /jhome #todo_kn
+#        server: 192.41.122.33 #todo_kn
+#    - name: datasets
+#      nfs:
+#        path: /datasets #todo_kn
+#        server: 192.41.122.33 #todo_kn
+#  volume_mounts:
+#    - name: data
+#      mountPath: /data #todo_kn
+#    - name: home
+#      mountPath: /home #todo_kn
+#    - name: datasets
+#      mountPath: /datasets #todo_kn
 
-vault_secret_path: "secret/k8s_operator/roe/nublado2"
+vault_secret_path: "secret/k8s_operator/ncbj/nublado2"
 
 pull-secret:
   enabled: true
-  path: "secret/k8s_operator/roe/pull-secret"
+  path: "secret/k8s_operator/ncbj/pull-secret"
