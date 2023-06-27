@@ -7,7 +7,7 @@ alert-stream-broker:
 cachemachine:
   enabled: true ###
 cert-manager: # 
-  enabled: true
+  enabled: false
 datalinker:
   enabled: false
 exposurelog:
