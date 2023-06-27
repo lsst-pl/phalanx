@@ -14,23 +14,22 @@ config:
 
   # https://gafaelfawr.lsst.io/dev/internals/gafaelfawr.config.OIDCConfig.html
   oidc:
-    clientId: "53dcc7ed261ab3137c1153ecc5bf8c632b172d27e29ee343ba79187832e16063"
-    loginUrl: "https://code.cis.gov.pl/oauth/authorize"
-    tokenUrl: "https://code.cis.gov.pl/oauth/token"
+    clientId: "294ce636a6476901f0c8f345945b7d31008cf560abda2cc2e5683c5f20666e23"
+    loginUrl: "https://gitlab.gitlab.rsp.cis.gov.pl/oauth/authorize"
+    tokenUrl: "https://gitlab.gitlab.rsp.cis.gov.pl/oauth/token"
     scopes:
        - "openid"
        - "profile"
        - "read_user"
-    issuer: "https://code.cis.gov.pl"
+    issuer: "https://gitlab.gitlab.rsp.cis.gov.pl/"
     gidClaim: "sub"
     uidClaim: "sub"
     groupsClaim: "groups_direct"
-    #usernameClaim: "nickname"
-    usernameClaim: "sub_legacy" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
+    usernameClaim: "nickname"
+    #usernameClaim: "sub_legacy" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
   initialAdmins:
-    - "71ed25ae7c690b0cba764a442410d55a5c5be7a52f6788b118735235c1062351"
-    - "8646951cffac794fe9e3ff53b8ad6884e88bb709d22e5f0ff9600b8e7b902fe6"
+    - "tfruboes"
 
   groupMapping:
     "admin:token": "lssttest"
