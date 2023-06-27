@@ -5,7 +5,7 @@ vaultPathPrefix: secret/k8s_operator/ncbj
 alert-stream-broker:
   enabled: false
 cachemachine:
-  enabled: false ###
+  enabled: true ###
 cert-manager: # 
   enabled: true
 datalinker:
