@@ -6,10 +6,15 @@ orders:
         runAsUser: 0
         runAsNonRootUser: false
       volumeMounts:
-        - mountPath: /homedirs #todo_kn
-          name: homedirs #todo_kn
+        - mountPath: /homedirs
+          name: homedirs
   volumes:
     - name: homedirs
-      nfs:
-        server: 192.41.122.33 #todo_kn
-        path: /jhome #todo_kn
+      emptyDir: {}
+
+  # TODO/fixme!!!! - this has to match homedir config for nublado2     
+  #volumes:
+  #  - name: homedirs
+  #    nfs:
+  #      server: 192.41.122.33 #todo_kn
+  #      path: /jhome #todo_kn

@@ -21,7 +21,7 @@ ingress-nginx: #
 mobu:
   enabled: false ###
 moneypenny:
-  enabled: false ###
+  enabled: true ###
 narrativelog:
   enabled: false
 noteburst:
