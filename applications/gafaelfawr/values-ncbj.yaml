@@ -8,90 +8,74 @@ config:
   oidcServer: ## temp./fixme XXX
     enabled: false
 
-  #github:
-  #  clientId: "64d11db34c968448381e" # FIXME
+  github:
+    clientId: "9083738145ebf7148456"
 
 
-  # https://gafaelfawr.lsst.io/dev/internals/gafaelfawr.config.OIDCConfig.html
-  oidc:
-    clientId: "294ce636a6476901f0c8f345945b7d31008cf560abda2cc2e5683c5f20666e23"
-    loginUrl: "https://gitlab.gitlab.rsp.cis.gov.pl/oauth/authorize"
-    tokenUrl: "https://gitlab.gitlab.rsp.cis.gov.pl/oauth/token"
-    scopes:
-       - "openid"
-       - "profile"
-       - "read_user"
-    issuer: "https://gitlab.gitlab.rsp.cis.gov.pl/"
-    gidClaim: "sub"
-    uidClaim: "sub"
-    groupsClaim: "groups_direct"
-    usernameClaim: "nickname"
-    #usernameClaim: "sub_legacy" # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110922
 
   initialAdmins:
+    - "fruboes"
     - "tfruboes"
+    - "tmf"
 
+#  groupMapping:
+#    "admin:token": "lssttest"
+#    "user:token": "lssttest"
+#    "exec:admin": "lssttest"
+#    "read:all":
+#      - "lssttest"
+#    "exec:internal-tools":
+#      - "lssttest"
+#    "exec:notebook":
+#      - "lssttest"
+#    "exec:portal":
+#      - "lssttest"
+#    "read:tap":
+#      - "lssttest"
+#    "read:image":
+#      - "lssttest"
+
+
+      #Allow access by GitHub team.
   groupMapping:
-    "admin:token": "lssttest"
-    "user:token": "lssttest"
-    "exec:admin": "lssttest"
-    "read:all":
-      - "lssttest"
-    "exec:internal-tools":
-      - "lssttest"
+    "exec:admin":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
     "exec:notebook":
-      - "lssttest"
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
+    "exec:internal-tools":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
     "exec:portal":
-      - "lssttest"
-    "read:tap":
-      - "lssttest"
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
+    "exec:user":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
+    "read:workspace":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
+    "read:workspace/user":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
+    "write:workspace/user":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
     "read:image":
-      - "lssttest"
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
+    "read:tap":
+      - github:
+          organization: "lsst-pl-auth"
+          team: "admin"
 
-
-
-
-
-  # Allow access by GitHub team.
-  #  groupMapping:
-  #    "exec:admin":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "exec:notebook":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "exec:internal-tools":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "exec:portal":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "exec:user":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "read:workspace":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "read:workspace/user":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "write:workspace/user":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "read:image":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #    "read:tap":
-  #      - github:
-  #          organization: "lsp-pl"
-  #          team: "dev"
-  #
