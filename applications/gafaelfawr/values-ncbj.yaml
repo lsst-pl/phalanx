@@ -9,14 +9,14 @@ config:
     enabled: false
 
   github:
-    clientId: "9083738145ebf7148456"
+    clientId: "1f936200994f9792ea82"
 
 
 
   initialAdmins:
     - "fruboes"
     - "tfruboes"
-    - "tmf"
+    - "knawro"
 
 #  groupMapping:
 #    "admin:token": "lssttest"
@@ -40,42 +40,42 @@ config:
   groupMapping:
     "exec:admin":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "exec:notebook":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "exec:internal-tools":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "exec:portal":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "exec:user":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "read:workspace":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "read:workspace/user":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "write:workspace/user":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "read:image":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
     "read:tap":
       - github:
-          organization: "lsst-pl-auth"
+          organization: "lsst-pl"
           team: "admin"
 
