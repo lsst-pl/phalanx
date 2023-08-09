@@ -1,0 +1,50 @@
+jupyterhub:
+  ingress:
+    hosts: ["rsp.cis.gov.pl"]
+    annotations:
+      nginx.ingress.kubernetes.io/auth-signin: "https://rsp.cis.gov.pl/login"
+      nginx.ingress.kubernetes.io/auth-url: "https://rsp.cis.gov.pl/auth?scope=exec:notebook&notebook=true"
+
+config:
+  base_url: "https://rsp.cis.gov.pl"
+  butler_secret_path: "secret/k8s_operator/ncbj/butler-secret"
+  pull_secret_path: "secret/k8s_operator/ncbj/pull-secret"
+  lab_environment:
+    AUTO_REPO_URLS: "https://github.com/lsst-sqre/system-test"
+    AUTO_REPO_BRANCH: "prod"
+    AUTO_REPO_SPECS: "https://github.com/lsst-sqre/system-test@prod"
+  pinned_images:
+    - image_url: registry.hub.docker.com/lsstsqre/sciplat-lab:recommended
+      name: Recommended
+  volumes:
+    - name: home
+      emptyDir: {}
+  volume_mounts:
+    - name: home
+      mountPath: /home
+#  volumes:
+#    - name: data
+#      nfs:
+#        path: /data #todo_kn
+#        server: 192.41.122.33 #todo_kn
+#    - name: home
+#      nfs:
+#        path: /jhome #todo_kn
+#        server: 192.41.122.33 #todo_kn
+#    - name: datasets
+#      nfs:
+#        path: /datasets #todo_kn
+#        server: 192.41.122.33 #todo_kn
+#  volume_mounts:
+#    - name: data
+#      mountPath: /data #todo_kn
+#    - name: home
+#      mountPath: /home #todo_kn
+#    - name: datasets
+#      mountPath: /datasets #todo_kn
+
+vault_secret_path: "secret/k8s_operator/ncbj/nublado2"
+
+pull-secret:
+  enabled: true
+  path: "secret/k8s_operator/ncbj/pull-secret"

@@ -1,0 +1,81 @@
+redis:
+  persistence:
+    enabled: false
+
+config:
+  databaseUrl: "postgresql://gafaelfawr@postgres.postgres/gafaelfawr"
+
+  oidcServer: ## temp./fixme XXX
+    enabled: false
+
+  github:
+    clientId: "1f936200994f9792ea82"
+
+
+
+  initialAdmins:
+    - "fruboes"
+    - "tfruboes"
+    - "knawro"
+
+#  groupMapping:
+#    "admin:token": "lssttest"
+#    "user:token": "lssttest"
+#    "exec:admin": "lssttest"
+#    "read:all":
+#      - "lssttest"
+#    "exec:internal-tools":
+#      - "lssttest"
+#    "exec:notebook":
+#      - "lssttest"
+#    "exec:portal":
+#      - "lssttest"
+#    "read:tap":
+#      - "lssttest"
+#    "read:image":
+#      - "lssttest"
+
+
+      #Allow access by GitHub team.
+  groupMapping:
+    "exec:admin":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:notebook":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:internal-tools":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:portal":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:user":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:workspace":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:workspace/user":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "write:workspace/user":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:image":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:tap":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+
