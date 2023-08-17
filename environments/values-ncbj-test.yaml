@@ -1,6 +1,6 @@
 environment: ncbj
 fqdn: rsp2.cis.gov.pl
-vaultPathPrefix: secret/k8s_operator/ncbj
+vaultPathPrefix: secret/k8s_operator/ncbj-test
 
 alert-stream-broker:
   enabled: false

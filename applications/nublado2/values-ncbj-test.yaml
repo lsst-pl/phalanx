@@ -7,8 +7,8 @@ jupyterhub:
 
 config:
   base_url: "https://rsp2.cis.gov.pl"
-  butler_secret_path: "secret/k8s_operator/ncbj/butler-secret"
-  pull_secret_path: "secret/k8s_operator/ncbj/pull-secret"
+  butler_secret_path: "secret/k8s_operator/ncbj-test/butler-secret"
+  pull_secret_path: "secret/k8s_operator/ncbj-test/pull-secret"
   lab_environment:
     AUTO_REPO_URLS: "https://github.com/lsst-sqre/system-test"
     AUTO_REPO_BRANCH: "prod"
@@ -43,8 +43,8 @@ config:
 #    - name: datasets
 #      mountPath: /datasets #todo_kn
 
-vault_secret_path: "secret/k8s_operator/ncbj/nublado2"
+vault_secret_path: "secret/k8s_operator/ncbj-test/nublado2"
 
 pull-secret:
   enabled: true
-  path: "secret/k8s_operator/ncbj/pull-secret"
+  path: "secret/k8s_operator/ncbj-test/pull-secret"

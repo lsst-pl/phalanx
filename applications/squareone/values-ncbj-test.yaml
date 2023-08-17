@@ -1,5 +1,5 @@
 config:
-  siteName: "Rubin Science Platform @ NCBJ"
+  siteName: "Rubin Science Platform @ NCBJ (test deployment)"
 
 ingress:
   tls: false
