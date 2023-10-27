@@ -1,4 +1,9 @@
 argo-cd:
+  redis:
+    serviceAccount:
+        create: true
+        name: redis
+
   controller:
     args:
       repoServerTimeoutSeconds: "180"
