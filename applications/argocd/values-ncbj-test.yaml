@@ -7,3 +7,7 @@ argo-cd:
     ingress:
       hosts:
         - "rsp2.cis.gov.pl"
+
+
+  openshift:
+     enabled: true
