@@ -1,4 +1,4 @@
-environment: ncbj
+environment: ncbj-test
 fqdn: rsp2.cis.gov.pl
 vaultPathPrefix: secret/k8s_operator/ncbj-test
 
