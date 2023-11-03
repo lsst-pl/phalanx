@@ -4,4 +4,4 @@ jupyterhub_db:
 gafaelfawr_db:
   user: "gafaelfawr"
   db: "gafaelfawr"
-postgresStorageClass: "standard"
+postgresStorageClass: "nfs-client"
