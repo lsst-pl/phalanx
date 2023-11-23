@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: rsp-ingress-nginx # TF
+  name: "{{ .Values.k8sNamespacePrefix }}ingress-nginx"
 spec:
   finalizers:
     - kubernetes
@@ -10,13 +10,13 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ingress-nginx
+  name: "{{ .Values.k8sNamespacePrefix }}ingress-nginx"
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: rsp-ingress-nginx # TF
+    namespace: "{{ .Values.k8sNamespacePrefix }}ingress-nginx"
     server: https://kubernetes.default.svc
   project: default
   source:
