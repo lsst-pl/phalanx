@@ -11,7 +11,7 @@ argo-cd:
   server:
     ingress:
       hosts:
-        - "rsp2.cis.gov.pl"
+        - "argocd2.cis.gov.pl"
 
 
   openshift:
