@@ -10,7 +10,10 @@ ingress-nginx:
     #  annotations:
     #    kubernetes.io/ingress.class: "openstack"
     #    loadbalancer.openstack.org/enable-health-monitor: "false"
+
+    # note: this is a namespace/secret path. If you use global namespace
+    #       prefix, set it in here
     extraArgs:
-      default-ssl-certificate: ingress-nginx/ingress-certificate
+      default-ssl-certificate: rsp2-ingress-nginx/ingress-certificate
 vaultCertificate:
   enabled: true
