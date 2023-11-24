@@ -8,11 +8,6 @@ environment: ""
 # @default -- None, must be set
 fqdn: ""
 
-# -- k8s namespaces name prefix
-# @default -- empty, set if needed
-k8sNamespacePrefix: ""
-
-
 # -- Prefix for Vault secrets for this environment
 # @default -- None, must be set
 vaultPathPrefix: ""
