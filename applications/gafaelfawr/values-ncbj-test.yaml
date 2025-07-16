@@ -1,0 +1,55 @@
+redis:
+  persistence:
+    enabled: false
+config:
+  internalDatabase: true
+  oidcServer:
+    enabled: true
+  updateSchema: false
+  github:
+    clientId: "Ov23li4lXleVdXDiDTqa"
+  initialAdmins:
+    - "fruboes"
+    - "tfruboes"
+    - "knawro"
+  groupMapping:
+    "exec:admin":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:notebook":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:internal-tools":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:portal":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:user":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:workspace":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:workspace/user":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "write:workspace/user":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:image":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "read:tap":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
