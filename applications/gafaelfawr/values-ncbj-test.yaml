@@ -5,7 +5,7 @@ config:
   internalDatabase: true
   oidcServer:
     enabled: false
-  updateSchema: false
+  updateSchema: true # note: set it to false after bootstrap
   github:
     clientId: "Ov23li4lXleVdXDiDTqa"
   initialAdmins:
