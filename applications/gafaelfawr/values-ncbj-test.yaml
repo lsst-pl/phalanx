@@ -13,11 +13,9 @@ config:
     - "tfruboes"
     - "knawro"
   groupMapping:
+  #  "admin:token":
+  #  "write:sasquatch":
     "exec:admin":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-    "exec:notebook":
       - github:
           organization: "lsst-pl"
           team: "admin"
@@ -25,23 +23,11 @@ config:
       - github:
           organization: "lsst-pl"
           team: "admin"
+    "exec:notebook":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
     "exec:portal":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-    "exec:user":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-    "read:workspace":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-    "read:workspace/user":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-    "write:workspace/user":
       - github:
           organization: "lsst-pl"
           team: "admin"
