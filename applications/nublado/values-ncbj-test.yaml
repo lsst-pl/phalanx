@@ -1,0 +1,25 @@
+controller:
+  config:
+    images:
+      source:
+        type: "docker"
+        registry: "registry.hub.docker.com"
+        repository: "lsstsqre/sciplat-lab"
+    #lab:
+      #env: # TODO pgpass/buttler
+      #initContainers: # TODO - init home
+      #pullSecret: "pull-secret"
+      #volumes:
+      #volumeMounts:
+proxy:
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "50s"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "50s"
+      nginx.ingress.kubernetes.io/client-max-body-size: "50m"
+hub:
+  internalDatabase: true
+jupyterhub:
+  hub:
+    db:
+      upgrade: true
