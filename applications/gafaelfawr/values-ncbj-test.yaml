@@ -4,7 +4,7 @@ redis:
 config:
   internalDatabase: true
   oidcServer:
-    enabled: true
+    enabled: false
   updateSchema: false
   github:
     clientId: "Ov23li4lXleVdXDiDTqa"
