@@ -23,19 +23,34 @@ config:
       - github:
           organization: "lsst-pl"
           team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
     "exec:notebook":
       - github:
           organization: "lsst-pl"
           team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
     "exec:portal":
       - github:
           organization: "lsst-pl"
           team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
     "read:image":
       - github:
           organization: "lsst-pl"
           team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
     "read:tap":
       - github:
           organization: "lsst-pl"
           team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
