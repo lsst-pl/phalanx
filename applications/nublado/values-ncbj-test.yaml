@@ -20,9 +20,11 @@ controller:
         - name: "home"
           source:
             type: "persistentVolumeClaim"
-            accessModes: "ReadWriteMany"
+            accessModes: ["ReadWriteMany"]
             storageClassName: "nfs-client-lssthome-retain"
-            resources: "10Gi"
+            resources:
+              requests:
+                storage: 10Gi
       volumeMounts:
         - containerPath: "/home"
           volumeName: "home"
