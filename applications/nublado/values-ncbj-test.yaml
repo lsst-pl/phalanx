@@ -5,12 +5,28 @@ controller:
         type: "docker"
         registry: "registry.hub.docker.com"
         repository: "lsstsqre/sciplat-lab"
-    #lab:
+    lab:
+      initContainers:
+        - name: "inithome"
+          image:
+            repository: "ghcr.io/lsst-sqre/nublado-inithome"
+            tag: "8.9.2"
+          privileged: true
+          volumeMounts:
+            - containerPath: "/home"
+              volumeName: "home"
       #env: # TODO pgpass/buttler
-      #initContainers: # TODO - init home
-      #pullSecret: "pull-secret"
-      #volumes:
-      #volumeMounts:
+      volumes:
+        - name: "home"
+          source:
+            type: "persistentVolumeClaim"
+            accessModes: "ReadWriteMany"
+            storageClassName: "nfs-client-lssthome-retain"
+            resources: "10Gi"
+      volumeMounts:
+        - containerPath: "/home"
+          volumeName: "home"
+
 proxy:
   ingress:
     annotations:
