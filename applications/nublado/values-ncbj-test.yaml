@@ -6,15 +6,15 @@ controller:
         registry: "registry.hub.docker.com"
         repository: "lsstsqre/sciplat-lab"
     lab:
-      initContainers:
-        - name: "inithome"
-          image:
-            repository: "ghcr.io/lsst-sqre/nublado-inithome"
-            tag: "8.9.2"
-          privileged: true
-          volumeMounts:
-            - containerPath: "/home"
-              volumeName: "home"
+      #initContainers:
+      #  - name: "inithome"
+      #    image:
+      #      repository: "ghcr.io/lsst-sqre/nublado-inithome"
+      #      tag: "8.9.2"
+      #    privileged: true
+      #    volumeMounts:
+      #      - containerPath: "/home"
+      #        volumeName: "home"
       #env: # TODO pgpass/buttler
       volumes:
         - name: "home"
