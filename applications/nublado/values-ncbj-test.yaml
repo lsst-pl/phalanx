@@ -34,7 +34,7 @@ controller:
             storageClassName: "nfs-client-lssdata-retain"
             resources:
               requests:
-                storage: 10000Gi
+                storage: 10Gi
       volumeMounts:
         - containerPath: "/home"
           volumeName: "home"
