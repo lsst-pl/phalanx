@@ -25,9 +25,21 @@ controller:
             resources:
               requests:
                 storage: 10Gi
+        # note/fixme: this is a workaround for tests - storage class is created to _always_ point to lsst_data, without
+        # differentiation depending on ns or pvc name
+        - name: "data"
+          source:
+            type: "persistentVolumeClaim"
+            accessModes: ["ReadOnlyMany"]
+            storageClassName: "nfs-client-lssdata-retain"
+            resources:
+              requests:
+                storage: 10000Gi
       volumeMounts:
         - containerPath: "/home"
           volumeName: "home"
+        - containerPath: "/data"
+          volumeName: "data"
 
 proxy:
   ingress:
