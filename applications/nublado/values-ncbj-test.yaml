@@ -24,7 +24,7 @@ controller:
             storageClassName: "nfs-client-lssthome-retain"
             resources:
               requests:
-                storage: 10Gi
+                storage: 100Gi
         # note/fixme: this is a workaround for tests - storage class is created to _always_ point to lsst_data, without
         # differentiation depending on ns or pvc name
         - name: "data"
