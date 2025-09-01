@@ -1,0 +1,12 @@
+#Removing cachemachine gafaelfawr moneypenny nublado-users nublado2 postgres squareone vault-secrets-operator
+name: "ncbj"
+fqdn: "rsp.cis.gov.pl"
+appOfAppsName: "science-platform"
+vaultUrl: "https://vault-vault.apps.okdpoz.cis.gov.pl"
+vaultPathPrefix: "secret/phalanx/ncbj"
+applications:
+  nublado: true
+  postgres: true
+  squareone: true
+  cert-manager: false
+  portal: false

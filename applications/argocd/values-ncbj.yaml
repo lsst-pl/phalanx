@@ -1,0 +1,14 @@
+argo-cd:
+  redis:
+    serviceAccount:
+      create: true
+      name: redis
+  configs:
+    cm:
+      url: "https://rsp.cis.gov.pl/argo-cd"
+  server:
+    ingress:
+      hostname: "rsp.cis.gov.pl"
+      tls: false
+  openshift:
+    enabled: true

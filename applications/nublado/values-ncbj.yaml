@@ -1,0 +1,55 @@
+controller:
+  config:
+    images:
+      source:
+        type: "docker"
+        registry: "registry.hub.docker.com"
+        repository: "lsstsqre/sciplat-lab"
+    lab:
+      #initContainers:
+      #  - name: "inithome"
+      #    image:
+      #      repository: "ghcr.io/lsst-sqre/nublado-inithome"
+      #      tag: "8.9.2"
+      #    privileged: true
+      #    volumeMounts:
+      #      - containerPath: "/home"
+      #        volumeName: "home"
+      #env: # TODO pgpass/buttler
+      volumes:
+        - name: "home"
+          source:
+            type: "persistentVolumeClaim"
+            accessModes: ["ReadWriteMany"]
+            storageClassName: "nfs-client-lssthome-retain"
+            resources:
+              requests:
+                storage: 100Gi
+        # note/fixme: this is a workaround for tests - storage class is created to _always_ point to lsst_data, without
+        # differentiation depending on ns or pvc name
+        - name: "data"
+          source:
+            type: "persistentVolumeClaim"
+            accessModes: ["ReadOnlyMany"]
+            storageClassName: "nfs-client-lsstdata-retain"
+            resources:
+              requests:
+                storage: 10Gi
+      volumeMounts:
+        - containerPath: "/home"
+          volumeName: "home"
+        - containerPath: "/data"
+          volumeName: "data"
+
+proxy:
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "50s"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "50s"
+      nginx.ingress.kubernetes.io/client-max-body-size: "50m"
+hub:
+  internalDatabase: true
+jupyterhub:
+  hub:
+    db:
+      upgrade: true

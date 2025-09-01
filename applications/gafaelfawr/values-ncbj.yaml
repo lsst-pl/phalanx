@@ -1,0 +1,56 @@
+redis:
+  persistence:
+    enabled: false
+config:
+  internalDatabase: true
+  oidcServer:
+    enabled: false
+  updateSchema: true # note: set it to false after bootstrap
+  github:
+    clientId: "Ov23li4lXleVdXDiDTqa"
+  initialAdmins:
+    - "fruboes"
+    - "tfruboes"
+    - "knawro"
+  groupMapping:
+  #  "admin:token":
+  #  "write:sasquatch":
+    "exec:admin":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+    "exec:internal-tools":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
+    "exec:notebook":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
+    "exec:portal":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
+    "read:image":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
+    "read:tap":
+      - github:
+          organization: "lsst-pl"
+          team: "admin"
+      - github:
+          organization: "lsst-pl"
+          team: "ncbj"
