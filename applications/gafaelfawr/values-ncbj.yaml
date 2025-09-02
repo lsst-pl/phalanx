@@ -7,7 +7,7 @@ config:
     enabled: false
   updateSchema: true # note: set it to false after bootstrap
   github:
-    clientId: "Ov23li4lXleVdXDiDTqa"
+    clientId: "1f936200994f9792ea82"
   initialAdmins:
     - "fruboes"
     - "tfruboes"
