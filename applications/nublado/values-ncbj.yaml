@@ -17,24 +17,16 @@ controller:
       #        volumeName: "home"
       #env: # TODO pgpass/buttler
       volumes:
-        - name: "home"
-          source:
-            type: "persistentVolumeClaim"
-            accessModes: ["ReadWriteMany"]
-            storageClassName: "nfs-client-lssthome-retain"
-            resources:
-              requests:
-                storage: 100Gi
-        # note/fixme: this is a workaround for tests - storage class is created to _always_ point to lsst_data, without
-        # differentiation depending on ns or pvc name
         - name: "data"
           source:
-            type: "persistentVolumeClaim"
-            accessModes: ["ReadOnlyMany"]
-            storageClassName: "nfs-client-lsstdata-retain"
-            resources:
-              requests:
-                storage: 10Gi
+            serverPath: "/tmp/mnt/okdpoz2/lsst/data"
+            server: "10.60.1.215"
+            type: "nfs"
+        - name: "home"
+          source:
+            serverPath: "/tmp/mnt/okdpoz2/lsst/home"
+            server: "10.60.1.215"
+            type: "nfs"
       volumeMounts:
         - containerPath: "/home"
           volumeName: "home"
