@@ -2,7 +2,7 @@
 name: "ncbj"
 fqdn: "rsp.cis.gov.pl"
 appOfAppsName: "science-platform"
-vaultUrl: "https://vault-vault.apps.okdpoz.cis.gov.pl"
+vaultUrl: "https://vault-vault.apps.okdpoz2.cis.gov.pl"
 vaultPathPrefix: "secret/phalanx/ncbj"
 applications:
   nublado: true
