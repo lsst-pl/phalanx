@@ -19,12 +19,12 @@ controller:
       volumes:
         - name: "data"
           source:
-            serverPath: "/tmp/mnt/okdpoz2/lsst/data"
+            serverPath: "/cloud/production/okdpoz2/lsst/data"
             server: "10.60.1.215"
             type: "nfs"
         - name: "home"
           source:
-            serverPath: "/tmp/mnt/okdpoz2/lsst/home"
+            serverPath: "/cloud/production/okdpoz2/lsst/home"
             server: "10.60.1.215"
             type: "nfs"
       volumeMounts:
