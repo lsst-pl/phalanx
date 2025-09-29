@@ -16,6 +16,7 @@ controller:
       #      - containerPath: "/home"
       #        volumeName: "home"
       #env: # TODO pgpass/buttler
+      pullSecret: "pull-secret"
       volumes:
         - name: "data"
           source:
