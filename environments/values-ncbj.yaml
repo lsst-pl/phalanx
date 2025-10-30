@@ -10,3 +10,4 @@ applications:
   squareone: true
   cert-manager: false
   portal: true
+  tap: true
