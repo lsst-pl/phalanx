@@ -34,7 +34,9 @@ spec:
           {{- end }}
           volumeMounts:
             - name: "data"
-              mountPath: "/var/lib/postgresql/data"
+              # note: should be /var/lib/postgresql/ instead of /var/lib/postgresql/data - otherwise we get the following error when running as non-root:
+              # fixing permissions on existing directory /var/lib/postgresql/data ... initdb: could not change permissions of directory "/var/lib/postgresql/data": Operation not permitted
+              mountPath: "/var/lib/postgresql"
       volumes:
         - name: "data"
           emptyDir: {}
