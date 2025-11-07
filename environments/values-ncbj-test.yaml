@@ -9,4 +9,5 @@ applications:
   postgres: true
   squareone: true
   cert-manager: false
-  portal: false
+  portal: true
+  tap: true
