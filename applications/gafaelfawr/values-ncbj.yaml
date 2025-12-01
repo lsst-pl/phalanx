@@ -6,8 +6,27 @@ config:
   oidcServer:
     enabled: false
   updateSchema: true # note: set it to false after bootstrap
-  github:
-    clientId: "1f936200994f9792ea82"
+  #github:
+  #  clientId: "1f936200994f9792ea82"
+  oidc:
+    clientId: "rsp"
+    audience: "rsp"
+    loginUrl: "https://rsp.cis.gov.pl/keycloak/realms/rsp/protocol/openid-connect/auth"
+    tokenUrl: "https://rsp.cis.gov.pl/keycloak/realms/rsp/protocol/openid-connect/token"
+    issuer: "https://rsp.cis.gov.pl/keycloak/realms/rsp"
+    scopes:
+      - "openid"
+    usernameClaim: "username"
+
+  ldap:
+    url: "ldap://ldap:10389"
+    userDn: "cn=admin,dc=ncbj,dc=gov"
+    userBaseDn: "ou=people,dc=ncbj,dc=gov"
+    uidAttr: "uidNumber"
+    gidAttr: "gidNumber"
+    groupBaseDn: "cn=groups,dc=ncbj,dc=gov"
+
+
   initialAdmins:
     - "fruboes"
     - "tfruboes"
