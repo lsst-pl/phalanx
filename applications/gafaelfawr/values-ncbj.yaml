@@ -16,7 +16,7 @@ config:
     issuer: "https://rsp.cis.gov.pl/keycloak/realms/rsp"
     scopes:
       - "openid"
-    usernameClaim: "username"
+    usernameClaim: "preferred_username"
 
   ldap:
     url: "ldap://ldap:10389"
