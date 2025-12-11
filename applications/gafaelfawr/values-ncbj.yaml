@@ -24,7 +24,7 @@ config:
     userBaseDn: "ou=people,dc=ncbj,dc=gov"
     uidAttr: "uidNumber"
     gidAttr: "gidNumber"
-    groupBaseDn: "cn=groups,dc=ncbj,dc=gov"
+    groupBaseDn: "ou=groups,dc=ncbj,dc=gov"
 
   initialAdmins:
     - "fruboes"
