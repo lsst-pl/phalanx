@@ -26,50 +26,29 @@ config:
     gidAttr: "gidNumber"
     groupBaseDn: "cn=groups,dc=ncbj,dc=gov"
 
-
   initialAdmins:
     - "fruboes"
     - "tfruboes"
     - "knawro"
+
   groupMapping:
-  #  "admin:token":
-  #  "write:sasquatch":
+    "admin:token":
+      - "rsp_admins"
+    "admin:jupyterlab":
+      - "rsp_admins"
     "exec:admin":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
+      - "rsp_admins"
     "exec:internal-tools":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-      - github:
-          organization: "lsst-pl"
-          team: "ncbj"
+      - "rsp_users"
     "exec:notebook":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-      - github:
-          organization: "lsst-pl"
-          team: "ncbj"
+      - "rsp_users"
     "exec:portal":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-      - github:
-          organization: "lsst-pl"
-          team: "ncbj"
+      - "rsp_users"
     "read:image":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-      - github:
-          organization: "lsst-pl"
-          team: "ncbj"
+      - "rsp_users"
     "read:tap":
-      - github:
-          organization: "lsst-pl"
-          team: "admin"
-      - github:
-          organization: "lsst-pl"
-          team: "ncbj"
+      - "rsp_users"
+    "write:files":
+      - "rsp_users"
+    "user:token":
+      - "rsp_users"
