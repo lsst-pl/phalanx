@@ -19,7 +19,7 @@ config:
     usernameClaim: "preferred_username"
 
   ldap:
-    url: "ldap://ldap.ldap-test.svc.cluster.local:10389"
+    url: "ldap://ldap.rsp-auth.svc.cluster.local:10389"
     userDn: "cn=admin,dc=ncbj,dc=gov"
     userBaseDn: "ou=people,dc=ncbj,dc=gov"
     uidAttr: "uidNumber"
