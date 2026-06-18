@@ -11,7 +11,7 @@ fullnameOverride: ""
 
 image:
   # -- Portal image to use
-  repository: "ipac/suit"
+  repository: "ghcr.io/lsst/suit"
 
   # -- Pull policy for the Portal image
   pullPolicy: "IfNotPresent"
@@ -49,13 +49,6 @@ tolerations: []
 # -- Affinity rules for the Portal pod
 affinity: {}
 
-# -- Security context for the Portal pod
-# @default -- See `values.yaml`
-securityContext:
-  runAsUser: 91
-  runAsGroup: 91
-  fsGroup: 91
-
 config:
   # -- If not null, display this alert to all users in a banner
   alertMessage: null
@@ -83,7 +76,7 @@ config:
   livetap: ""
 
   # -- Maximum number of recent TAP queries to show in history
-  tapHistoryLimit: "50"
+  tapHistoryLimit: "1000"
 
   # @default -- See documentation at `https://phalanx.lsst.io/applications/portal/volumes.html`
   volumes:
@@ -148,12 +141,12 @@ redis:
 global:
   # -- Base URL for the environment
   # @default -- Set by Argo CD
-  baseUrl: ""
+  baseUrl: null
 
   # -- Host name for ingress
   # @default -- Set by Argo CD
-  host: ""
+  host: null
 
   # -- Base path for Vault secrets
   # @default -- Set by Argo CD
-  vaultSecretsPath: ""
+  vaultSecretsPath: null

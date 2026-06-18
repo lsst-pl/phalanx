@@ -31,10 +31,13 @@ vaultUrl: "https://vault.lsst.cloud/"
 # @default -- None, must be set
 vaultPathPrefix: ""
 
-applications:
-  # -- Enable the alert-stream-broker application
-  alert-stream-broker: false
+# -- Whether to deploy workloads using Autopilot or Standard mode. If this is
+# null, the workloads will use the compute class that corresponds to the
+# cluster type. Here's an [example of setting an Autopilot compute
+# class](https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-classes-standard-clusters#built-in-class)
+defaultComputeClass: null
 
+applications:
   # -- Enable the argo-workflows application
   argo-workflows: false
 
@@ -50,6 +53,9 @@ applications:
 
   # -- Enable the butler application
   butler: false
+
+  # -- Enable the Butler writer application
+  butler-writer-service: false
 
   # -- Enable the calsys control system application
   calsys: false
@@ -76,6 +82,9 @@ applications:
   # -- Eanble the datalinker application
   datalinker: false
 
+  # -- Enable the docverse application
+  docverse: false
+
   # -- Enable the envsys control system application
   envsys: false
 
@@ -91,15 +100,15 @@ applications:
   # -- Enable the fastapi-bootcamp application
   fastapi-bootcamp: false
 
-  # -- Enable the flink application
-  flink: false
-
-  # -- Enable the fspurger application
-  fspurger: false
+  # -- Enable the fov-quicklook application
+  fov-quicklook: false
 
   # -- Enable the Gafaelfawr application. This is required by Phalanx since
   # most other applications use `GafaelfawrIngress`
   gafaelfawr: true
+
+  # -- Enable the gke application
+  gke: false
 
   # -- Enable the google-cloud-observability application
   google-cloud-observability: false
@@ -110,11 +119,21 @@ applications:
   # -- Enable the hoverdrive application
   hoverdrive: false
 
+  # -- Enable the muster application
+  muster: false
+
+  # -- Enable the prompt-pub application
+  prompt-pub: false
+
   # -- Enable the qserv-kafka application
   qserv-kafka: false
 
   # -- Enable the nvr-control application
   nvr-control: false
+
+  # -- Enable the Repertoire application. This provides service discovery for
+  # many other Phalanx applications, all of which assume that it is running.
+  repertoire: true
 
   # -- Enable the rubin-rag application
   rubin-rag: false
@@ -124,6 +143,9 @@ applications:
 
   # -- Enable the giftless application
   giftless: false
+
+  # -- Enable the herald application
+  herald: false
 
   # -- Enable the HiPS application
   hips: false
@@ -149,8 +171,8 @@ applications:
   # -- Enable the mobu application
   mobu: false
 
-  # -- Enable the monitoring application
-  monitoring: false
+  # -- Enable the mpsky application
+  mpsky: false
 
   # -- Enable the narrativelog application
   narrativelog: false
@@ -163,9 +185,6 @@ applications:
 
   # -- Enable the nublado application (v3 of the Notebook Aspect)
   nublado: false
-
-  # -- Enable the obsenv-management application
-  obsenv-management: false
 
   # -- Enable the obssys control system application
   obssys: false
@@ -184,6 +203,9 @@ applications:
 
   # -- Enable the portal application
   portal: false
+
+  # -- Enable the ppdbtap application
+  ppdbtap: false
 
   # -- Enable the in-cluster PostgreSQL server. Use of this server is
   # discouraged in favor of using infrastructure SQL, but will remain
@@ -205,15 +227,6 @@ applications:
   # -- Enable the prompt-keda-lsstcam application
   prompt-keda-lsstcam: false
 
-  # -- Enable the prompt-keda-lsstcamimsim application
-  prompt-keda-lsstcamimsim: false
-
-  # -- Enable the prompt-keda-lsstcomcam application
-  prompt-keda-lsstcomcam: false
-
-  # -- Enable the prompt-keda-lsstcomcamsim application
-  prompt-keda-lsstcomcamsim: false
-
   # -- Enable the prompt-redis application
   prompt-redis: false
 
@@ -225,6 +238,9 @@ applications:
 
   # -- Enable the rubin-too-producer application
   rubin-too-producer: false
+
+  # -- Enable the s3-file-notifications application
+  s3-file-notifications: false
 
   # -- Enable the s3proxy application
   s3proxy: false
@@ -268,6 +284,9 @@ applications:
   # -- Enable the strimzi-access-operator application
   strimzi-access-operator: false
 
+  # -- Enable the strimzi-registry-operator application
+  strimzi-registry-operator: false
+
   # -- Enable the tap application
   tap: false
 
@@ -279,6 +298,9 @@ applications:
 
   # -- Enable the times-square application
   times-square: false
+
+  # -- Enable the turborepo-cache application
+  turborepo-cache: false
 
   # -- Enable the unfurlbot application
   unfurlbot: false

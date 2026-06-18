@@ -1,2 +1,2 @@
-envEfd: base_efd
-cycleBranch: main
+envEfd: base
+cycleBranch: tickets/OSW-1385

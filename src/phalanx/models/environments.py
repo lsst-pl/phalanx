@@ -1,10 +1,8 @@
 """Pydantic models for Phalanx environments."""
 
-from __future__ import annotations
-
 from collections import defaultdict
 from enum import Enum
-from typing import Self
+from typing import Self, override
 
 from pydantic import (
     AnyHttpUrl,
@@ -24,6 +22,7 @@ from .secrets import Secret
 
 __all__ = [
     "ArgoCDDetails",
+    "ArgoCDRBAC",
     "ControlSystemConfig",
     "Environment",
     "EnvironmentBaseConfig",
@@ -260,6 +259,20 @@ class EnvironmentBaseConfig(BaseModel):
         description="Prefix of Vault paths, including the KV v2 mount point",
     )
 
+    default_compute_class: str | None = Field(
+        None,
+        title="Default compute class",
+        description=(
+            "Whether to deploy workloads using Autopilot or Standard mode. If"
+            " this is null, the workloads will use the compute class that"
+            " corresponds to the cluster type. Here's an [example of setting"
+            " an Autopilot compute class]"
+            "(https://docs.cloud.google.com/kubernetes-engine/docs/how-to/"
+            "autopilot-classes-standard-clusters"
+            "#select-autopilot-class-workload)"
+        ),
+    )
+
     control_system: ControlSystemConfig | None = None
 
     @field_validator("onepassword", mode="before")
@@ -371,6 +384,7 @@ class EnvironmentConfig(EnvironmentBaseConfig):
         ),
     )
 
+    @override
     @classmethod
     def __get_pydantic_json_schema__(
         cls, core_schema: CoreSchema, handler: GetJsonSchemaHandler

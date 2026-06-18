@@ -1,6 +1,9 @@
 config:
-  logLevel: "DEBUG"
   metrics:
+    enabled: true
+  sentry:
+    enabled: true
+  slack:
     enabled: true
   qservDatabaseUrl: "mysql+asyncmy://qsmaster@qserv-prod.slac.stanford.edu:4040/"
   qservRestSendApiVersion: false
@@ -10,3 +13,11 @@ resultWorker:
   autoscaling:
     minReplicas: 4
     maxReplicas: 50
+redis:
+  resources:
+    limits:
+      cpu: "1"
+      memory: "500Mi"
+    requests:
+      cpu: "10m"
+      memory: "200Mi"

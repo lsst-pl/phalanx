@@ -15,6 +15,8 @@ worker:
   # -- The number of requests to process before rebooting a worker.
   # If 0, workers process requests indefinitely.
   restart: 0
+  # -- Maximum time that a worker can process a next_visit request (seconds).
+  timeout: 900
   # -- When Kubernetes shuts down a pod, the time its workers have to abort processing and save intermediate results (seconds).
   grace_period: 45
 
@@ -47,6 +49,11 @@ instrument:
   # If `registry.centralRepoFile` is set, this URI points to a local redirect instead of the central repo itself.
   # @default -- Matches `centralRepo`
   readRepo: ""
+  # -- Number of parallel processes each worker can use for transfers to and from `centralRepo` and `readRepo`.
+  # In practice, this should be set based on expected server bandwidth.
+  transferScale: 3
+  # -- Optional config overrides for local butler repo.
+  localRepoConfig: ""
   # -- The average time to wait (in seconds) before retrying a failed connection to the shared repo.
   repoWait: 30
   # -- Dataset types to export.
@@ -56,10 +63,6 @@ cache:
   # -- The default number of datasets of each type to keep.
   # The pipeline only needs one of most dataset types (one bias, one flat, etc.), so this is roughly the number of visits that fit in the cache.
   baseSize: 3
-  # -- A factor by which to multiply `baseSize` for refcat datasets.
-  refcatsPerImage: 4
-  # -- A factor by which to multiply `baseSize` for templates and other patch-based datasets.
-  patchesPerImage: 4
 
 s3:
   # -- Bucket containing the incoming raw images
@@ -88,6 +91,10 @@ raw_microservice: ""
 # -- The URI to the MPSky ephemerides service.
 # Empty value is allowed, but its handling is undefined.
 mpSky_service: ""
+
+# -- The URI where IERS data has been pre-downloaded and cached for use by Prompt Processing.
+# If empty, Prompt Processing does not try to update IERS data.
+iers_cache: ""
 
 imageNotifications:
   # -- Hostname and port of the Kafka provider
@@ -134,6 +141,10 @@ sasquatch:
   # -- If set, this application's Vault secret must contain a `sasquatch_token` key containing the authentication token for `sasquatch.endpointUrl`.
   # Leave unset to attempt anonymous access.
   auth_env: true
+
+sattle:
+  # -- Base URI of the sattle service.  Leave blank if not used.
+  uri_base: ""
 
 keda:
   # -- Minimum number of replicas to start with.
@@ -191,7 +202,7 @@ initializer:
     suspend: false
 
   # -- Maximum time for a single attempt to initialize the central repo (seconds).
-  timeout: 120
+  timeout: 300
   # -- Maximum number of times to attempt initializing the central repo.
   # If the initializer fails, the PP service cannot run!
   retries: 6
@@ -203,6 +214,24 @@ initializer:
   # @default -- See the `values.yaml` file.
   podAnnotations: {}
 
+butler_writer:
+  # -- If false, pipeline outputs will be written directly to the central repo.
+  # If true, a Kafka message will be sent to a service to aggregate these writes instead.
+  # The init job writes directly to the central repo regardless of this setting.
+  enabled: false
+  # -- Address of Kafka broker where prompt processing output events will be
+  # written, for consumption by the Butler writer service.
+  # @default -- None, must be set
+  kafka_cluster: ""
+  # -- Username for Kafka broker where prompt processing output events will be
+  # written, for consumption by the Butler writer service.
+  # @default -- None, must be set
+  kafka_username: ""
+  # -- Kafka topic that prompt processing output events will be written to,
+  # for consumption by the Butler writer service.
+  # @default -- None, must be set
+  kafka_topic: ""
+
 # -- Override the base name for resources
 nameOverride: ""
 
@@ -213,6 +242,8 @@ debug:
   # -- Whether or not pipeline outputs should be exported to the central repo.
   # This flag does not turn off APDB writes or alert generation; those must be handled at the pipeline level or by setting up an alternative destination.
   exportOutputs: true
+  # -- Whether `dax_apdb` should run in debug mode and log metrics.
+  monitorDaxApdb: false
 
 
 # -- Kubernetes resource requests and limits

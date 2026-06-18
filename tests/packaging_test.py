@@ -1,6 +1,4 @@
-"""Test that the Python packaging metadata."""
-
-from __future__ import annotations
+"""Test the Python packaging metadata."""
 
 from phalanx import __version__
 

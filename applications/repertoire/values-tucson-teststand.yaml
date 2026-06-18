@@ -1,0 +1,10 @@
+config:
+  influxdbDatabases:
+    tucson_teststand_efd:
+      url: "https://tucson-teststand.lsst.codes/influxdb/"
+      database: "efd"
+      username: "efdreader"
+      passwordKey: "idfdev_efd-password"
+      schemaRegistry: "http://sasquatch-schema-registry.sasquatch:8081"
+      local: true
+  slackAlerts: true

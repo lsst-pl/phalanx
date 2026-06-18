@@ -1,0 +1,78 @@
+{{- if .Values.config.updateSchema -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "docverse-schema-update"
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  labels:
+    {{- include "docverse.labels" . | nindent 4 }}
+spec:
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "docverse.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: "schema-update"
+    spec:
+      {{- if .Values.cloudsql.enabled }}
+      serviceAccountName: "docverse"
+      {{- else }}
+      automountServiceAccountToken: false
+      {{- end }}
+      containers:
+        - name: "docverse"
+          command:
+            - "docverse-admin"
+            - "update-db-schema"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "all"
+            readOnlyRootFilesystem: true
+          envFrom:
+            - configMapRef:
+                name: "docverse"
+          env:
+            {{- include "docverse.envVars" . | nindent 12 }}
+            # Alembic-only job: never publish metrics. Override the shared
+            # configmap's METRICS_ENABLED so Configuration() builds the no-op
+            # metrics manager instead of a Kafka one (this job has no Kafka
+            # wiring and runs as a PreSync hook before the docverse-kafka
+            # secret is minted).
+            - name: "METRICS_ENABLED"
+              value: "false"
+      {{- if .Values.cloudsql.enabled }}
+      initContainers:
+        {{- include "docverse.cloudsqlSidecar" . | nindent 8 }}
+      {{- end }}
+      restartPolicy: "Never"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

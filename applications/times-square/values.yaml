@@ -96,11 +96,16 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-# -- Node selection rules for the times-square deployment pod
+  # -- Node selection rules for the times-square deployment pod
 nodeSelector: {}
 
 # -- Tolerations for the times-square deployment pod
-tolerations: []
+# @default -- Tolerate GKE arm64 taint
+tolerations:
+  - key: "kubernetes.io/arch"
+    operator: "Equal"
+    value: "arm64"
+    effect: "NoSchedule"
 
 # -- Affinity rules for the times-square deployment pod
 affinity: {}
@@ -138,7 +143,7 @@ config:
   enableGitHubApp: "False"
 
   # -- GitHub organizations that can sync repos to Times Square (comma-separated).
-  githubOrgs: "lsst,lsst-sqre,lsst-dm,lsst-ts,lsst-sitcom,lsst-pst"
+  githubOrgs: "lsst,lsst-sqre,lsst-dm,lsst-ts,lsst-so,lsst-pst"
 
   # -- Timeout for GitHub check runs in seconds
   githubCheckRunTimeout: "3600" # 1 hour
@@ -169,6 +174,20 @@ config:
     # -- Whether to run the nbstripout migration job as a dry-run only
     dryRun: false
 
+  renameGithubOwner:
+    # -- Whether to deploy the on-demand `rename-github-owner` Job to rewrite
+    # the `github_owner` column on pages after a GitHub org/user rename.
+    enabled: false
+
+    # -- Current `github_owner` value to rewrite (passed as `--old`).
+    old: "lsst-sitcom"
+
+    # -- Replacement `github_owner` value (passed as `--new`).
+    new: "lsst-so"
+
+    # -- Whether to run the rename-github-owner job as a dry-run only
+    dryRun: false
+
   worker:
     # -- Enable liveness checks for the arq queue
     enableLivenessCheck: true
@@ -183,23 +202,23 @@ cloudsql:
     repository: "gcr.io/cloudsql-docker/gce-proxy"
 
     # -- Cloud SQL Auth Proxy tag to use
-    tag: "1.37.7"
+    tag: "1.38.0"
 
     # -- Pull policy for Cloud SQL Auth Proxy images
     pullPolicy: "IfNotPresent"
 
-    # -- Resource requests and limits for Cloud SQL pod
-    # @default -- See `values.yaml`
-    resources:
-      limits:
-        cpu: "1"
-        memory: "4Gi"
-      requests:
-        cpu: "1m"
-        memory: "512Mi"
-
   # -- Instance connection name for a Cloud SQL PostgreSQL instance
   instanceConnectionName: ""
+
+  # -- Resource requests and limits for Cloud SQL pod
+  # @default -- See `values.yaml`
+  resources:
+    limits:
+      cpu: "1"
+      memory: "30Mi"
+    requests:
+      cpu: "1m"
+      memory: "15Mi"
 
   # -- The Google service account that has an IAM binding to the `times-square`
   # Kubernetes service accounts and has the `cloudsql.client` role
@@ -239,7 +258,12 @@ redis:
   nodeSelector: {}
 
   # -- Tolerations for the Redis pod
-  tolerations: []
+  # @default -- Tolerate GKE arm64 taint
+  tolerations:
+    - key: "kubernetes.io/arch"
+      operator: "Equal"
+      value: "arm64"
+      effect: "NoSchedule"
 
   # -- Affinity rules for the Redis pod
   affinity: {}

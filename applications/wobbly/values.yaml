@@ -21,27 +21,6 @@ config:
   # @default -- None, must be set if `cloudsql.enabled` is false
   databaseUrl: null
 
-  # -- Logging level
-  logLevel: "INFO"
-
-  # -- Logging profile (`production` for JSON, `development` for
-  # human-friendly)
-  logProfile: "production"
-
-  # -- URL path prefix
-  pathPrefix: "/wobbly"
-
-  # -- Services allowed to use Wobbly for their backend
-  # @default -- See `values.yaml`
-  services:
-    - "vo-cutouts"
-
-  # -- Whether to send Slack alerts for unexpected failures
-  slackAlerts: true
-
-  # -- Whether to automatically update the Wobbly database schema
-  updateSchema: false
-
   metrics:
     # -- Whether to enable sending metrics
     enabled: false
@@ -63,6 +42,31 @@ config:
       # -- Suffix to add to all registered subjects. This is sometimes useful
       # for experimentation during development.
       suffix: ""
+
+  # -- Logging level
+  logLevel: "INFO"
+
+  # -- Logging profile (`production` for JSON, `development` for
+  # human-friendly)
+  logProfile: "production"
+
+  # -- URL path prefix
+  pathPrefix: "/wobbly"
+
+  sentry:
+    # -- Whether to enable the Sentry integration
+    enabled: false
+
+  # -- Services allowed to use Wobbly for their backend
+  # @default -- See `values.yaml`
+  services:
+    - "vo-cutouts"
+
+  # -- Whether to send Slack alerts for unexpected failures
+  slackAlerts: true
+
+  # -- Whether to automatically update the Wobbly database schema
+  updateSchema: false
 
 ingress:
   # -- Additional annotations for the ingress rule
@@ -88,7 +92,16 @@ resources:
     memory: "150Mi"
 
 # -- Tolerations for the wobbly deployment pod
-tolerations: []
+# @default -- TolerateGKE amd64 and arm64 taints
+tolerations:
+  - key: "kubernetes.io/arch"
+    operator: "Equal"
+    value: "amd64"
+    effect: "NoSchedule"
+  - key: "kubernetes.io/arch"
+    operator: "Equal"
+    value: "arm64"
+    effect: "NoSchedule"
 
 cloudsql:
   # -- Enable the Cloud SQL Auth Proxy sidecar, used with Cloud SQL databases
@@ -100,7 +113,7 @@ cloudsql:
     repository: "gcr.io/cloudsql-docker/gce-proxy"
 
     # -- Cloud SQL Auth Proxy tag to use
-    tag: "1.37.7"
+    tag: "1.38.0"
 
     # -- Pull policy for Cloud SQL Auth Proxy images
     pullPolicy: "IfNotPresent"
@@ -119,10 +132,10 @@ cloudsql:
   resources:
     limits:
       cpu: "1"
-      memory: "20Mi"
+      memory: "30Mi"
     requests:
       cpu: "5m"
-      memory: "7Mi"
+      memory: "15Mi"
 
 maintenance:
   # -- Cron schedule string for Wobbly periodic maintenance (in UTC)
@@ -139,9 +152,9 @@ maintenance:
 # The following will be set by parameters injected by Argo CD and should not
 # be set in the individual environment values files.
 global:
-  # -- Base URL for the environment
+  # -- Name of the Phalanx environment
   # @default -- Set by Argo CD
-  baseUrl: null
+  environmentName: null
 
   # -- Host name for ingress
   # @default -- Set by Argo CD

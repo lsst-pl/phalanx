@@ -7,15 +7,15 @@ nublado3_db:
 gafaelfawr_db:
   user: 'gafaelfawr'
   db: 'gafaelfawr'
-grafana_db:
-  user: 'grafana'
-  db: 'grafana'
 timessquare_db:
   user: "timessquare"
   db: "timessquare"
 exposure_checker_db:
   user: "expchecker"
   db: "expchecker"
+grafana_db:
+  user: "grafana"
+  db: "grafana"
 
 postgresVolumeSize: "10Gi"
 postgresStorageClass: 'wekafs--sdf-k8s01'

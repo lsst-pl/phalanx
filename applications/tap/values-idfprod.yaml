@@ -1,22 +1,9 @@
 cadc-tap:
-  tapSchema:
-    image:
-      repository: "lsstsqre/tap-schema-idfprod-tap"
-
   replicaCount: 4
 
   config:
-    qserv:
-      host: "qserv-prod.slac.stanford.edu:4040"
-      jdbcParams: "?enabledTLSProtocols=TLSv1.3"
-      passwordEnabled: true
-
     kafka:
-      bootstrapServer: "sasquatch-kafka-bootstrap.lsst.cloud:9094"
-      schemaRegistry:
-        url: "https://data.lsst.cloud/schema-registry/"
-      auth:
-        enabled: true
+      enabled: true
 
     urlRewrite:
       enabled: true

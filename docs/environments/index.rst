@@ -23,16 +23,17 @@ To learn more about operating a Phalanx environment, see the :doc:`/admin/index`
    roundtable-prod/index
    summit/index
    tacc-spherex/index
+   tacc-spherex-dev/index
    tucson-teststand/index
    ukidacdev/index
    ukidacprod/index
+   usdf-alert/index
    usdf-cm/index
    usdf-cm-dev/index
    usdfdev/index
    usdfint/index
    usdfprod/index
    usdf-rapid-analysis/index
-   usdfdev-alert-stream-broker/index
    usdfdev-prompt-processing/index
    usdfprod-prompt-processing/index
    usdf-tel-rsp/index

@@ -11,6 +11,9 @@ cloudsql:
 config:
   slackAlerts: false
 
+  sentry:
+    enabled: true
+
   github:
     clientId: "8ab507cd4b023d77a216"
 
@@ -18,13 +21,27 @@ config:
   oidcServer:
     enabled: true
 
+  # Enable metrics reporting.
+  metrics:
+    enabled: true
+
   knownScopes:
     "write:git-lfs": >-
       Can write objects to Git LFS storage bucket
     "read:checkerboard": >-
       Can query Checkerboard for user mappings
+    "exec:internal-tools": >-
+      Can use internal APIs
+    "write:turborepo": >-
+      Can read and write to the Turborepo remote cache
+    "exec:docverse": >-
+      Can access Docverse's as a user in an organization
 
   groupMapping:
+    "admin:userinfo":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
     "exec:admin":
       - github:
           organization: "lsst-sqre"
@@ -36,6 +53,9 @@ config:
       - github:
           organization: "lsst"
           team: "simulations"
+      - github:
+          organization: "lsst"
+          team: "cst"
     "read:checkerboard":
       - github:
           organization: "lsst-sqre"
@@ -43,7 +63,18 @@ config:
       - github:
           organization: "lsst-sqre"
           team: "friends"
-
+    "exec:internal-tools":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
+    "write:turborepo":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
+    "exec:docverse":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
 
   initialAdmins:
     - "afausti"

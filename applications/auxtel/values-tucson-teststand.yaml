@@ -5,10 +5,10 @@ ataos:
   resources:
     limits:
       cpu: 450m
-      memory: 1200Mi
+      memory: 1024Mi
     requests:
       cpu: 45m
-      memory: 400Mi
+      memory: 420Mi
 
 atbuilding-sim:
   enabled: true
@@ -20,10 +20,10 @@ atbuilding-sim:
   resources:
     limits:
       cpu: 120m
-      memory: 396Mi
+      memory: 350Mi
     requests:
       cpu: 12m
-      memory: 132Mi
+      memory: 170Mi
 
 atdome-sim:
   enabled: true
@@ -35,10 +35,10 @@ atdome-sim:
   resources:
     limits:
       cpu: 170m
-      memory: 396Mi
+      memory: 320Mi
     requests:
       cpu: 17m
-      memory: 132Mi
+      memory: 160Mi
 
 atdometrajectory:
   image:
@@ -84,15 +84,15 @@ athexapod-sim:
   resources:
     limits:
       cpu: 90m
-      memory: 396Mi
+      memory: 320Mi
     requests:
-      cpu: 9m
-      memory: 132Mi
+      cpu: 10m
+      memory: 160Mi
 
 atmcs-sim:
   enabled: true
   image:
-    repository: ts-dockerhub.lsst.org/atmcs_sim
+    repository: ts-dockerhub.lsst.org/atmcs
     pullPolicy: Always
   env:
     RUN_ARG: --simulate
@@ -109,11 +109,13 @@ atoods:
     repository: ts-dockerhub.lsst.org/atoods
     pullPolicy: Always
   env:
-    DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
     CTRL_OODS_CONFIG_FILE: /etc/atoods.yaml
+    LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.tu.lsst.org
+    AWS_SHARED_CREDENTIALS_FILE: /home/saluser/.lsst/aws-credentials.ini
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
   s3Credentials:
   - lfa-credentials.ini
+  - oods-latiss-credentials.ini
   butlerSecret:
     containerPath: &bs-cp /home/saluser/.lsst
     dbUser: oods
@@ -122,94 +124,65 @@ atoods:
     containerPath: *bs-cp
     filenames:
     - *bs-fn
-  nfsMountpoint:
-  - name: auxtel-gen3-butler
-    containerPath: /repo/LATISS
-    readOnly: false
-    server: nfs-auxtel.tu.lsst.org
-    serverPath: /auxtel/repo/LATISS
-  - name: auxtel-oods-data
-    containerPath: /data
-    readOnly: false
-    server: nfs-auxtel.tu.lsst.org
-    serverPath: /auxtel
   resources:
     limits:
       cpu: 400m
-      memory: 1320Mi
+      memory: 1000Mi
     requests:
       cpu: 40m
-      memory: 440Mi
+      memory: 480Mi
   configfile:
     path: /etc
     filename: atoods.yaml
     content: |
-      defaultInterval: &interval
+      default_interval: &interval
           days: 0
           hours: 0
           minutes: 0
           seconds: 0
 
-      ingesterClass:
-          ingesterType: lsst.ctrl.oods.fileIngester
-          ingesterName: FileIngester
-      ingester:
-          imageStagingDirectory: /data/staging/auxtel/oods
-          butlers:
-              - butler:
-                  instrument: lsst.obs.lsst.Latiss
-                  class:
-                      import: lsst.ctrl.oods.fileAttendant
-                      name: FileAttendant
-                  stagingDirectory : /data/lsstdata/TTS/auxtel/oods/gen3butler/raw
-                  badFileDirectory: /data/lsstdata/TTS/auxtel/oods/gen3butler/badfiles
-                  repoDirectory : /repo/LATISS
-                  collections:
-                      - LATISS/raw/all
-                  cleanCollections:
-                      - collection: LATISS/raw/all
-                        filesOlderThan:
+      message_ingester:
+          kafka:
+              brokers:
+                  - sasquatch-kafka-bootstrap.sasquatch:9092
+              topics:
+                - lsst.s3.raw.latiss
+              group_id: ATOODS-S3
+              max_messages: 250
+
+          butler:
+              instrument: lsst.obs.lsst.Latiss
+              repo_directory : s3://butler@rubinobs-butler-latiss
+              s3profile: butler
+              collections:
+                  - LATISS/raw/all
+              collection_cleaner:
+                  collections_to_clean:
+                      - collections:
+                          - LATISS/raw/all
+                        files_older_than:
                             <<: *interval
                             days: 30
-                  scanInterval:
+                      - collections:
+                          - LATISS/runs/quickLook
+                        files_older_than:
+                            <<: *interval
+                            days: 2
+                  cleaning_interval:
                       <<: *interval
                       hours: 1
-
-          batchSize: 20
-          scanInterval:
-              <<: *interval
-              seconds: 2
-
-      cacheCleaner:
-          # ONLY clean out empty directories here, never files
-          clearEmptyDirectories:
-              - /data/lsstdata/TTS/auxtel/oods/gen3butler/raw
-          # clean out empty directories and old files from these directories
-          clearEmptyDirectoriesAndOldFiles:
-              - /data/lsstdata/TTS/auxtel/oods/gen3butler/badfiles
-              - /data/staging/auxtel/oods
-              - /data/staging/auxtel/forwarder
-          scanInterval:
-              <<: *interval
-              hours: 1
-          filesOlderThan:
-              <<: *interval
-              days: 31
-          directoriesEmptyForMoreThan:
-              <<: *interval
-              days: 2
 
 atpneumatics-sim:
   enabled: true
   image:
-    repository: ts-dockerhub.lsst.org/at_pneumatics_sim
+    repository: ts-dockerhub.lsst.org/at_pneumatics
     pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
     limits:
       cpu: 120m
-      memory: 396Mi
+      memory: 350Mi
     requests:
       cpu: 12m
       memory: 132Mi
@@ -239,7 +212,7 @@ atspectrograph-sim:
   resources:
     limits:
       cpu: 120m
-      memory: 540Mi
+      memory: 400Mi
     requests:
       cpu: 12m
       memory: 180Mi

@@ -1,3 +1,19 @@
+automatic-transfer-switch-ess309-sim:
+  enabled: true
+  classifier: ess309
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 309 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 180Mi
+    limits:
+      cpu: 190m
+      memory: 360Mi
+
 auxtel-ess201-sim:
   enabled: true
   classifier: ess201
@@ -25,26 +41,26 @@ auxtel-ess202-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 320Mi
 
-auxtel-ess203-sim:
+auxtel-ess308-sim:
   enabled: true
-  classifier: ess203
+  classifier: ess308
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 203 --simulate
+    RUN_ARG: 308 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 320Mi
 
 auxtel-ess204-sim:
   enabled: true
@@ -57,10 +73,10 @@ auxtel-ess204-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 320Mi
 
 calibhill-ess301-sim:
   enabled: true
@@ -73,10 +89,10 @@ calibhill-ess301-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 360Mi
 
 camera-ess111-sim:
   enabled: true
@@ -89,10 +105,10 @@ camera-ess111-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 320Mi
 
 cleanroom-ess109-sim:
   enabled: true
@@ -105,10 +121,10 @@ cleanroom-ess109-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 320Mi
 
 dimm1-sim:
   enabled: true
@@ -119,11 +135,11 @@ dimm1-sim:
     RUN_ARG: 1 --simulate
   resources:
     requests:
-      cpu: 23m
-      memory: 107Mi
+      cpu: 25m
+      memory: 256Mi
     limits:
       cpu: 230m
-      memory: 1070Mi
+      memory: 512Mi
 
 dimm2-sim:
   enabled: true
@@ -134,11 +150,11 @@ dimm2-sim:
     RUN_ARG: 2 --simulate
   resources:
     requests:
-      cpu: 23m
-      memory: 107Mi
+      cpu: 26m
+      memory: 240Mi
     limits:
       cpu: 230m
-      memory: 1070Mi
+      memory: 480Mi
 
 dream-sim:
   enabled: true
@@ -155,11 +171,11 @@ dream-sim:
     key: aws-secret-access-key
   resources:
     limits:
-      cpu: 100m
-      memory: 300Mi
+      cpu: 200m
+      memory: 320Mi
     requests:
-      cpu: 10m
-      memory: 96Mi
+      cpu: 70m
+      memory: 160Mi
 
 dsm1-sim:
   enabled: true
@@ -172,10 +188,10 @@ dsm1-sim:
   resources:
     requests:
       cpu: 14m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 140m
-      memory: 900Mi
+      memory: 320Mi
 
 dsm2-sim:
   enabled: true
@@ -188,10 +204,10 @@ dsm2-sim:
   resources:
     requests:
       cpu: 10m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 100m
-      memory: 900Mi
+      memory: 320Mi
 
 eas-sim:
   enabled: true
@@ -202,11 +218,11 @@ eas-sim:
     RUN_ARG: --simulate
   resources:
     limits:
-      cpu: 150m
-      memory: 375Mi
+      cpu: 750m
+      memory: "2Gi"
     requests:
-      cpu: 15m
-      memory: 125Mi
+      cpu: 150m
+      memory: 300Mi
 
 epm-ess303-sim:
   enabled: true
@@ -219,10 +235,10 @@ epm-ess303-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 360Mi
 
 epm-generator-ess305-sim:
   enabled: true
@@ -234,11 +250,11 @@ epm-generator-ess305-sim:
     RUN_ARG: 305 --simulate
   resources:
     requests:
-      cpu: 19m
-      memory: 90Mi
+      cpu: 50m
+      memory: 160Mi
     limits:
-      cpu: 190m
-      memory: 900Mi
+      cpu: 250m
+      memory: 320Mi
 
 epm-generator-ess306-sim:
   enabled: true
@@ -250,11 +266,74 @@ epm-generator-ess306-sim:
     RUN_ARG: 306 --simulate
   resources:
     requests:
+      cpu: 50m
+      memory: 160Mi
+    limits:
+      cpu: 250m
+      memory: 320Mi
+
+hvac-sim:
+  enabled: true
+  image:
+    repository: ts-dockerhub.lsst.org/hvac
+    pullPolicy: Always
+  env:
+    RUN_ARG: --state enabled --simulate
+  resources:
+    requests:
+      cpu: 160m
+      memory: 200Mi
+    limits:
+      cpu: 1
+      memory: 2000Mi
+
+louver-h1-ess441-sim:
+  enabled: true
+  classifier: ess441
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 441 --simulate
+  resources:
+    requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
+
+louver-h1h2-ess442-sim:
+  enabled: true
+  classifier: ess442
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 442 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
+
+louver-h2-ess443-sim:
+  enabled: true
+  classifier: ess443
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 443 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
 
 m1m3-ess113-sim:
   enabled: true
@@ -267,10 +346,10 @@ m1m3-ess113-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 m1m3-ess114-sim:
   enabled: true
@@ -283,10 +362,10 @@ m1m3-ess114-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 m1m3-ess115-sim:
   enabled: true
@@ -299,10 +378,10 @@ m1m3-ess115-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 m1m3-ess116-sim:
   enabled: true
@@ -315,10 +394,10 @@ m1m3-ess116-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 m1m3-ess117-sim:
   enabled: true
@@ -331,10 +410,10 @@ m1m3-ess117-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 m2-ess106-sim:
   enabled: true
@@ -347,10 +426,10 @@ m2-ess106-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 m2-ess112-sim:
   enabled: true
@@ -363,90 +442,90 @@ m2-ess112-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
-mtdome-ess107-sim:
+mtdome-ess404-sim:
   enabled: true
-  classifier: ess107
+  classifier: ess404
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 107 --simulate
+    RUN_ARG: 404 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
-mtdome-ess108-sim:
+mtdome-ess405-sim:
   enabled: true
-  classifier: ess108
+  classifier: ess405
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 108 --simulate
+    RUN_ARG: 405 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
-mtdome-ess118-sim:
+partsens-ess127-sim:
   enabled: true
-  classifier: ess118
+  classifier: ess127
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 118 --simulate
+    RUN_ARG: 127 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 540Mi
 
-mtdome-ess119-sim:
+partsens-ess128-sim:
   enabled: true
-  classifier: ess119
+  classifier: ess128
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 119 --simulate
+    RUN_ARG: 128 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 540Mi
 
-mtdome-ess120-sim:
+partsens-ess129-sim:
   enabled: true
-  classifier: ess120
+  classifier: ess129
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 120 --simulate
+    RUN_ARG: 129 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 540Mi
 
 ringss-ess304-sim:
   enabled: true
@@ -459,42 +538,106 @@ ringss-ess304-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 360Mi
 
-tma-ess001-sim:
+tea-ess123-sim:
   enabled: true
-  classifier: ess1
+  classifier: ess123
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 1 --simulate
+    RUN_ARG: 123 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 540Mi
 
-tma-ess002-sim:
+tea-ess124-sim:
   enabled: true
-  classifier: ess2
+  classifier: ess124
   image:
     repository: ts-dockerhub.lsst.org/ess
     pullPolicy: Always
   env:
-    RUN_ARG: 2 --simulate
+    RUN_ARG: 124 --simulate
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 180Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 540Mi
+
+tea-ess125-sim:
+  enabled: true
+  classifier: ess125
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 125 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 180Mi
+    limits:
+      cpu: 190m
+      memory: 540Mi
+
+tea-ess126-sim:
+  enabled: true
+  classifier: ess126
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 126 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 180Mi
+    limits:
+      cpu: 190m
+      memory: 540Mi
+
+tma-ess121-sim:
+  enabled: true
+  classifier: ess121
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 121 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
+
+tma-ess122-sim:
+  enabled: true
+  classifier: ess122
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 122 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
 
 tma-ess104-sim:
   enabled: true
@@ -507,10 +650,10 @@ tma-ess104-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 200Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 600Mi
 
 tma-ess105-sim:
   enabled: true
@@ -523,10 +666,10 @@ tma-ess105-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
 
 tma-ess110-sim:
   enabled: true
@@ -539,10 +682,42 @@ tma-ess110-sim:
   resources:
     requests:
       cpu: 19m
-      memory: 90Mi
+      memory: 160Mi
     limits:
       cpu: 190m
-      memory: 900Mi
+      memory: 480Mi
+
+ups-server-room1-ess310-sim:
+  enabled: true
+  classifier: ess310
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 310 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 180Mi
+    limits:
+      cpu: 190m
+      memory: 360Mi
+
+ups-server-room2-ess311-sim:
+  enabled: true
+  classifier: ess311
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+    pullPolicy: Always
+  env:
+    RUN_ARG: 311 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 180Mi
+    limits:
+      cpu: 190m
+      memory: 360Mi
 
 weatherforecast:
   image:
@@ -555,8 +730,8 @@ weatherforecast:
     key: meteoblue-api-key
   resources:
     requests:
-      cpu: 9m
-      memory: 95Mi
+      cpu: 100m
+      memory: 250Mi
     limits:
-      cpu: 90m
-      memory: 950Mi
+      cpu: 500m
+      memory: 512Mi

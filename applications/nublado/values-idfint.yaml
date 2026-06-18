@@ -1,18 +1,22 @@
+sentry:
+  enabled: true
 controller:
   googleServiceAccount: "nublado-controller@science-platform-int-dc5d.iam.gserviceaccount.com"
   slackAlerts: true
   config:
     dropdownMenu:
       release:
-        cutoffVersion: "27.0.0"
+        cutoffVersion: "29.0.0"
       weekly:
         number: 78
       daily:
         number: 25
       releaseCandidate:
-        cutoffVersion: "28.0.0"
+        cutoffVersion: "29.2.1"
       experimental:
         age: "3w"
+    fsadmin:
+      mountPrefix: "/mnt/user-filesystems"
     fileserver:
       enabled: true
       nodeSelector:
@@ -50,35 +54,44 @@ controller:
         TUTORIAL_DATA: "/rubin/cst_repos/tutorial-notebooks/data"
         TUTORIAL_NOTEBOOKS_CACHE_DIR: "/rubin/cst_repos/tutorial-notebooks"
       initContainers:
-        - name: "inithome"
-          image:
-            repository: "us-central1-docker.pkg.dev/rubin-shared-services-71ec/sciplat/inithome"
-            tag: "8.9.2"
-          privileged: true
-          volumeMounts:
-            - containerPath: "/home"
-              volumeName: "home"
-        - name: "landingpage"
-          image:
-            repository: "us-central1-docker.pkg.dev/rubin-shared-services-71ec/sciplat/rsp-landing-page-provisioner"
-            tag: "0.9.3"
-          volumeMounts:
-            - containerPath: "/home"
-              volumeName: "home"
-            - containerPath: "/rubin"
-              volumeName: "rubin"
       nodeSelector:
         node_pool: "user-lab-pool"
+      secrets:
+        - secretName: "nublado-lab-secret"
+          secretKey: "rubin-epo-cit-sci-pipeline.json"
       sizes:
         - size: "small"
-          cpu: 1.0
-          memory: "4Gi"
+          resources:
+            limits:
+              cpu: 1.0
+              memory: "8Gi"
+            requests:
+              cpu: 0.125
+              memory: "1Gi"
         - size: "large"
-          cpu: 4.0
-          memory: "16Gi"
+          resources:
+            limits:
+              cpu: 4.0
+              memory: "32Gi"
+            requests:
+              cpu: 0.5
+              memory: "4Gi"
         - size: "huge"
-          cpu: 8.0
-          memory: "32Gi"
+          resources:
+            limits:
+              cpu: 8.0
+              memory: "64Gi"
+            requests:
+              cpu: 1.0
+              memory: "8Gi"
+        - size: "gargantuan"
+          resources:
+            limits:
+              cpu: 15.0
+              memory: "120Gi"
+            requests:
+              cpu: 1.875
+              memory: "40Gi"
       tolerations:
         - key: "nublado.lsst.io/permitted"
           operator: "Exists"
@@ -114,6 +127,8 @@ hub:
   landingPage: "/lab/tree/notebooks/tutorials/welcome.md"
 
 jupyterhub:
+  cull:
+    timeout: 90000 # 25hrs
   hub:
     config:
       JupyterHub:
@@ -123,24 +138,40 @@ jupyterhub:
     db:
       url: "postgresql://nublado@cloud-sql-proxy.nublado/nublado"
       upgrade: true
-  proxy:
-    chp:
-      image:
-        tag: "5.0.1"
+
+purger:
+  enabled: true
+  schedule: "27 05 * * 0"  # Sunday morning, 12:27 AM (UTC-5)
+  volumeName: "deleted-sundays"
+  policy:
+    directories:
+      - path: /purge
+        threshold: 1GiB
+        # We're going to try purging only those files with ctimes more
+        # than 30 minutes before the run.  This may help with the case
+        # of mobu flocks getting files yanked out from under them.
+        intervals:
+          large:
+            creationInterval: 30m
+          small:
+            creationInterval: 30m
 
 cronjob:
   tutorials:
     enabled: true
+    gitTarget: "/rubin/cst_repos/tutorial-notebooks"
     targetVolume:
       mountPath: "/rubin"
-      path: "/rubin-share"
-      server: "10.91.240.5"
+      volumeName: "rubin"
+    gid: 2000004
   artifacts:
     enabled: true
+    gitTarget: "/rubin/cst_repos/tutorial-notebooks-data"
     targetVolume:
       mountPath: "/rubin"
-      path: "/rubin-share"
-      server: "10.91.240.5"
+      volumeName: "rubin"
+    gid: 2000004
+
 cloudsql:
   enabled: true
   instanceConnectionName: "science-platform-int-dc5d:us-central1:science-platform-int-8f439af2"

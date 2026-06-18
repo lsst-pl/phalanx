@@ -4,14 +4,17 @@ Things that arguably could be configurable but haven't yet been made into
 actual configuration options.
 """
 
-from __future__ import annotations
-
 from datetime import timedelta
 
 __all__ = [
+    "GOOGLE_CLOUD_CERT_MANAGER_FIREWALL_RULE",
+    "GOOGLE_CLOUD_RUN_ID_LABEL",
     "HELM_DOCLINK_ANNOTATION",
     "ONEPASSWORD_ENCODED_WARNING",
+    "PREVIOUS_EXTERNAL_TRAFFIC_POLICY_ANNOTATION",
+    "PREVIOUS_LOAD_BALANCER_IP_ANNOTATION",
     "PULL_SECRET_DESCRIPTION",
+    "SASQUATCH_NAMESPACE",
     "VAULT_APPROLE_SECRET_TEMPLATE",
     "VAULT_TOKEN_SECRET_TEMPLATE",
     "VAULT_WRITE_TOKEN_LIFETIME",
@@ -65,3 +68,64 @@ VAULT_WRITE_TOKEN_LIFETIME = "3650d"
 
 VAULT_WRITE_TOKEN_WARNING_LIFETIME = timedelta(days=7)
 """Remaining lifetime at which to warn that a token is about to expire."""
+
+PREVIOUS_REPLICA_COUNT_ANNOTATION = "phalanx.lsst.org/previous-replica-count"
+"""Annotation that holds the original number of replicas.
+
+This annotation will be set when we do an explicit scale down during a recovery
+process.
+"""
+
+PREVIOUS_LOAD_BALANCER_IP_ANNOTATION = (
+    "phalanx.lsst.org/previous-load-balancer-ip"
+)
+"""Annotation that holds the original loadBalancerIP value for a Service.
+
+This annotation will be set when we recover an existing Phalanx cluster to a
+new cluster.
+"""
+
+PREVIOUS_EXTERNAL_TRAFFIC_POLICY_ANNOTATION = (
+    "phalanx.lsst.org/previous-external-traffic-policy"
+)
+"""Annotation that holds the original Service externalTrafficPolicy value.
+
+When we convert a LoadBalancer service to a ClusterIP service, then back to a
+LoadBalancer service, spec.externalTrafficPolicy always gets set to "Cluster",
+even if it was set to "Local" originally.
+"""
+
+GKE_LOAD_BALANCER_SERVICE_FINALIZERS = [
+    "service.kubernetes.io/load-balancer-cleanup",
+    "gke.networking.io/l4-netlb-v1",
+]
+"""Finalizers on a GKE Service resource when the service has an ingress."""
+
+GOOGLE_CLOUD_RUN_ID_LABEL = "phalanx-run-id"
+"""The label to apply to Google Cloud resources created by the Phalanx CLI."""
+
+SASQUATCH_NAMESPACE = "sasquatch"
+"""The namespace of the sasquatch installation in a Phalanx cluster."""
+
+SASQUATCH_KAFKA_NAME = "sasquatch"
+"""The name of the Sasquatch Strimzi Kafka instance in a Phalanx cluster."""
+
+SASQUATCH_BROKER_PVC = "data-0-sasquatch-kafka-0"
+"""The name of a PVC associated with any Sasquatch Kafka broker.
+
+This is used to get the clusterId of a Sasquatch Strimzi cluster.
+"""
+
+GOOGLE_CLOUD_CERT_MANAGER_FIREWALL_RULE = "cert-manager-terraform"
+"""The name of the firewall rule in GCP that admits cert-manager traffic."""
+
+RECOVER_IGNORE_SERVICES = frozenset(["rubin-rag"])
+"""Ignore these Services when modifying static IPs during cluster recovery."""
+
+RECOVER_ARGOCD_APP_LIST_EXCLUDE = frozenset(
+    ["nublado-users", "nublado-fileservers", "ocps-uws-job"]
+)
+"""Ignore these ArgoCD apps because they contain no resources."""
+
+RECOVER_SCALE_WORKLOAD_EXCLUDE = frozenset(["argocd"])
+"""Don't scale down these workloads during cluster recovery."""

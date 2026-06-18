@@ -1,18 +1,22 @@
+sentry:
+  enabled: true
 controller:
   googleServiceAccount: "nublado-controller@science-platform-dev-7696.iam.gserviceaccount.com"
   slackAlerts: true
   config:
     dropdownMenu:
       release:
-        cutoffVersion: "27.0.0"
+        cutoffVersion: "29.2.0"
       weekly:
-        number: 78
+        number: 26
       daily:
-        number: 25
+        number: 5
       releaseCandidate:
-        cutoffVersion: "28.0.0"
+        cutoffVersion: "29.2.1"
       experimental:
-        age: "3w"
+        age: "1w"
+    fsadmin:
+      mountPrefix: "/mnt/user-filesystems"
     logLevel: "DEBUG"
     fileserver:
       enabled: true
@@ -40,24 +44,6 @@ controller:
         TMPDIR: "/tmp"
         TUTORIAL_DATA: "/rubin/cst_repos/tutorial-notebooks/data"
         TUTORIAL_NOTEBOOKS_CACHE_DIR: "/rubin/cst_repos/tutorial-notebooks"
-      initContainers:
-        - name: "inithome"
-          image:
-            repository: "us-central1-docker.pkg.dev/rubin-shared-services-71ec/sciplat/inithome"
-            tag: "8.9.2"
-          privileged: true
-          volumeMounts:
-            - containerPath: "/home"
-              volumeName: "home"
-        - name: "landingpage"
-          image:
-            repository: "us-central1-docker.pkg.dev/rubin-shared-services-71ec/sciplat/rsp-landing-page-provisioner"
-            tag: "0.9.3"
-          volumeMounts:
-            - containerPath: "/home"
-              volumeName: "home"
-            - containerPath: "/rubin"
-              volumeName: "rubin"
       nodeSelector:
         node_pool: "user-lab-pool"
       tolerations:
@@ -72,12 +58,12 @@ controller:
             type: "nfs"
         - name: "rubin"
           source:
-            serverPath: "/rubin-share"
+            serverPath: "/home-tiered-share/_reloc/rubin"
             server: "10.234.16.4"
             type: "nfs"
         - name: "deleted-sundays"
           source:
-            serverPath: "/deleted-weekly-share"
+            serverPath: "/home-tiered-share/_reloc/deleted-sundays"
             server: "10.234.16.4"
             type: "nfs"
       volumeMounts:
@@ -91,7 +77,6 @@ controller:
       enabled: true
 hub:
   useSubdomains: true
-  landingPage: "/lab/tree/notebooks/tutorials/welcome.md"
 
 jupyterhub:
   cull:
@@ -106,25 +91,39 @@ jupyterhub:
     db:
       upgrade: true
       url: "postgresql://nublado@cloud-sql-proxy.nublado/nublado"
-  proxy:
-    chp:
-      image:
-        tag: "5.0.1"
 
 cloudsql:
   enabled: true
   instanceConnectionName: "science-platform-dev-7696:us-central1:science-platform-dev-e9e11de2"
   serviceAccount: "nublado@science-platform-dev-7696.iam.gserviceaccount.com"
+purger:
+  enabled: true
+  volumeName: "deleted-sundays"
+  schedule: "19 05 * * 0"  # Sunday morning, 12:19 AM (UTC-5)
+  policy:
+    directories:
+      - path: /purge
+        threshold: 1GiB
+        # We're going to try purging only those files with ctimes more
+        # than 30 minutes before the run.  This may help with the case
+        # of mobu flocks getting files yanked out from under them.
+        intervals:
+          large:
+            creationInterval: 30m
+          small:
+            creationInterval: 30m
 cronjob:
-  artifacts:
-    enabled: true
-    targetVolume:
-      mountPath: "/rubin"
-      server: "10.234.16.4"
-      path: "/rubin-share"
   tutorials:
     enabled: true
+    gitTarget: "/rubin/cst_repos/tutorial-notebooks"
     targetVolume:
       mountPath: "/rubin"
-      server: "10.234.16.4"
-      path: "/rubin-share"
+      volumeName: "rubin"
+    gid: 2000003
+  artifacts:
+    enabled: true
+    gitTarget: "/rubin/cst_repos/tutorial-notebooks-data"
+    targetVolume:
+      mountPath: "/rubin"
+      volumeName: "rubin"
+    gid: 2000003

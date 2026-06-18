@@ -1,6 +1,5 @@
 strimzi-kafka:
   kafka:
-    version: "3.9.0"
     listeners:
       tls:
         enabled: true
@@ -15,15 +14,15 @@ strimzi-kafka:
         loadBalancerIP: "34.55.132.0"
         host: sasquatch-kafka-bootstrap.lsst.cloud
       brokers:
-        - broker: 3
-          loadBalancerIP: "34.122.37.250"
-          host: sasquatch-kafka-3.lsst.cloud
-        - broker: 4
-          loadBalancerIP: "34.72.131.177"
-          host: sasquatch-kafka-4.lsst.cloud
-        - broker: 5
-          loadBalancerIP: "34.72.103.157"
-          host: sasquatch-kafka-5.lsst.cloud
+        - broker: 0
+          loadBalancerIP: "35.192.187.249"
+          host: sasquatch-kafka-0.lsst.cloud
+        - broker: 1
+          loadBalancerIP: "34.29.173.204"
+          host: sasquatch-kafka-1.lsst.cloud
+        - broker: 2
+          loadBalancerIP: "34.123.107.123"
+          host: sasquatch-kafka-2.lsst.cloud
   users:
     telegraf:
       enabled: true
@@ -33,18 +32,23 @@ strimzi-kafka:
     enabled: true
     storage:
       size: 500Gi
-  registry:
-    ingress:
-      enabled: true
-      annotations:
-        nginx.ingress.kubernetes.io/rewrite-target: /$2
-      hostname: data.lsst.cloud
-      path: /schema-registry(/|$)(.*)
+
+schema-registry:
+  enabled: true
+  ingress:
+    enabled: true
 
 influxdb:
   ingress:
     enabled: false
     hostname: data.lsst.cloud
+  resources:
+    requests:
+      memory: 16Gi
+      cpu: 1
+    limits:
+      memory: 16Gi
+      cpu: 2
 
 customInfluxDBIngress:
   enabled: true
@@ -54,19 +58,11 @@ telegraf:
   enabled: true
   kafkaConsumers:
     example:
-      enabled: true
-      replicaCount: 1
-      database: "lsst.example"
-      tags: |
-        [ "band", "instrument" ]
-      timestamp_format: "unix_ms"
-      timestamp_field: "timestamp"
-      topicRegexps: |
-        [ "lsst.example" ]
+      enabled: false
+
 kafdrop:
   ingress:
     enabled: true
-    hostname: data.lsst.cloud
 
 chronograf:
   ingress:
@@ -89,14 +85,18 @@ app-metrics:
   enabled: true
   apps:
     - gafaelfawr
+    - herald
     - mobu
     - noteburst
     - nublado
     - qservkafka
+    - repertoire
+    - sia
     - wobbly
 
 backup:
   enabled: true
+  schedule: "0 5 * * *"
   persistence:
     size: 500Gi
     storageClass: standard

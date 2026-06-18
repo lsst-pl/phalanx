@@ -18,11 +18,15 @@ KEDA Prompt Processing instance for LATISS
 | prompt-keda.alerts.topic | string | `""` | Topic name where alerts will be sent |
 | prompt-keda.alerts.username | string | `""` | Username for sending alerts to the alert stream |
 | prompt-keda.apdb.config | string | None, must be set | URL to a serialized APDB configuration, or the "label:" prefix followed by the indexed name of such a config. |
+| prompt-keda.butler_writer.enabled | bool | `false` | If false, pipeline outputs will be written directly to the central repo. If true, a Kafka message will be sent to a service to aggregate these writes instead. The init job writes directly to the central repo regardless of this setting. |
+| prompt-keda.butler_writer.kafka_cluster | string | None, must be set | Address of Kafka broker where prompt processing output events will be written, for consumption by the Butler writer service. |
+| prompt-keda.butler_writer.kafka_topic | string | None, must be set | Kafka topic that prompt processing output events will be written to, for consumption by the Butler writer service. |
+| prompt-keda.butler_writer.kafka_username | string | None, must be set | Username for Kafka broker where prompt processing output events will be written, for consumption by the Butler writer service. |
 | prompt-keda.cache.baseSize | int | `3` | The default number of datasets of each type to keep. The pipeline only needs one of most dataset types (one bias, one flat, etc.), so this is roughly the number of visits that fit in the cache. |
-| prompt-keda.cache.patchesPerImage | int | `6` | A factor by which to multiply `baseSize` for templates and other patch-based datasets. |
-| prompt-keda.cache.refcatsPerImage | int | `4` | A factor by which to multiply `baseSize` for refcat datasets. |
 | prompt-keda.debug.exportOutputs | bool | `true` | Whether or not pipeline outputs should be exported to the central repo. This flag does not turn off APDB writes or alert generation; those must be handled at the pipeline level or by setting up an alternative destination. |
+| prompt-keda.debug.monitorDaxApdb | bool | `false` | Whether `dax_apdb` should run in debug mode and log metrics. |
 | prompt-keda.fullnameOverride | string | `"prompt-keda-latiss"` | Override the full name for resources (includes the release name) |
+| prompt-keda.iers_cache | string | `""` | The URI where IERS data has been pre-downloaded and cached for use by Prompt Processing. If empty, Prompt Processing does not try to update IERS data. |
 | prompt-keda.image.pullPolicy | string | `IfNotPresent` in prod, `Always` in dev | Pull policy for the PP image |
 | prompt-keda.image.repository | string | `"ghcr.io/lsst-dm/prompt-service"` | Image to use in the PP deployment |
 | prompt-keda.image.tag | string | `"latest"` | Overrides the image tag whose default is the chart appVersion. |
@@ -40,9 +44,10 @@ KEDA Prompt Processing instance for LATISS
 | prompt-keda.initializer.resources.memoryLimit | string | `"1Gi"` | The maximum memory limit for the initializer. |
 | prompt-keda.initializer.resources.memoryRequest | string | `"512Mi"` | The minimum memory to request for the initializer. |
 | prompt-keda.initializer.retries | int | `6` | Maximum number of times to attempt initializing the central repo. If the initializer fails, the PP service cannot run! |
-| prompt-keda.initializer.timeout | int | `120` | Maximum time for a single attempt to initialize the central repo (seconds). |
+| prompt-keda.initializer.timeout | int | `300` | Maximum time for a single attempt to initialize the central repo (seconds). |
 | prompt-keda.instrument.centralRepo | string | None, must be set | URI to the shared repo used for pipeline inputs and outputs. If `registry.centralRepoFile` is set, this URI points to a local redirect instead of the central repo itself. |
 | prompt-keda.instrument.exportTypes | string | `"- .*"` | YAML-formatted list of regex patterns to specify the dataset types to export. |
+| prompt-keda.instrument.localRepoConfig | string | `""` | Optional config overrides for local butler repo |
 | prompt-keda.instrument.name | string | `"LATISS"` | The "short" name of the instrument |
 | prompt-keda.instrument.pipelines.main | string | None, must be set | YAML-formatted config describing which pipeline(s) should be run for which visits' raws. Fields are still in flux; see [the source code](https://github.com/lsst-dm/prompt_processing/blob/main/python/activator/config.py) for examples. |
 | prompt-keda.instrument.pipelines.preprocessing | string | None, must be set | YAML-formatted config describing which pipeline(s) should be run before which visits' raw arrival. |
@@ -50,6 +55,7 @@ KEDA Prompt Processing instance for LATISS
 | prompt-keda.instrument.readRepo | string | Matches `centralRepo` | Optional URI to a separate repo used for pipeline inputs. If `registry.centralRepoFile` is set, this URI points to a local redirect instead of the central repo itself. |
 | prompt-keda.instrument.repoWait | int | `30` | The average time to wait (in seconds) before retrying a failed connection to the shared repo. |
 | prompt-keda.instrument.skymap | string | `"latiss_v1"` | Skymap to use with the instrument |
+| prompt-keda.instrument.transferScale | int | `10` | Number of parallel processes each worker can use for transfers to and from `centralRepo` and `readRepo`. In practice, this should be set based on expected server bandwidth. |
 | prompt-keda.keda.failedJobsHistoryLimit | int | `5` | How many failed jobs should be kept available in Kubernetes. |
 | prompt-keda.keda.maxReplicaCount | int | `30` | Maximum number of replicas to scale to. |
 | prompt-keda.keda.minReplicaCount | int | `3` | Minimum number of replicas to start with. |
@@ -83,6 +89,8 @@ KEDA Prompt Processing instance for LATISS
 | prompt-keda.sasquatch.auth_env | bool | `true` | If set, this application's Vault secret must contain a `sasquatch_token` key containing the authentication token for `sasquatch.endpointUrl`. Leave unset to attempt anonymous access. |
 | prompt-keda.sasquatch.endpointUrl | string | `""` | Url of the Sasquatch proxy server to upload metrics to. Leave blank to disable upload. This is a preliminary implementation of Sasquatch support, and this parameter may be deprecated if we instead support `SasquatchDatastore` in the future. |
 | prompt-keda.sasquatch.namespace | string | `"lsst.prompt"` | Namespace in the Sasquatch system with which to associate metrics. |
+| prompt-keda.sattle.uri_base | string | `""` | Base URI of the sattle service.  Leave blank if not used. |
 | prompt-keda.tolerations | list | `[]` | Tolerations for the Prompt Processing pod |
 | prompt-keda.worker.grace_period | int | `45` | When Kubernetes shuts down a pod, the time its workers have to abort processing and save intermediate results (seconds). |
 | prompt-keda.worker.restart | int | `0` | The number of requests to process before rebooting a worker. If 0, workers process requests indefinitely. |
+| prompt-keda.worker.timeout | int | `900` | Maximum time that a worker can process a next_visit request (seconds). |

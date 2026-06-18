@@ -3,6 +3,10 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: "noteburst"
+  {{- if .Values.defaultComputeClass }}
+  labels:
+    cloud.google.com/default-compute-class: {{ .Values.defaultComputeClass }}
+  {{- end}}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -28,6 +32,8 @@ spec:
           value: "https://{{ .Values.fqdn }}"
         - name: "global.environmentName"
           value: {{ .Values.name | quote }}
+        - name: "global.repertoireUrl"
+          value: "https://{{ .Values.fqdn }}/repertoire"
         - name: "global.vaultSecretsPath"
           value: {{ .Values.vaultPathPrefix | quote }}
       valueFiles:

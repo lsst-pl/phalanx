@@ -9,6 +9,9 @@ config:
   allowSubdomains: true
   slackAlerts: true
 
+  sentry:
+    enabled: true
+
   cilogon:
     clientId: "cilogon:/client_id/22adcdc145791f85b4d1edbf3157e21b"
     enrollmentUrl: "https://id.lsst.cloud/registry/co_petitions/start/coef:6"
@@ -25,6 +28,14 @@ config:
     uidAttr: null
     gidAttr: null
     addUserGroup: true
+    systemGroups:
+      - "g_admins"
+      - "g_contrib"
+      - "g_developers"
+      - "g_dm"
+      - "g_portal_admins"
+      - "g_rubin"
+      - "g_users"
 
   firestore:
     project: "rsp-firestore-stable-e8eb"
@@ -45,21 +56,36 @@ config:
   # User quota settings for services.
   quota:
     default:
+      api:
+        hips: 1000
+        sia: 70
+        tap: 1000
+        vo-cutouts: 35
       notebook:
         cpu: 4.0
-        memory: 16
+        memory: 32
+      tap:
+        qserv:
+          concurrent: 12
 
   groupMapping:
     "admin:jupyterlab":
       - "g_admins"
+    "admin:userinfo":
+      - "g_admins"
     "exec:admin":
       - "g_admins"
+    "exec:internal-tools":
+      - "g_rubin"
     "exec:notebook":
       - "g_rubin"
       - "g_users"
     "exec:portal":
       - "g_rubin"
       - "g_users"
+    "exec:portal-admin":
+      - "g_admins"
+      - "g_portal_admins"
     "read:image":
       - "g_rubin"
       - "g_users"
@@ -69,10 +95,12 @@ config:
     "write:files":
       - "g_rubin"
       - "g_users"
+    "write:sasquatch":
+      - "g_admins"
 
   initialAdmins:
+    - "adam"
     - "afausti"
-    - "athornton"
     - "danfuchs"
     - "frossie"
     - "jonathansick"

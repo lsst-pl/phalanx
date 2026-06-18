@@ -19,7 +19,7 @@ Rubin Science Platform Portal Aspect
 | config.livetap | string | `""` | Endpoint under `/api/` for the live TAP service on the instance, if present |
 | config.showUserInfo | string | `"true"` | Whether to show information about the logged-in user |
 | config.ssotap | string | `""` | Endpoint under `/api/` for the DP0.3 SSO TAP service on the instance, if present |
-| config.tapHistoryLimit | string | `"50"` | Maximum number of recent TAP queries to show in history |
+| config.tapHistoryLimit | string | `"1000"` | Maximum number of recent TAP queries to show in history |
 | config.visualizeFitsSearchPath | string | `"/datasets"` | Search path for FITS files |
 | config.volumes.config | object | use an `emptyDir` | configuration directory accessible read-only to all Portal pods |
 | config.volumes.privateWorkarea | object | use an `emptyDir` | private work area accessible read-write to a single Portal pod |
@@ -29,7 +29,7 @@ Rubin Science Platform Portal Aspect
 | global.host | string | Set by Argo CD | Host name for ingress |
 | global.vaultSecretsPath | string | Set by Argo CD | Base path for Vault secrets |
 | image.pullPolicy | string | `"IfNotPresent"` | Pull policy for the Portal image |
-| image.repository | string | `"ipac/suit"` | Portal image to use |
+| image.repository | string | `"ghcr.io/lsst/suit"` | Portal image to use |
 | image.tag | string | The appVersion of the chart | Tag of Portal image to use |
 | ingress.annotations | object | `{}` | Additional annotations to add to the ingress |
 | nameOverride | string | `""` | Override the base name for resources |
@@ -45,5 +45,4 @@ Rubin Science Platform Portal Aspect
 | redis.tolerations | list | `[]` | Tolerations for the Redis pod |
 | replicaCount | int | `1` | Number of pods to start |
 | resources | object | See `values.yaml` | Resource limits and requests. The Portal will use (by default) 93% of container RAM.  This is a smallish Portal; tweak it as you need to in instance definitions in Phalanx. |
-| securityContext | object | See `values.yaml` | Security context for the Portal pod |
 | tolerations | list | `[]` | Tolerations for the Portal pod |

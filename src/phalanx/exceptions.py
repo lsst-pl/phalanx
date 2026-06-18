@@ -1,25 +1,34 @@
 """Exceptions for the Phalanx command-line tool."""
 
-from __future__ import annotations
-
 import subprocess
 from collections.abc import Iterable
+from datetime import timedelta
 
+from .constants import PREVIOUS_LOAD_BALANCER_IP_ANNOTATION
+from .models.kubernetes import NamespacedResource, Service
 from .models.secrets import Secret
 
 __all__ = [
     "ApplicationExistsError",
+    "ArgoCDStatusTimedOutError",
     "CommandFailedError",
     "CommandTimedOutError",
     "GitRemoteError",
+    "GoogleCloudAPIError",
+    "GoogleCloudGKEBackupFailedError",
+    "GoogleCloudGKERestoreFailedError",
     "InvalidApplicationConfigError",
     "InvalidEnvironmentConfigError",
+    "InvalidLoadBalancerServiceStateError",
     "InvalidSecretConfigError",
     "MalformedOnepasswordSecretError",
     "MissingOnepasswordSecretsError",
     "NoOnepasswordConfigError",
     "NoOnepasswordCredentialsError",
     "NoVaultCredentialsError",
+    "ResourceNoFinalizersTimeoutError",
+    "RetryerTimeoutError",
+    "ServiceMissingTrafficPolicyError",
     "UnknownEnvironmentError",
     "UnresolvedSecretsError",
     "UsageError",
@@ -299,3 +308,109 @@ class VaultPathConflictError(UsageError):
 
     def __init__(self, path: str) -> None:
         super().__init__(f"Vault path {path} cannot be copied onto itself")
+
+
+class InvalidLoadBalancerServiceStateError(UsageError):
+    """A LoadBalancer Service is in an invalid state to have its IP modified.
+
+    Parameters
+    ----------
+    service
+        The workload that is in the invalid state.
+    """
+
+    def __init__(self, service: Service) -> None:
+        msg = (
+            f"Service: {service.name} in namespace: {service.namespace} is in"
+            f" an invalid state to have its IP changed. It must have exactly"
+            f" one of spec.loadBalancerIP or the"
+            f" {PREVIOUS_LOAD_BALANCER_IP_ANNOTATION} annotation set."
+            f" loadBalancerIP: {service.load_balancer_ip},"
+            f" {PREVIOUS_LOAD_BALANCER_IP_ANNOTATION}: "
+            f" {service.previous_loadbalancer_ip}"
+        )
+        super().__init__(msg)
+
+
+class ServiceMissingTrafficPolicyError(UsageError):
+    """A Service does not have an externalTrafficPolicy set.
+
+    Parameters
+    ----------
+    service
+        The workload that is in the invalid state.
+    """
+
+    def __init__(self, service: Service) -> None:
+        msg = (
+            f"Service: {service.name} in namespace: {service.namespace} does"
+            f" not have spec.externalTrafficPolicy set. It must be a"
+            f" service of type LoadBalancer with that attribute set."
+        )
+        super().__init__(msg)
+
+
+class ResourceNoFinalizersTimeoutError(UsageError):
+    """We waited too long for a resource to not have finalizers."""
+
+    def __init__(
+        self,
+        resource: NamespacedResource,
+        finalizers: list[str],
+        timeout_secs: int,
+    ) -> None:
+        msg = (
+            f"Resource: {resource.get_kind_name()} in namespace: "
+            f" {resource.namespace} still has finalizers: {finalizers} after "
+            f" {timeout_secs} seconds."
+        )
+        super().__init__(msg)
+
+
+class GoogleCloudAPIError(Exception):
+    """An error happened calling a Google Cloud API."""
+
+
+class GoogleCloudGKEBackupFailedError(Exception):
+    """An error happened when trying to backup a GKE cluster."""
+
+    def __init__(
+        self,
+        backup_name: str,
+    ) -> None:
+        msg = f"Backup {backup_name} failed."
+        super().__init__(msg)
+
+
+class GoogleCloudGKERestoreFailedError(Exception):
+    """An error happened when trying to restore a GKE cluster."""
+
+    def __init__(
+        self,
+        restore: str,
+    ) -> None:
+        msg = f"Restore {restore} failed."
+        super().__init__(msg)
+
+
+class ArgoCDStatusTimedOutError(Exception):
+    """Timed out waiting for ArgoCD app statuses to appear."""
+
+    def __init__(self, attempts: int, interval: timedelta) -> None:
+        seconds = interval.total_seconds() * attempts
+        msg = f"ArgoCD statuses don't exist after {seconds} seconds."
+        super().__init__(msg)
+
+
+class RetryerTimeoutError(Exception):
+    """Timed out waiting for some condition after multiple attempts."""
+
+    def __init__(
+        self, condition: str, attempts: int, interval: timedelta
+    ) -> None:
+        seconds = interval.total_seconds() * attempts
+        msg = (
+            f"Condition not met after ~{seconds} seconds: {condition}"
+            f" Tried {attempts} times with {seconds} seconds in between."
+        )
+        super().__init__(msg)

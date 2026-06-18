@@ -8,7 +8,7 @@ metadata:
   annotations:
     strimzi.io/next-node-ids: {{ .Values.controller.nodeIds | quote }}
 spec:
-  replicas: {{ .Values.kafka.replicas }}
+  replicas: {{ .Values.controller.replicas }}
   roles:
     - controller
   storage:
@@ -27,7 +27,12 @@ spec:
         annotations:
           argocd.argoproj.io/compare-options: IgnoreExtraneous
           argocd.argoproj.io/sync-options: Prune=false
+        {{- if .Values.controller.backup }}
+        labels:
+          k8up.io/backup-target: "true"
+        {{- end }}
     pod:
+      terminationGracePeriodSeconds: {{ .Values.controller.terminationGracePeriodSeconds}}
       {{- with .Values.controller.affinity }}
       affinity:
         {{- toYaml . | nindent 10 }}
@@ -52,7 +57,7 @@ metadata:
   annotations:
     strimzi.io/next-node-ids: {{ .Values.broker.nodeIds | quote }}
 spec:
-  replicas: {{ .Values.kafka.replicas }}
+  replicas: {{ .Values.broker.replicas }}
   roles:
     - broker
   storage:
@@ -71,7 +76,12 @@ spec:
         annotations:
           argocd.argoproj.io/compare-options: IgnoreExtraneous
           argocd.argoproj.io/sync-options: Prune=false
+        {{- if .Values.broker.backup }}
+        labels:
+          k8up.io/backup-target: "true"
+        {{- end }}
     pod:
+      terminationGracePeriodSeconds: {{ .Values.broker.terminationGracePeriodSeconds}}
       {{- with .Values.broker.affinity }}
       affinity:
         {{- toYaml . | nindent 10 }}
@@ -96,7 +106,7 @@ metadata:
   annotations:
     strimzi.io/next-node-ids: {{ .Values.brokerMigration.nodeIds | quote}}
 spec:
-  replicas: {{ .Values.kafka.replicas }}
+  replicas: {{ .Values.kafka.broker.replicas }}
   roles:
     - broker
   storage:
@@ -150,9 +160,20 @@ metadata:
   annotations:
     strimzi.io/kraft: enabled
     strimzi.io/node-pools: enabled
+    {{- if .Values.kafka.pauseReconciliation }}
+    strimzi.io/pause-reconciliation: "true"
+    {{- end }}
 spec:
   kafka:
     version: {{ .Values.kafka.version | quote }}
+    {{- if .Values.kafka.metadataVersion }}
+    metadataVersion: {{ .Values.kafka.metadataVersion | quote }}
+    {{- end}}
+    {{-  if .Values.kafka.jvmOptions }}
+    jvmOptions:
+    {{- toYaml .Values.kafka.jvmOptions | nindent 6 }}
+    {{- end }}
+
     listeners:
     {{- if .Values.kafka.listeners.plain.enabled }}
       # internal listener without tls encryption and with scram-sha-512 authentication
@@ -195,6 +216,7 @@ spec:
               {{ $key }}: {{ $value }}
               {{- end}}
             {{- end }}
+          allocateLoadBalancerNodePorts: {{ .Values.kafka.externalListener.bootstrap.allocateLoadBalancerNodePorts }}
           {{- if .Values.kafka.externalListener.brokers }}
           brokers:
           {{- range $broker := .Values.kafka.externalListener.brokers }}
@@ -205,7 +227,8 @@ spec:
               annotations:
                 {{- range $key, $value  := $broker.annotations }}
                 {{ $key }}: {{ $value }}
-                {{- end}}
+                {{- end }}
+              allocateLoadBalancerNodePorts: {{ $broker.allocateLoadBalancerNodePorts }}
           {{- end }}
           {{- end }}
           {{- if and (.Values.kafka.externalListener.tls.enabled) (.Values.kafka.externalListener.bootstrap.host) }}
@@ -224,10 +247,10 @@ spec:
         {{- end }}
       {{- end }}
     config:
-      offsets.topic.replication.factor:  {{ .Values.kafka.replicas }}
-      transaction.state.log.replication.factor:  {{ .Values.kafka.replicas }}
+      offsets.topic.replication.factor:  {{ .Values.kafka.replicationFactor }}
+      transaction.state.log.replication.factor:  {{ .Values.kafka.replicationFactor }}
       transaction.state.log.min.isr: {{ .Values.kafka.minInsyncReplicas }}
-      default.replication.factor: {{ .Values.kafka.replicas }}
+      default.replication.factor: {{ .Values.kafka.replicationFactor }}
       min.insync.replicas: {{ .Values.kafka.minInsyncReplicas }}
       {{- range $key, $value := .Values.kafka.config }}
       {{ $key }}: {{ $value }}
@@ -240,6 +263,8 @@ spec:
           name: kafka-metrics
           key: kafka-metrics-config.yml
     {{- end }}
+  maintenanceTimeWindows:
+    - {{ .Values.kafka.maintenanceTimeWindows | quote }}
   entityOperator:
     topicOperator: {}
     userOperator: {}

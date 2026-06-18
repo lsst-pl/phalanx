@@ -40,14 +40,19 @@ podAnnotations: {}
 nodeSelector: {}
 
 # -- Tolerations for the TAP pod
-tolerations: []
+# @default -- Tolerate GKE arm64 taint
+tolerations:
+  - key: "kubernetes.io/arch"
+    operator: "Equal"
+    value: "arm64"
+    effect: "NoSchedule"
 
 # -- Affinity rules for the TAP pod
 affinity: {}
 
 config:
   # -- What type of backend are we connecting to?
-  # @default -- None, must be set to `pg` or `qserv`
+  # @default -- None, must be set to `pg`, `qserv` or `bigquery`
   backend: ""
 
   pg:
@@ -71,7 +76,7 @@ config:
       pullPolicy: "IfNotPresent"
 
       # -- Tag of TAP image to use
-      tag: "1.21.2"
+      tag: "1.26.0"
 
   qserv:
     # -- QServ hostname:port to connect to
@@ -89,23 +94,45 @@ config:
       pullPolicy: "IfNotPresent"
 
       # -- Tag of TAP image to use
-      tag: "3.4.1"
+      tag: "3.18.0"
 
     # -- Whether the Qserv database is password protected
     # @default -- false
     passwordEnabled: false
 
+  bigquery:
+    # -- BigQuery project ID
+    # @default -- None, must be set if backend is `bigquery`
+    project: ""
+
+    # -- BigQuery dataset name
+    # @default -- None, must be set if backend is `bigquery`
+    dataset: ""
+
+    # -- Schema name for table mappings (optional)
+    schema: ""
+
+    image:
+      # -- TAP image to use
+      repository: "ghcr.io/lsst-sqre/lsst-tap-service"
+
+      # -- Pull policy for the TAP image
+      pullPolicy: "IfNotPresent"
+
+      # -- Tag of TAP image to use
+      tag: "3.18.0"
+
   # -- Address to a MySQL database containing TAP schema data
   tapSchemaAddress: "cadc-tap-schema-db:3306"
 
   # -- Datalink payload URL
-  datalinkPayloadUrl: "https://github.com/lsst/sdm_schemas/releases/download/DP1-v1.1.4-rc1/datalink-snippets.zip"
+  datalinkPayloadUrl: "https://github.com/lsst/sdm_schemas/releases/download/w.2026.01/datalink-snippets.zip"
 
   # -- Name of GCS bucket in which to store results
   gcsBucket: "async-results.lsst.codes"
 
   # -- Base URL for results stored in GCS bucket
-  gcsBucketUrl: "https://tap-files.lsst.codes"
+  gcsBucketUrl: "https://storage.googleapis.com"
 
   # -- GCS bucket type (GCS or S3)
   gcsBucketType: "GCS"
@@ -133,15 +160,6 @@ config:
   # -- Kafka configuration
   kafka:
 
-    # -- Bootstrap Server
-    bootstrapServer: "sasquatch-dev-kafka-bootstrap.lsst.cloud:9094"
-
-    # -- Schema Registry Configuration
-    schemaRegistry:
-
-      # -- URL
-      url: ""
-
     # -- Kafka topics
     topics:
 
@@ -154,11 +172,32 @@ config:
       # -- Job Delete topic
       jobDelete: "lsst.tap.job-delete"
 
-    # -- Authentication configuration
-    auth:
+    # -- Name of the KafkaUser to use for authentication
+    # @default -- "tap"
+    kafkaUserName: "tap"
 
-      # -- Whether auth is enabled
-      enabled: false
+    # -- Kafka consumer group ID.
+    # @default -- "tap"
+    consumerGroupId: "tap"
+
+    # -- Whether kafka is enabled
+    enabled: false
+
+  # -- Output limit value for TAP queries advertised in capabilities.
+  # Leave empty to use the default (100000000).
+  outputLimit: ""
+
+  # -- Unit for the output limit: "byte" or "row".
+  # Leave empty to use the default ("row").
+  outputLimitUnit: ""
+
+  # -- Maximum row limit (MAXREC) enforced server-side.
+  # Leave empty to use the default (100000000).
+  maxRec: ""
+
+  # -- Whether to advertise VOParquet (application/vnd.apache.parquet) as a
+  # supported output format in the TAP capabilities.
+  voParquet: false
 
   # -- Rules for renaming Columns
   urlRewrite:
@@ -197,12 +236,56 @@ mockdb:
   nodeSelector: {}
 
   # -- Tolerations for the mock db pod
-  tolerations: []
+  # @default -- Tolerate GKE arm64 taint
+  tolerations:
+    - key: "kubernetes.io/arch"
+      operator: "Equal"
+      value: "arm64"
+      effect: "NoSchedule"
 
   # -- Affinity rules for the mock db pod
   affinity: {}
 
 tapSchema:
+  # -- Database backend type: "containerized", "cloudsql", or "external"
+  # @default -- "containerized"
+  type: "containerized"
+
+  # -- Database name
+  database: "TAP_SCHEMA"
+
+  # -- Database username
+  username: "TAP_SCHEMA"
+
+  # -- Database password (only used for containerized)
+  password: "TAP_SCHEMA"
+
+  # -- Secret key containing the database password
+  passwordKey: "tap-schema-password"
+
+  # -- Whether the TAP_SCHEMA database requires a password in Vault (true for cloudsql/external)
+  useVaultPassword: false
+
+  # -- Connection pool configuration for jdbc/tapadm
+  tapadm:
+    # -- Maximum active connections (maxIdle will be set to this value)
+    maxActive: 2
+
+  # -- Connection pool configuration for jdbc/tapuser (query planning and tap_upload)
+  tapuser:
+    # -- Maximum active connections (maxIdle will be set to this value)
+    maxActive: 3
+
+  # -- External PostgreSQL configuration (only used if type is "external")
+  external:
+
+    # -- Hostname of external PostgreSQL server
+    host: ""
+
+    # -- Port of external PostgreSQL server
+    port: 5432
+
+  # Legacy image config for containerized TAP_SCHEMA (when useCloudSQL=false)
   image:
     # -- TAP schema image to ue. This must be overridden by each environment
     # with the TAP schema for that environment.
@@ -212,7 +295,7 @@ tapSchema:
     pullPolicy: "IfNotPresent"
 
     # -- Tag of TAP schema image
-    tag: "DP1-v1.1.4-rc1"
+    tag: "w.2026.01"
 
   # -- Resource limits and requests for the TAP schema database pod
   # @default -- See `values.yaml`
@@ -231,12 +314,43 @@ tapSchema:
   nodeSelector: {}
 
   # -- Tolerations for the TAP schema database pod
-  tolerations: []
+  # @default -- Tolerate GKE arm64 taint
+  tolerations:
+    - key: "kubernetes.io/arch"
+      operator: "Equal"
+      value: "arm64"
+      effect: "NoSchedule"
 
   # -- Affinity rules for the TAP schema database pod
   affinity: {}
 
 uws:
+  # -- Database backend type: "containerized", "cloudsql", or "external"
+  # @default -- "containerized"
+  type: "containerized"
+
+  # -- Database name
+  database: "postgres"
+
+  # -- Database username
+  username: "postgres"
+
+  # -- Whether UWS database requires a password in Vault (true for cloudsql/external)
+  useVaultPassword: false
+
+  # -- Connection pool configuration
+  # -- Maximum active connections (maxIdle will be set to this value)
+  maxActive: 5
+
+  # -- External PostgreSQL configuration (only used if type is "external")
+  external:
+
+    # -- Hostname of external PostgreSQL server
+    host: ""
+
+    # -- Port of external PostgreSQL server
+    port: 5432
+
   image:
     # -- UWS database image to use
     repository: "ghcr.io/lsst-sqre/lsst-tap-uws-db"
@@ -245,7 +359,7 @@ uws:
     pullPolicy: "IfNotPresent"
 
     # -- Tag of UWS database image to use
-    tag: "3.4.1"
+    tag: "3.18.0"
 
   # -- Resource limits and requests for the UWS database pod
   # @default -- See `values.yaml`
@@ -264,7 +378,12 @@ uws:
   nodeSelector: {}
 
   # -- Tolerations for the UWS database pod
-  tolerations: []
+  # @default -- Tolerate GKE arm64 taint
+  tolerations:
+    - key: "kubernetes.io/arch"
+      operator: "Equal"
+      value: "arm64"
+      effect: "NoSchedule"
 
   # -- Affinity rules for the UWS database pod
   affinity: {}
@@ -279,7 +398,7 @@ cloudsql:
     repository: "gcr.io/cloudsql-docker/gce-proxy"
 
     # -- Cloud SQL Auth Proxy tag to use
-    tag: "1.37.7"
+    tag: "1.38.0"
 
     # -- Pull policy for Cloud SQL Auth Proxy images
     pullPolicy: "IfNotPresent"
@@ -301,10 +420,10 @@ cloudsql:
   resources:
     limits:
       cpu: "100m"
-      memory: "20Mi"
+      memory: "30Mi"
     requests:
       cpu: "5m"
-      memory: "7Mi"
+      memory: "15Mi"
 
 # -- The service account will allways be created when cloudsql.enabled is set to true
 # In this case the serviceAccount configuration here is required
@@ -324,12 +443,12 @@ serviceAccount:
 global:
   # -- Base URL for the environment
   # @default -- Set by Argo CD
-  baseUrl: ""
+  baseUrl: null
 
   # -- Host name for ingress
   # @default -- Set by Argo CD
-  host: ""
+  host: null
 
   # -- Base path for Vault secrets
   # @default -- Set by Argo CD
-  vaultSecretsPath: ""
+  vaultSecretsPath: null

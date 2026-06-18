@@ -1,8 +1,12 @@
 strimzi-kafka:
   cluster:
+    privateKey:
+      encoding: PKCS8
     monitorLabel:
       lsst.io/monitor: "true"
   kafka:
+    version: 4.1.0
+    metadataVersion: "3.8-IV0"
     config:
       auto.create.topics.enable: false
       log.cleaner.min.compaction.lag.ms: 108000000
@@ -40,8 +44,16 @@ strimzi-kafka:
     enabled: true
     enableSaramaLogging: true
     showAllOffsets: false
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 2
+      limits:
+        memory: 1Gi
+        cpu: 4
   controller:
     enabled: true
+    nodeIds: "[0,1,2]"
     storage:
       storageClassName: "rook-ceph-block"
   broker:
@@ -51,22 +63,28 @@ strimzi-kafka:
     storage:
       size: 500Gi
       storageClassName: "rook-ceph-block"
+    resources:
+      requests:
+        memory: 64Gi
+        cpu: 16
+      limits:
+        memory: 64Gi
+        cpu: 16
   users:
     replicator:
       enabled: true
     telegraf:
       enabled: true
-  registry:
-    ingress:
-      enabled: true
-      annotations:
-        nginx.ingress.kubernetes.io/rewrite-target: /$2
-      hostname: tucson-teststand.lsst.codes
-      path: /schema-registry(/|$)(.*)
   cruiseControl:
     enabled: true
     metricsConfig:
       enabled: true
+
+schema-registry:
+  enabled: true
+  ingress:
+    enabled: true
+    anonymous: true
 
 influxdb:
   persistence:
@@ -88,6 +106,9 @@ customInfluxDBIngress:
 
 telegraf:
   enabled: true
+  kafkaVersion: "4.1.0"
+  image:
+    tag: 1.36.1-alpine
   kafkaConsumers:
     auxtel:
       enabled: true
@@ -99,7 +120,7 @@ telegraf:
       enabled: true
       database: "efd"
       topicRegexps: |
-        [ "lsst.sal.MTAOS", "lsst.sal.MTDome", "lsst.sal.MTDomeTrajectory", "lsst.sal.MTPtg" ]
+        [ "lsst.sal.MTAOS", "lsst.sal.MTDome", "lsst.sal.MTDomeTrajectory", "lsst.sal.MTPtg", "lsst.sal.WFOODS" ]
       debug: true
     mtmount:
       enabled: true
@@ -255,13 +276,12 @@ telegraf:
 kafdrop:
   ingress:
     enabled: true
-    hostname: tucson-teststand.lsst.codes
 
 rest-proxy:
   enabled: true
   ingress:
     enabled: true
-    hostname: tucson-teststand.lsst.codes
+    anonymous: true
   configurationOverrides:
     "access.control.allow.origin": https://tucson-teststand.lsst.codes/love
   kafka:
@@ -311,3 +331,7 @@ consdb:
 
 control-system:
   enabled: true
+  topics:
+    - lsst.s3.raw.latiss0
+    - lsst.s3.raw.latiss
+    - lsst.s3.raw.comcam

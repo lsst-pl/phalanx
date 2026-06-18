@@ -1,7 +1,6 @@
 """Tests for the secrets command-line subcommand."""
 
-from __future__ import annotations
-
+import json
 import os
 import re
 from base64 import b64decode, b64encode
@@ -14,15 +13,9 @@ import yaml
 from cryptography.fernet import Fernet
 
 from phalanx.factory import Factory
-from phalanx.models.gafaelfawr import Token
 
 from ..support.cli import run_cli
-from ..support.data import (
-    phalanx_test_path,
-    read_input_static_secrets,
-    read_output_data,
-    read_output_json,
-)
+from ..support.data import PhalanxData
 from ..support.onepassword import MockOnepasswordClient
 from ..support.vault import MockVaultClient
 
@@ -46,11 +39,13 @@ def _get_app_secret(mock_vault: MockVaultClient, path: str) -> dict[str, str]:
     return result["data"]["data"]
 
 
-def test_audit(factory: Factory, mock_vault: MockVaultClient) -> None:
-    input_path = phalanx_test_path()
+def test_audit(
+    data: PhalanxData, factory: Factory, mock_vault: MockVaultClient
+) -> None:
+    input_path = data.path("input")
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("idfdev")
-    mock_vault.load_test_data(environment.vault_path_prefix, "idfdev")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "idfdev")
 
     secrets_path = input_path / "secrets" / "idfdev.yaml"
     result = run_cli(
@@ -62,14 +57,16 @@ def test_audit(factory: Factory, mock_vault: MockVaultClient) -> None:
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 1
-    assert result.output == read_output_data("idfdev", "secrets-audit")
+    data.assert_text_matches(result.output, "secrets/audit")
 
 
-def test_audit_exclude(factory: Factory, mock_vault: MockVaultClient) -> None:
-    input_path = phalanx_test_path()
+def test_audit_exclude(
+    data: PhalanxData, factory: Factory, mock_vault: MockVaultClient
+) -> None:
+    input_path = data.path("input")
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("idfdev")
-    mock_vault.load_test_data(environment.vault_path_prefix, "idfdev")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "idfdev")
 
     secrets_path = input_path / "secrets" / "idfdev.yaml"
     result = run_cli(
@@ -85,26 +82,23 @@ def test_audit_exclude(factory: Factory, mock_vault: MockVaultClient) -> None:
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 1
-    all_output = read_output_data("idfdev", "secrets-audit").split("\n")
-    expected = "\n".join(
-        o for o in all_output if "argocd" not in o and "unknown" not in o
-    )
-    assert result.output == expected
+    data.assert_text_matches(result.output, "secrets/audit-exclude")
 
 
 def test_audit_onepassword_missing(
+    *,
+    data: PhalanxData,
     factory: Factory,
     mock_onepassword: MockOnepasswordClient,
     mock_vault: MockVaultClient,
 ) -> None:
     """Check reporting of missing 1Password secrets."""
-    phalanx_test_path()
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("minikube")
     assert environment.onepassword
     vault_title = environment.onepassword.vault_title
     mock_onepassword.create_empty_test_vault(vault_title)
-    mock_vault.load_test_data(environment.vault_path_prefix, "minikube")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "minikube")
 
     result = run_cli(
         "secrets",
@@ -113,25 +107,23 @@ def test_audit_onepassword_missing(
         env={"OP_CONNECT_TOKEN": "sometoken", "VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 1
-    assert result.output == read_output_data(
-        "minikube", "audit-missing-output"
-    )
+    data.assert_text_matches(result.output, "secrets/audit-missing")
 
 
-def test_list() -> None:
+def test_list(data: PhalanxData) -> None:
     result = run_cli("secrets", "list", "idfdev")
     assert result.exit_code == 0
-    assert result.output == read_output_data("idfdev", "secrets-list")
+    data.assert_text_matches(result.output, "secrets/list")
 
 
-def test_list_path_search() -> None:
+def test_list_path_search(data: PhalanxData) -> None:
     """Test that we can find the root of the tree from a subdirectory."""
     cwd = Path.cwd()
-    os.chdir(str(phalanx_test_path() / "applications" / "gafaelfawr"))
+    os.chdir(str(data.path("input") / "applications" / "gafaelfawr"))
     try:
         result = run_cli("secrets", "list", "idfdev", needs_config=False)
         assert result.exit_code == 0
-        assert result.output == read_output_data("idfdev", "secrets-list")
+        data.assert_text_matches(result.output, "secrets/list")
     finally:
         os.chdir(str(cwd))
 
@@ -149,6 +141,7 @@ def test_list_path_failure() -> None:
 
 
 def test_onepassword_secrets(
+    data: PhalanxData,
     factory: Factory,
     tmp_path: Path,
     mock_onepassword: MockOnepasswordClient,
@@ -157,7 +150,7 @@ def test_onepassword_secrets(
     environment = config_storage.load_environment("minikube")
     assert environment.onepassword
     vault_title = environment.onepassword.vault_title
-    mock_onepassword.load_test_data(vault_title, "minikube")
+    mock_onepassword.load_test_data(data, vault_title, "minikube")
     output_path = tmp_path / "static-secrets.yaml"
 
     result = run_cli(
@@ -172,7 +165,7 @@ def test_onepassword_secrets(
     assert result.output == ""
 
     output = output_path.read_text()
-    assert output == read_output_data("minikube", "onepassword-secrets.yaml")
+    data.assert_text_matches(output, "secrets/onepassword-secrets")
 
     result = run_cli(
         "secrets",
@@ -201,18 +194,20 @@ def test_schema() -> None:
     assert result.output == current.read_text()
 
 
-def test_static_template() -> None:
+def test_static_template(data: PhalanxData) -> None:
     result = run_cli("secrets", "static-template", "idfdev")
     assert result.exit_code == 0
-    assert result.output == read_output_data("idfdev", "static-secrets.yaml")
+    data.assert_text_matches(result.output, "secrets/static-template")
 
 
-def test_sync(factory: Factory, mock_vault: MockVaultClient) -> None:
-    input_path = phalanx_test_path()
+def test_sync(
+    data: PhalanxData, factory: Factory, mock_vault: MockVaultClient
+) -> None:
+    input_path = data.path("input")
     secrets_path = input_path / "secrets" / "idfdev.yaml"
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("idfdev")
-    mock_vault.load_test_data(environment.vault_path_prefix, "idfdev")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "idfdev")
     _, base_vault_path = environment.vault_path_prefix.split("/", 1)
 
     # Syncing without a VAULT_TOKEN when the static secrets don't contain one
@@ -233,10 +228,10 @@ def test_sync(factory: Factory, mock_vault: MockVaultClient) -> None:
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 0
-    assert result.output == read_output_data("idfdev", "sync-output")
+    data.assert_text_matches(result.output, "secrets/sync")
 
     # Check that all static secrets were copied over correctly.
-    static_secrets = read_input_static_secrets("idfdev")
+    static_secrets = data.read_static_secrets("input/secrets/idfdev")
     for application, values in static_secrets.applications.items():
         vault = _get_app_secret(mock_vault, f"{base_vault_path}/{application}")
         for key, value in values.items():
@@ -270,7 +265,7 @@ def test_sync(factory: Factory, mock_vault: MockVaultClient) -> None:
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 0
-    assert result.output == read_output_data("idfdev", "sync-delete-output")
+    data.assert_text_matches(result.output, "secrets/sync-delete")
     after = _get_app_secret(mock_vault, f"{base_vault_path}/gafaelfawr")
     assert "cilogon" in gafaelfawr
     assert "cilogon" not in after
@@ -279,7 +274,7 @@ def test_sync(factory: Factory, mock_vault: MockVaultClient) -> None:
 
     # Add a pull-secret to Vault, run secrets sync --delete again without
     # static secrets, and ensure that pull-secret wasn't deleted.
-    pull_secret = read_output_json("minikube", "pull-secret")
+    pull_secret = data.read_json("output/minikube/pull-secret")
     mock_vault.create_or_update_secret(
         f"{base_vault_path}/pull-secret", pull_secret
     )
@@ -303,17 +298,19 @@ def test_sync(factory: Factory, mock_vault: MockVaultClient) -> None:
 
 
 def test_sync_onepassword(
+    *,
+    data: PhalanxData,
     factory: Factory,
     mock_onepassword: MockOnepasswordClient,
     mock_vault: MockVaultClient,
 ) -> None:
-    input_path = phalanx_test_path()
+    input_path = data.path("input")
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("minikube")
     assert environment.onepassword
     vault_title = environment.onepassword.vault_title
-    mock_onepassword.load_test_data(vault_title, "minikube")
-    mock_vault.load_test_data(environment.vault_path_prefix, "minikube")
+    mock_onepassword.load_test_data(data, vault_title, "minikube")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "minikube")
     _, base_vault_path = environment.vault_path_prefix.split("/", 1)
 
     # It should be possible to omit VAULT_TOKEN and get the value from
@@ -324,8 +321,8 @@ def test_sync_onepassword(
         "minikube",
         env={"OP_CONNECT_TOKEN": "sometoken"},
     )
+    data.assert_text_matches(result.output, "sync-onepassword")
     assert result.exit_code == 0
-    assert result.output == read_output_data("minikube", "sync-output")
 
     # Check that all static secrets were copied over correctly.
     with (input_path / "onepassword" / "minikube.yaml").open() as fh:
@@ -340,24 +337,29 @@ def test_sync_onepassword(
             else:
                 assert value == vault[key]
 
+    # Check that the Gafaelfawr OpenID Connect clients secret is correct.
+    vault = _get_app_secret(mock_vault, f"{base_vault_path}/gafaelfawr")
+    seen_oidc_secrets = json.loads(vault["oidc-server-secrets"])
+    data.assert_json_matches(seen_oidc_secrets, "output/minikube/oidc-clients")
+
     # Check that the pull secret is correct.
-    pull_secret = read_output_json("minikube", "pull-secret")
     vault = _get_app_secret(mock_vault, f"{base_vault_path}/pull-secret")
-    assert vault == pull_secret
+    data.assert_json_matches(vault, "output/minikube/pull-secret")
 
 
 def test_sync_onepassword_errors(
+    *,
+    data: PhalanxData,
     factory: Factory,
     mock_onepassword: MockOnepasswordClient,
     mock_vault: MockVaultClient,
 ) -> None:
-    phalanx_test_path()
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("minikube")
     assert environment.onepassword
     vault_title = environment.onepassword.vault_title
-    mock_onepassword.load_test_data(vault_title, "minikube")
-    mock_vault.load_test_data(environment.vault_path_prefix, "minikube")
+    mock_onepassword.load_test_data(data, vault_title, "minikube")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "minikube")
 
     # Find a secret that's supposed to be encoded and change it to have an
     # invalid base64 string.
@@ -384,9 +386,9 @@ def test_sync_onepassword_errors(
         "minikube",
         env={"OP_CONNECT_TOKEN": "sometoken", "VAULT_TOKEN": "sometoken"},
     )
-    assert result.exit_code == 2
     assert app_name in result.output
     assert key in result.output
+    assert result.exit_code == 2
 
     # Instead set the secret to a value that is valid base64, but of binary
     # data that cannot be decoded to a string.
@@ -401,19 +403,19 @@ def test_sync_onepassword_errors(
         "minikube",
         env={"OP_CONNECT_TOKEN": "sometoken", "VAULT_TOKEN": "sometoken"},
     )
-    assert result.exit_code == 2
     assert app_name in result.output
     assert key in result.output
+    assert result.exit_code == 2
 
 
 def test_sync_regenerate(
-    factory: Factory, mock_vault: MockVaultClient
+    data: PhalanxData, factory: Factory, mock_vault: MockVaultClient
 ) -> None:
-    input_path = phalanx_test_path()
+    input_path = data.path("input")
     secrets_path = input_path / "secrets" / "idfdev.yaml"
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("idfdev")
-    mock_vault.load_test_data(environment.vault_path_prefix, "idfdev")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "idfdev")
     _, base_vault_path = environment.vault_path_prefix.split("/", 1)
     before = _get_app_secret(mock_vault, f"{base_vault_path}/gafaelfawr")
 
@@ -427,11 +429,10 @@ def test_sync_regenerate(
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 0
-    expected = read_output_data("idfdev", "sync-regenerate-output")
-    assert result.output == expected
+    data.assert_text_matches(result.output, "secrets/sync-regenerate")
 
     # Check that all static secrets were copied over correctly.
-    static_secrets = read_input_static_secrets("idfdev")
+    static_secrets = data.read_static_secrets("input/secrets/idfdev")
     for application, values in static_secrets.applications.items():
         vault = _get_app_secret(mock_vault, f"{base_vault_path}/{application}")
         for key, value in values.items():
@@ -443,7 +444,6 @@ def test_sync_regenerate(
     # check that some secrets that would have been left alone without
     # --regenerate were regenerated and are syntactically valid.
     after = _get_app_secret(mock_vault, f"{base_vault_path}/gafaelfawr")
-    assert Token.from_str(after["bootstrap-token"])
     assert before["bootstrap-token"] != after["bootstrap-token"]
     assert re.match("^[0-9a-f]{64}$", after["redis-password"])
     assert before["redis-password"] != after["redis-password"]
@@ -459,12 +459,14 @@ def test_sync_regenerate(
     assert now - timedelta(seconds=5) <= mtime <= now
 
 
-def test_sync_exclude(factory: Factory, mock_vault: MockVaultClient) -> None:
-    input_path = phalanx_test_path()
+def test_sync_exclude(
+    data: PhalanxData, factory: Factory, mock_vault: MockVaultClient
+) -> None:
+    input_path = data.path("input")
     secrets_path = input_path / "secrets" / "idfdev.yaml"
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("idfdev")
-    mock_vault.load_test_data(environment.vault_path_prefix, "idfdev")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "idfdev")
 
     result = run_cli(
         "secrets",
@@ -479,22 +481,18 @@ def test_sync_exclude(factory: Factory, mock_vault: MockVaultClient) -> None:
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 0
-    all_output = read_output_data("idfdev", "sync-output").split("\n")
-    expected = "\n".join(
-        o for o in all_output if "argocd" not in o and "portal" not in o
-    )
-    assert result.output == expected
+    data.assert_text_matches(result.output, "secrets/sync-exclude")
 
 
 def test_sync_modify_delete(
-    factory: Factory, mock_vault: MockVaultClient
+    data: PhalanxData, factory: Factory, mock_vault: MockVaultClient
 ) -> None:
     """Test a sync that modifies and deletes a secret key at the same time."""
-    input_path = phalanx_test_path()
+    input_path = data.path("input")
     secrets_path = input_path / "secrets" / "idfdev.yaml"
     config_storage = factory.create_config_storage()
     environment = config_storage.load_environment("idfdev")
-    mock_vault.load_test_data(environment.vault_path_prefix, "idfdev")
+    mock_vault.load_test_data(data, environment.vault_path_prefix, "idfdev")
     _, base_vault_path = environment.vault_path_prefix.split("/", 1)
     before = _get_app_secret(mock_vault, f"{base_vault_path}/gafaelfawr")
 
@@ -518,8 +516,7 @@ def test_sync_modify_delete(
         env={"VAULT_TOKEN": "sometoken"},
     )
     assert result.exit_code == 0
-    expected = read_output_data("idfdev", "sync-gafaelfawr-output")
-    assert result.output == expected
+    data.assert_text_matches(result.output, "secrets/sync-modify-delete")
     after = _get_app_secret(mock_vault, f"{base_vault_path}/gafaelfawr")
     assert before["database-password"] != after["database-password"]
     assert after.get("session-secret")

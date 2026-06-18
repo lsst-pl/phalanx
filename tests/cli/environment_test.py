@@ -1,16 +1,14 @@
 """Tests for the environment command-line subcommand."""
 
-from __future__ import annotations
-
 import subprocess
 from pathlib import Path
 
 from ..support.cli import run_cli
-from ..support.data import phalanx_test_path
+from ..support.data import PhalanxData
 from ..support.helm import MockHelmCommand
 
 
-def test_lint(mock_helm: MockHelmCommand) -> None:
+def test_lint(data: PhalanxData, mock_helm: MockHelmCommand) -> None:
     def callback(*command: str) -> subprocess.CompletedProcess:
         output = None
         if command[0] == "lint":
@@ -33,17 +31,9 @@ def test_lint(mock_helm: MockHelmCommand) -> None:
     expected = "==> Linting top-level chart for idfdev\n"
     assert result.output == expected
     assert result.exit_code == 0
-    assert mock_helm.call_args_list == [
-        [
-            "lint",
-            "environments",
-            "--strict",
-            "--values",
-            "environments/values.yaml",
-            "--values",
-            "environments/values-idfdev.yaml",
-        ]
-    ]
+    data.assert_json_matches(
+        mock_helm.call_args_list, "environment/lint-idfdev"
+    )
 
     # Lint all environments.
     mock_helm.reset_mock()
@@ -54,35 +44,7 @@ def test_lint(mock_helm: MockHelmCommand) -> None:
     )
     assert result.output == expected
     assert result.exit_code == 0
-    assert mock_helm.call_args_list == [
-        [
-            "lint",
-            "environments",
-            "--strict",
-            "--values",
-            "environments/values.yaml",
-            "--values",
-            "environments/values-idfdev.yaml",
-        ],
-        [
-            "lint",
-            "environments",
-            "--strict",
-            "--values",
-            "environments/values.yaml",
-            "--values",
-            "environments/values-minikube.yaml",
-        ],
-        [
-            "lint",
-            "environments",
-            "--strict",
-            "--values",
-            "environments/values.yaml",
-            "--values",
-            "environments/values-usdfdev-prompt-processing.yaml",
-        ],
-    ]
+    data.assert_json_matches(mock_helm.call_args_list, "environment/lint")
 
     def callback_error(*command: str) -> subprocess.CompletedProcess:
         return subprocess.CompletedProcess(
@@ -116,7 +78,7 @@ def test_schema() -> None:
     assert result.output == current.read_text()
 
 
-def test_template(mock_helm: MockHelmCommand) -> None:
+def test_template(data: PhalanxData, mock_helm: MockHelmCommand) -> None:
     def callback(*command: str) -> subprocess.CompletedProcess:
         output = None
         if command[0] == "template":
@@ -129,15 +91,4 @@ def test_template(mock_helm: MockHelmCommand) -> None:
     result = run_cli("environment", "template", "idfdev")
     assert result.output == "this is some template\n"
     assert result.exit_code == 0
-    assert mock_helm.call_args_list == [
-        [
-            "template",
-            "science-platform",
-            str(phalanx_test_path() / "environments"),
-            "--include-crds",
-            "--values",
-            "environments/values.yaml",
-            "--values",
-            "environments/values-idfdev.yaml",
-        ],
-    ]
+    data.assert_json_matches(mock_helm.call_args_list, "environment/template")
