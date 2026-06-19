@@ -1,4 +1,8 @@
 cadc-tap:
+  serviceAccount:
+    create: true
+    name: tap
+
   tapSchema:
     type: "external"
     database: "tap"
