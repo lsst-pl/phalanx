@@ -7,9 +7,9 @@ controller:
         repository: "lsstsqre/sciplat-lab"
     lab:
       namespaceAnnotations:
-        - 'openshift.io/sa.scc.mcs: "s0:c0"'
-        - 'openshift.io/sa.scc.uid-range: "{{uid}}/1"'
-        - 'openshift.io/sa.scc.supplemental-groups: "{{gid}}/1"'
+        'openshift.io/sa.scc.mcs': '"s0:c0"'
+        'openshift.io/sa.scc.uid-range': '"{{uid}}/1"'
+        'openshift.io/sa.scc.supplemental-groups': '"{{gid}}/1"'
       #initContainers:
       #  - name: "inithome"
       #    image:
