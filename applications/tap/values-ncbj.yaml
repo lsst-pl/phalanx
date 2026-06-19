@@ -1,0 +1,18 @@
+cadc-tap:
+  tapSchema:
+    type: "external"
+    database: "tap"
+    username: "tap"
+    useVaultPassword: true
+    external:
+      host: "db.example.com"
+      port: 5432
+
+  uws:
+    type: "external"
+    database: "tap"
+    username: "tap"
+    useVaultPassword: true
+    external:
+      host: "db.example.com"
+      port: 5432
