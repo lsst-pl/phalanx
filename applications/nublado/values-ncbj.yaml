@@ -25,7 +25,8 @@ controller:
       volumes:
         - name: "data"
           source:
-            serverPath: "/cloud/production/okdpoz2/lsst/data"
+            #serverPath: "/cloud/production/okdpoz2/lsst/data"
+            serverPath: "/cloud/production/lsst_data"
             server: "10.60.1.215"
             type: "nfs"
         - name: "home"
