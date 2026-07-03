@@ -1,6 +1,6 @@
 config:
   siteName: "Rubin Science Platform @ NCBJ"
-  headerLogoFile: "all.png"
+  headerLogoFile: "all_dark.png"
   headerLogoHeight: 65
   headerLogoWidth: 480
   headerLogoMimeType: "image/png"
