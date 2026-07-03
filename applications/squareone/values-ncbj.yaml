@@ -1,8 +1,8 @@
 config:
   siteName: "Rubin Science Platform @ NCBJ"
-  headerLogoFile: "empty.png"
-  headerLogoHeight: 1
-  headerLogoWidth: 1
+  headerLogoFile: "all.png"
+  headerLogoHeight: 65
+  headerLogoWidth: 480
   headerLogoMimeType: "image/png"
 
 ingress:
