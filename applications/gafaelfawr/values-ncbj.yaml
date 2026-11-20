@@ -2,6 +2,7 @@ redis:
   persistence:
     enabled: false
 config:
+  afterLogoutUrl: "https://rsp.cis.gov.pl/"
   internalDatabase: true
   oidcServer:
     enabled: false
