@@ -27,10 +27,10 @@ config:
     gidAttr: "gidNumber"
     groupBaseDn: "ou=groups,dc=ncbj,dc=gov"
 
-  initialAdmins:
-    - "fruboes"
-    - "tfruboes"
-    - "knawro"
+  #initialAdmins:
+  #  - "fruboes"
+  #  - "tfruboes"
+  #  - "knawro"
 
   groupMapping:
     "admin:token":
