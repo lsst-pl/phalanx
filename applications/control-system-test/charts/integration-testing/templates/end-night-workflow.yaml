@@ -10,10 +10,7 @@ spec:
   artifactRepositoryRef:
     configMap: integration-test-controller-configmap
     key: artifactRepository
-  volumes:
-  - name: testreports
-    persistentVolumeClaim:
-      claimName: {{ .Values.persistentVolume.claimName }}
+  {{- include "integration-testing.volumes" . | nindent 2 }}
   imagePullSecrets:
   - name: pull-secret
   podMetadata:
@@ -42,9 +39,9 @@ spec:
           - name: integrationtest
             value: "-A Test_Report_MainTel_CSC_End_of_Night.list"
           - name: jobname
-            value: mtcscendofnight.xml
+            value: maintel-end-night
           - name: reportname
-            value: maintel_end_night.xml
+            value: mtcscendofnight.xml
       - name: auxtel-end-night
         depends: call-cleanup-reports
         templateRef:

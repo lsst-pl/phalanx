@@ -1,7 +1,6 @@
 test42:
   image:
     repository: ts-dockerhub.lsst.org/test
-    pullPolicy: Always
   env:
     RUN_ARG: 42
   resources:
@@ -16,6 +15,9 @@ integration-testing:
   enabled: true
   envEfd: base_efd
   s3Bucket: rubinobs-lfa-ls
+  efdCredentials:
+    containerPath: /home/saluser/.lsst
+    secretFilename: .efdauth.json
 
 rumba:
   enabled: true

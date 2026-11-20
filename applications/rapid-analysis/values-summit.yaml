@@ -1,17 +1,16 @@
 image:
   repository: ghcr.io/lsst-so/rubintv_production
-  tag: tickets-DM-55103
+  tag: tickets-DM-56797
   pullPolicy: Always
 location: SUMMIT
 env:
   DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
   DEPLOY_BRANCH: deploy-summit
+  EFDAUTH: /project/rubintv/auth/efdauth.json
   LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
   AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
   BUTLER_ROLLOUT_PAUSE: 1.0
   RA_PULL_DIRECTORIES: ""
-  TARTS_DATA_DIR: /project/rubintv/aos_data/TARTS
-  AI_DONUT_DATA_DIR: /project/rubintv/aos_data/AI_DONUT
   # These threading env vars are the ones set in
   # lsst.utils.disable_implicit_threading() They are being set here as well for
   # extra safety as there is a possibility that code could init before that's
@@ -38,6 +37,19 @@ scripts:
 ###
 ### AuxTel pods
 ###
+- name: LATISS/runAosWorker.py
+  replicas: 3
+  mounts:
+  - auxtel-data
+  - auxtel-gen3-data
+  - project-shared
+  resources:
+    requests:
+      cpu: 1.0
+      memory: 4G
+    limits:
+      cpu: 1.0
+      memory: 8G
 - name: LATISS/runButlerWatcher.py
   mounts:
   - auxtel-data
@@ -411,6 +423,8 @@ resources:
     memory: 2.5G
 redis:
   enabled: true
+  image:
+    tag: "8.10.1"
   port: 6379
   env:
     MASTER: true

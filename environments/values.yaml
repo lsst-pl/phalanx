@@ -1,4 +1,4 @@
-# These four settings should be set in each environment values-*.yaml file.
+# Settings for each environment.
 
 # -- Name of the environment
 # @default -- None, must be set
@@ -7,6 +7,18 @@ name: ""
 # -- Fully-qualified domain name where the environment is running
 # @default -- None, must be set
 fqdn: ""
+
+# -- Short human-readable title for the environment
+# @default -- Value of `name`
+title: null
+
+# -- Longer one-line human-readable title for the environment
+# @default -- Value of `title`
+titleLong: null
+
+# -- Description of the environment
+# @default -- None, must be set
+description: ""
 
 # -- Name of the parent Argo CD app-of-apps that manages all the applications
 # enabled for this environment
@@ -17,8 +29,14 @@ appOfAppsName: "app-of-apps"
 # @default -- None, must be set
 butlerServerRepositories: {}
 
+# -- Whether to deploy workloads using Autopilot or Standard mode. If this is
+# null, the workloads will use the compute class that corresponds to the
+# cluster type. Here's an [example of setting an Autopilot compute
+# class](https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-classes-standard-clusters#built-in-class)
+defaultComputeClass: null
+
 # -- URL of the repository for all applications
-repoUrl: https://github.com/lsst-sqre/phalanx.git
+repoUrl: "https://github.com/lsst-sqre/phalanx.git"
 
 # -- Revision of repository to use for all applications unless overridden by
 # branches below
@@ -31,13 +49,10 @@ vaultUrl: "https://vault.lsst.cloud/"
 # @default -- None, must be set
 vaultPathPrefix: ""
 
-# -- Whether to deploy workloads using Autopilot or Standard mode. If this is
-# null, the workloads will use the compute class that corresponds to the
-# cluster type. Here's an [example of setting an Autopilot compute
-# class](https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-classes-standard-clusters#built-in-class)
-defaultComputeClass: null
-
 applications:
+  # -- Enable the apdb-backups-gcp application
+  apdb-backups-gcp: false
+
   # -- Enable the argo-workflows application
   argo-workflows: false
 
@@ -70,6 +85,9 @@ applications:
   # -- Enable the cm-service application
   cm-service: false
 
+  # -- Enable the conesearch application
+  conesearch: false
+
   # -- Enable the consdbtap application
   consdbtap: false
 
@@ -87,6 +105,9 @@ applications:
 
   # -- Enable the envsys control system application
   envsys: false
+
+  # -- Enable the ephemcache application
+  ephemcache: false
 
   # -- Enable the eups-distributor application
   eups-distributor: false
@@ -119,8 +140,23 @@ applications:
   # -- Enable the hoverdrive application
   hoverdrive: false
 
+  # -- Enable the log-explorer application
+  log-explorer: false
+
   # -- Enable the muster application
   muster: false
+
+  # -- Enable the obsforge application
+  obsforge: false
+
+  # -- Enable the obsforgetap application
+  obsforgetap: false
+
+  # -- Enable the opensearch-cluster application
+  opensearch-cluster: false
+
+  # -- Enable the opensearch-operator application
+  opensearch-operator: false
 
   # -- Enable the prompt-pub application
   prompt-pub: false
@@ -134,6 +170,10 @@ applications:
   # -- Enable the Repertoire application. This provides service discovery for
   # many other Phalanx applications, all of which assume that it is running.
   repertoire: true
+
+
+  # -- Enable the river-next application
+  river-next: false
 
   # -- Enable the rubin-rag application
   rubin-rag: false
@@ -161,9 +201,6 @@ applications:
 
   # -- Enable the keda application
   keda: false
-
-  # -- Enable the livetap application
-  livetap: false
 
   # -- Enable the love control system application
   love: false
@@ -218,9 +255,6 @@ applications:
   # -- Enable the prompt-kafka application
   prompt-kafka: false
 
-  # -- Enable the prompt-keda-hsc application
-  prompt-keda-hsc: false
-
   # -- Enable the prompt-keda-latiss application
   prompt-keda-latiss: false
 
@@ -251,17 +285,17 @@ applications:
   # -- Enable the sasquatch-backpack application
   sasquatch-backpack: false
 
-  # -- Enable the schedview-snapshot application
-  schedview-snapshot: false
-
-  # -- Enable the schedview-static-pages application
-  schedview-static-pages: false
-
   # -- Enable the sia over butler application
   sia: false
 
   # -- Enable the simonyitel control system application
   simonyitel: false
+
+  # -- Enable the skyviewer application
+  skyviewer: false
+
+  # -- Enable the so-evening-tailgate application
+  so-evening-tailgate: false
 
   # -- Enable the ssotap application
   ssotap: false
@@ -287,11 +321,11 @@ applications:
   # -- Enable the strimzi-registry-operator application
   strimzi-registry-operator: false
 
+  # -- Enable the svab-slack-bot application
+  svab-slack-bot: false
+
   # -- Enable the tap application
   tap: false
-
-  # -- Enable the tasso application
-  tasso: false
 
   # -- Enable the templatebot application
   templatebot: false
@@ -299,11 +333,17 @@ applications:
   # -- Enable the times-square application
   times-square: false
 
+  # -- Enable the weatherbroadcaster application
+  weatherbroadcaster: false
+
   # -- Enable the turborepo-cache application
   turborepo-cache: false
 
   # -- Enable the unfurlbot application
   unfurlbot: false
+
+  # -- Enable the usertap application
+  usertap: false
 
   # -- Enable the uws application. This includes the dmocps control system
   # application.
@@ -320,6 +360,9 @@ applications:
 
   # -- Enable the vo-cutouts application
   vo-cutouts: false
+
+  # -- Enable the weathernbeats application
+  weathernbeats: false
 
   # -- Enable the wobbly application, required if the environment will be
   # running any Safir-based UWS services

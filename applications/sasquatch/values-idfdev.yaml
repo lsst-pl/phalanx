@@ -44,7 +44,7 @@ schema-registry:
 
 influxdb:
   image:
-    tag: 1.12.3
+    tag: 1.12.4
   ingress:
     enabled: false
     hostname: data-dev.lsst.cloud
@@ -53,10 +53,47 @@ customInfluxDBIngress:
   enabled: true
   hostname: data-dev.lsst.cloud
 
+influxdb-users:
+  enabled: true
+  image:
+    tag: 1.12.4
+  targets:
+    - name: influxdb
+      hostname: sasquatch-influxdb
+      users:
+        - username: sasquatch
+          passwordSecretRef:
+            name: sasquatch
+            key: influxdb-sasquatch-password
+          databases:
+            - name: lsst.square.metrics
+              privilege: READ
+            - name: efd
+              privilege: READ
+        - username: metrics-reader
+          passwordSecretRef:
+            name: sasquatch
+            key: influxdb-metrics-reader-password
+          databases:
+            - name: lsst.square.metrics
+              privilege: READ
+    - name: influxdb-enterprise
+      hostname: sasquatch-influxdb-enterprise-data
+      users:
+        - username: sasquatch
+          passwordSecretRef:
+            name: sasquatch
+            key: influxdb-sasquatch-password
+          databases:
+            - name: lsst.square.metrics
+              privilege: READ
+            - name: efd
+              privilege: READ
+
 influxdb-enterprise:
   enabled: true
   image:
-    tag: 1.12.3
+    tag: 1.12.4
   license:
     secret:
       name: sasquatch
@@ -97,20 +134,59 @@ telegraf:
       enabled: true
       replicaCount: 1
       database: "lsst.example"
-      tags: |
-        [ "band", "instrument" ]
+      tags:
+        - "band"
+        - "instrument"
       timestamp_format: "unix_ms"
       timestamp_field: "timestamp"
-      topicRegexps: |
-        [ "lsst.example" ]
+      topicDiscovery:
+        enabled: true
+        includePrefixes:
+          - "lsst.example"
+        excludePrefixes:
+          - "lsst.examplejson"
+        refreshInterval: "30s"
+    examplejson:
+      enabled: true
+      replicaCount: 1
+      data_format: "json_v2"
+      database: "lsst.examplejson"
+      tags:
+        - "band"
+        - "instrument"
+      timestamp_format: "unix_ms"
+      timestamp_field: "timestamp"
+      topicRegexps:
+        - "lsst.examplejson"
     backpack:
       enabled: true
       replicaCount: 1
       database: "lsst.backpack"
       timestamp_format: "unix"
       timestamp_field: "timestamp"
-      topicRegexps: |
-        [ "lsst.backpack" ]
+      topicRegexps:
+        - "lsst.backpack"
+    benchmark:
+      enabled: true
+      debug: true
+      database: "lsst.benchmark"
+      topicDiscovery:
+        enabled: true
+        includePrefixes:
+          - "lsst.benchmark"
+        excludePrefixes: []
+        refreshInterval: "30s"
+      timestamp_field: "start_time"
+      tags:
+        - "node"
+        - "user"
+        - "generation"
+        - "location"
+        - "butler_config"
+        - "butler_collections"
+        - "dataset_name"
+        - "display_name"
+        - "limit"
 
 kafdrop:
   cmdArgs: "--message.format=AVRO --message.keyFormat=DEFAULT --topic.deleteEnabled=true --topic.createEnabled=true"
@@ -126,6 +202,7 @@ rest-proxy:
       - lsst.example
       - lsst.tap
       - lsst.backpack
+      - lsst.benchmark
 
 chronograf:
   ingress:
@@ -147,6 +224,8 @@ app-metrics:
   enabled: true
   apps:
     - bigquerykafka
+    - conesearch
+    - datalinker
     - gafaelfawr
     - herald
     - mobu
@@ -209,4 +288,7 @@ trickster:
       log_level: "debug"
 
 redis:
+  enabled: true
+
+benchmark:
   enabled: true

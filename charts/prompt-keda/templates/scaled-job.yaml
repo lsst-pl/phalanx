@@ -141,6 +141,8 @@ spec:
                 value: {{ .Values.alerts.topic}}
               - name: LOCAL_REPOS
                 value: /tmp-butler
+              - name: LSST_RESOURCES_TMPDIR
+                value: /tmp-butler
               - name: SERVICE_LOG_LEVELS
                 value: {{ .Values.logLevel }}
               - name: LOCAL_REPO_CACHE_SIZE
@@ -150,6 +152,10 @@ spec:
               {{- if .Values.debug.monitorDaxApdb }}
               - name: DAX_APDB_MONITOR_CONFIG
                 value: 'logging:lsst.dax.apdb.monitor'
+              {{- end }}
+              {{- if .Values.debug.slowTransferLogSeconds }}
+              - name: TRANSFER_SLOW_LOG_SECONDS
+                value: {{ .Values.debug.slowTransferLogSeconds | toString | quote }}
               {{- end }}
               - name: REDIS_STREAM_HOST
                 value: {{ .Values.keda.redisStreams.host}}
@@ -225,8 +231,8 @@ spec:
   minReplicaCount: {{ .Values.keda.minReplicaCount}}
   maxReplicaCount: {{ .Values.keda.maxReplicaCount}}
   rollout:
-    strategy: default
-    propagationPolicy: foreground
+    strategy: {{ .Values.keda.rollout.strategy}}
+    propagationPolicy: {{ .Values.keda.rollout.propagationPolicy}}
   scalingStrategy:
     strategy: {{ .Values.keda.scalingStrategy}}
   triggers:

@@ -7,6 +7,9 @@ redis:
 
 config:
   databaseUrl: postgresql://gafaelfawr@gf-db-rw.gafaelfawr-db.svc.cluster.local/gafaelfawr
+  slackAlerts: true
+  updateSchema: true
+
   sentry:
     enabled: true
 
@@ -40,6 +43,9 @@ config:
     nameAttr: gecos
 
   groupMapping:
+    "admin:oidc":
+      - "rubinmgr"
+      - "unix-admin"
     "admin:token":
       - "rubinmgr"
       - "unix-admin"
@@ -221,13 +227,6 @@ config:
       - "rubinmgr"
       - "unix-admin"
 
-  initialAdmins:
-    - "afausti"
-    - "athor"
-    - "dspeck"
-    - "frossie"
-    - "jonathansick"
-    - "pav"
-    - "ppascual"
-    - "rra"
-    - "ytl"
+  knownScopes:
+    "read:alertdb": >-
+      Retrieve alert packets and schemas from the alert archive database

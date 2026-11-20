@@ -47,6 +47,20 @@ customInfluxDBIngress:
   enabled: true
   hostname: data-int.lsst.cloud
 
+influxdb-users:
+  enabled: true
+  targets:
+    - name: influxdb
+      hostname: sasquatch-influxdb
+      users:
+        - username: metrics-reader
+          passwordSecretRef:
+            name: sasquatch
+            key: influxdb-metrics-reader-password
+          databases:
+            - name: lsst.square.metrics
+              privilege: READ
+
 telegraf:
   enabled: true
   kafkaConsumers:
@@ -54,20 +68,43 @@ telegraf:
       enabled: true
       replicaCount: 1
       database: "lsst.example"
-      tags: |
-        [ "band", "instrument" ]
+      tags:
+        - "band"
+        - "instrument"
       timestamp_format: "unix_ms"
       timestamp_field: "timestamp"
-      topicRegexps: |
-        [ "lsst.example" ]
+      topicRegexps:
+        - "lsst.example"
     backpack:
       enabled: true
       replicaCount: 1
       database: "lsst.backpack"
       timestamp_format: "unix"
       timestamp_field: "timestamp"
-      topicRegexps: |
-        [ "lsst.backpack" ]
+      topicRegexps:
+        - "lsst.backpack"
+    benchmark:
+      enabled: true
+      debug: true
+      database: "lsst.benchmark"
+      topicDiscovery:
+        enabled: true
+        includePrefixes:
+          - "lsst.benchmark"
+        excludePrefixes: []
+        refreshInterval: "30s"
+      timestamp_field: "start_time"
+      tags:
+        - "node"
+        - "user"
+        - "concurrency"
+        - "generation"
+        - "location"
+        - "transport"
+        - "butler_config"
+        - "butler_collections"
+        - "dataset_name"
+        - "display_name"
 
 kafdrop:
   ingress:
@@ -81,6 +118,7 @@ rest-proxy:
     topicPrefixes:
       - lsst.example
       - lsst.backpack
+      - lsst.benchmark
 
 chronograf:
   ingress:
@@ -103,6 +141,8 @@ app-metrics:
   enabled: true
   apps:
     - bigquerykafka
+    - conesearch
+    - datalinker
     - gafaelfawr
     - herald
     - mobu
@@ -137,4 +177,7 @@ tap:
   enabled: true
 
 ppdbtap:
+  enabled: true
+
+benchmark:
   enabled: true

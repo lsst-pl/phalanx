@@ -5,23 +5,23 @@ metadata:
   labels:
     {{- include "application.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.frontend.replicaCount }}
+  replicas: {{ .Values.backend.replicaCount }}
   revisionHistoryLimit: 2
   selector:
     matchLabels:
       {{- include "application.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: "frontend"
+      app.kubernetes.io/component: "backend"
   template:
     metadata:
       annotations:
-        {{- with .Values.frontend.podAnnotations }}
+        {{- with .Values.backend.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
         {{- include "application.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: "frontend"
+        app.kubernetes.io/component: "backend"
     spec:
-      {{- with .Values.frontend.affinity }}
+      {{- with .Values.backend.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -39,8 +39,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.db.secretName }}
                   key: {{ .Values.config.db.secretKey }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+            - name: NOTIFICATIONS__FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.notifications.secretName }}
+                  key: {{ .Values.config.notifications.fernetSecretKey }}
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - name: "http"
               containerPort: 8080
@@ -50,7 +55,7 @@ spec:
               path: "/healthz"
               port: "http"
           resources:
-            {{- toYaml .Values.frontend.resources | nindent 12 }}
+            {{- toYaml .Values.backend.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -59,20 +64,25 @@ spec:
             readOnlyRootFilesystem: true
           # TODO: we hopefully do not actually need this mounted on the API
           volumeMounts:
+            - name: tmp-volume
+              mountPath: "/tmp"
             {{- with .Values.config.outputVolume }}
             - mountPath: {{ .mountPath }}
               name: "output-volume"
               subPath: {{ .subPath }}
             {{- end }}
       volumes:
+        - name: tmp-volume
+          emptyDir:
+            sizeLimit: 500Mi
         - name: output-volume
           persistentVolumeClaim:
             claimName: {{ .Chart.Name }}-output
-      {{- with .Values.frontend.nodeSelector }}
+      {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.frontend.tolerations }}
+      {{- with .Values.backend.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

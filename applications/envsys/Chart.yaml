@@ -7,6 +7,16 @@ dependencies:
   version: 1.0.0
   repository: file://../../charts/csc_shared
 - name: csc
+  alias: aurora-cloud-sensor-ess307-sim
+  version: 1.0.0
+  condition: aurora-cloud-sensor-ess307-sim.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: aurora-cloud-sensor-ess307
+  version: 1.0.0
+  condition: aurora-cloud-sensor-ess307.enabled
+  repository: file://../../charts/csc
+- name: csc
   alias: automatic-transfer-switch-ess309
   version: 1.0.0
   condition: automatic-transfer-switch-ess309.enabled
@@ -270,6 +280,36 @@ dependencies:
   alias: m1m3-ess117-sim
   version: 1.0.0
   condition: m1m3-ess117-sim.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: m1m3-flowmeter-ess130
+  version: 1.0.0
+  condition: m1m3-flowmeter-ess130.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: m1m3-flowmeter-ess130-sim
+  version: 1.0.0
+  condition: m1m3-flowmeter-ess130-sim.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: m1m3-flowmeter-ess131
+  version: 1.0.0
+  condition: m1m3-flowmeter-ess131.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: m1m3-flowmeter-ess131-sim
+  version: 1.0.0
+  condition: m1m3-flowmeter-ess131-sim.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: m1m3-thermal-gradients-ess132
+  version: 1.0.0
+  condition: m1m3-thermal-gradients-ess132.enabled
+  repository: file://../../charts/csc
+- name: csc
+  alias: m1m3-thermal-gradients-ess132-sim
+  version: 1.0.0
+  condition: m1m3-thermal-gradients-ess132-sim.enabled
   repository: file://../../charts/csc
 - name: csc
   alias: m2-ess106

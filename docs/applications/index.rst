@@ -21,5 +21,6 @@ To learn how to develop applications for Phalanx, see the :doc:`/developers/inde
    roundtable
    monitoring
    support
+   drp
    prompt
    telescope

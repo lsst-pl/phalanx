@@ -2,7 +2,7 @@
 
 KEDA Prompt Processing instance for LATISS
 
-**Homepage:** <https://github.com/lsst-dm/prompt_processing/blob/main/doc/playbook.rst>
+**Homepage:** <https://github.com/lsst-dm/prompt_processing/blob/main/docs/playbook.rst>
 
 ## Source Code
 
@@ -25,6 +25,7 @@ KEDA Prompt Processing instance for LATISS
 | prompt-keda.cache.baseSize | int | `3` | The default number of datasets of each type to keep. The pipeline only needs one of most dataset types (one bias, one flat, etc.), so this is roughly the number of visits that fit in the cache. |
 | prompt-keda.debug.exportOutputs | bool | `true` | Whether or not pipeline outputs should be exported to the central repo. This flag does not turn off APDB writes or alert generation; those must be handled at the pipeline level or by setting up an alternative destination. |
 | prompt-keda.debug.monitorDaxApdb | bool | `false` | Whether `dax_apdb` should run in debug mode and log metrics. |
+| prompt-keda.debug.slowTransferLogSeconds | int | `0` | Log per-file transfer details when slow or failing. 0 disables. |
 | prompt-keda.fullnameOverride | string | `"prompt-keda-latiss"` | Override the full name for resources (includes the release name) |
 | prompt-keda.iers_cache | string | `""` | The URI where IERS data has been pre-downloaded and cached for use by Prompt Processing. If empty, Prompt Processing does not try to update IERS data. |
 | prompt-keda.image.pullPolicy | string | `IfNotPresent` in prod, `Always` in dev | Pull policy for the PP image |
@@ -69,6 +70,8 @@ KEDA Prompt Processing instance for LATISS
 | prompt-keda.keda.redisStreams.pendingEntriesCount | string | `"1"` | Number of entries in the Pending Entries List for the specified consumer group in the Redis Stream |
 | prompt-keda.keda.redisStreams.retry | int | `30` | The time to wait (in seconds) before retrying a stream connection failure. |
 | prompt-keda.keda.redisStreams.streamName | string | `"instrument:latiss"` | Name of Redis Stream |
+| prompt-keda.keda.rollout.propagationPolicy | string | `"foreground"` | Kubernetes propagation policy for cleaning up existing jobs during rollout. |
+| prompt-keda.keda.rollout.strategy | string | `"immediate"` | Which Rollout Strategy KEDA will use. |
 | prompt-keda.keda.scalingStrategy | string | `"eager"` | Scaling algorithm |
 | prompt-keda.keda.successfulJobsHistoryLimit | int | `5` | How many completed jobs should be kept available in Kubernetes. |
 | prompt-keda.logLevel | string | log prompt_processing at DEBUG, other LSST code at INFO, and third-party code at WARNING. | Requested logging levels in the format of [Middleware's \-\-log-level argument](https://pipelines.lsst.io/v/daily/modules/lsst.daf.butler/scripts/butler.html#cmdoption-butler-log-level). |

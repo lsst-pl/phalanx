@@ -1,7 +1,7 @@
 prompt-keda:
   image:
     pullPolicy: IfNotPresent
-    tag: 14.5.0
+    tag: 17.1.0
 
   alerts:
     username: prompt-alert
@@ -26,11 +26,10 @@ prompt-keda:
           - ${PROMPT_PROCESSING_DIR}/pipelines/LSSTCam/Isr.yaml
         # FBS Pre-Operations Survey
         - {survey: BLOCK-407, pipelines: *std-main-pipelines}
-        - {survey: BLOCK-408, pipelines: *std-main-pipelines}
-        - {survey: BLOCK-416, pipelines: *std-main-pipelines}
-        - {survey: BLOCK-417, pipelines: *std-main-pipelines}
-        - {survey: BLOCK-419, pipelines: *std-main-pipelines}
-        - {survey: BLOCK-421, pipelines: *std-main-pipelines}
+        # FBS Survey (v5.3)
+        - {survey: BLOCK-430, pipelines: *std-main-pipelines}
+        # A test of 20s exposures for RFC-1185
+        - {survey: BLOCK-432, pipelines: *std-main-pipelines}
         # TMA checkout, no images
         - {survey: BLOCK-T250, pipelines: []}
         # Daytime checkout
@@ -53,11 +52,8 @@ prompt-keda:
           pipelines: &std-pre-pipelines
           - ${PROMPT_PROCESSING_DIR}/pipelines/LSSTCam/Preprocessing.yaml
         - {survey: BLOCK-407, pipelines: *std-pre-pipelines}
-        - {survey: BLOCK-408, pipelines: *std-pre-pipelines}
-        - {survey: BLOCK-416, pipelines: *std-pre-pipelines}
-        - {survey: BLOCK-417, pipelines: *std-pre-pipelines}
-        - {survey: BLOCK-419, pipelines: *std-pre-pipelines}
-        - {survey: BLOCK-421, pipelines: *std-pre-pipelines}
+        - {survey: BLOCK-430, pipelines: *std-pre-pipelines}
+        - {survey: BLOCK-432, pipelines: *std-pre-pipelines}
         - {survey: BLOCK-T698, pipelines: *std-pre-pipelines}
         - {survey: BLOCK-T703, pipelines: *std-pre-pipelines}
         - {survey: BLOCK-T704, pipelines: *std-pre-pipelines}
@@ -66,9 +62,9 @@ prompt-keda:
         # Don't preprocess anything unknown
         - {pipelines: []}
     preloadPadding: 50.1
-    centralRepo: s3://rubin-summit-users
-    readRepo: s3://rubin-summit-users/butler-readonly.yaml
-    localRepoConfig: s3://rubin-summit-users/config/prompt_processing.yaml
+    centralRepo: s3://rubin-summit-users/butler_future.yaml
+    readRepo: s3://rubin-summit-users/butler_readonly_future.yaml
+    localRepoConfig: s3://rubin-summit-users/config/prompt_processing_future.yaml
     exportTypes: |-
       - ".*_(config|metadata|log)"
       - "packages"
@@ -103,7 +99,7 @@ prompt-keda:
 
   raw_microservice: http://172.24.5.158:8080/presence
 
-  mpSky_service: http://usdf-mpsky.sdf.slac.stanford.edu/ephemerides/
+  mpSky_service: http://mpsky.mpsky/ephemerides/
 
   iers_cache: s3://rubin-summit-users/iers-cache.zip
 
@@ -128,6 +124,8 @@ prompt-keda:
 
   debug:
     monitorDaxApdb: true
+    # -- Log per-file transfer details when slow or failing. 0 disables.
+    slowTransferLogSeconds: 0
 
   keda:
     minReplicaCount: 3

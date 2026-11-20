@@ -14,7 +14,6 @@ ccheaderservice:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     URL_SPEC: --lfa_mode s3 --s3instance cp
     CAMERA: cc
@@ -37,7 +36,6 @@ ccheaderservice-sim:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     URL_SPEC: --lfa_mode s3 --s3instance cp --playback
     CAMERA: cc
@@ -67,7 +65,6 @@ ccoods:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/ccoods
-    pullPolicy: Always
   env:
     CTRL_OODS_CONFIG_FILE: /etc/ccoods.yaml
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
@@ -131,7 +128,6 @@ gcheaderservice101:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     CAMERA: gc101
     URL_SPEC: --lfa_mode s3 --s3instance cp
@@ -154,7 +150,6 @@ gcheaderservice102:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     CAMERA: gc102
     URL_SPEC: --lfa_mode s3 --s3instance cp
@@ -177,7 +172,6 @@ gcheaderservice103:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     CAMERA: gc103
     URL_SPEC: --lfa_mode s3 --s3instance cp
@@ -200,7 +194,6 @@ lasertracker1:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/lasertracker
-    pullPolicy: Always
   env:
     RUN_ARG: 1
   resources:
@@ -216,7 +209,6 @@ mtaircompressor1:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtaircompressor
-    pullPolicy: Always
   env:
     RUN_ARG: 1 --state disabled
   resources:
@@ -224,7 +216,7 @@ mtaircompressor1:
       cpu: 100m
       memory: 360Mi
     requests:
-      cpu: 16m
+      cpu: 20m
       memory: 180Mi
 
 mtaircompressor2:
@@ -232,7 +224,6 @@ mtaircompressor2:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtaircompressor
-    pullPolicy: Always
   env:
     RUN_ARG: 2 --state disabled
   resources:
@@ -240,14 +231,13 @@ mtaircompressor2:
       cpu: 100m
       memory: 360Mi
     requests:
-      cpu: 13m
+      cpu: 20m
       memory: 180Mi
 
 mtaos:
   image:
-    revision: 2
+    revision: 1
     repository: ts-dockerhub.lsst.org/mtaos
-    pullPolicy: Always
   env:
     DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
@@ -283,11 +273,11 @@ mtaos:
     serverPath: /obs-env
   resources:
     limits:
-      cpu: 12000m
-      memory: 10000Mi
+      cpu: 14
+      memory: 12Gi
     requests:
-      cpu: 12000m
-      memory: 9500Mi
+      cpu: 12
+      memory: 10Gi
 
 mtcamhexapod:
   enabled: true
@@ -295,7 +285,6 @@ mtcamhexapod:
   image:
     revision: 1
     repository: ts-dockerhub.lsst.org/mthexapod
-    pullPolicy: Always
   env:
     RUN_ARG: 1
   nfsMountpoint:
@@ -318,7 +307,6 @@ mtcamhexapod-sim:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mthexapod
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate 1
   resources:
@@ -332,23 +320,21 @@ mtcamhexapod-sim:
 mtdome:
   enabled: true
   image:
-    revision: 0
+    revision: 1
     repository: ts-dockerhub.lsst.org/mtdome
-    pullPolicy: Always
   resources:
     limits:
       cpu: 900m
-      memory: 320Mi
+      memory: 500Mi
     requests:
       cpu: 90m
-      memory: 160Mi
+      memory: 250Mi
 
 mtdome-sim:
   enabled: false
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtdome
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate 1
   resources:
@@ -363,7 +349,6 @@ mtdometrajectory:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtdometrajectory
-    pullPolicy: Always
   resources:
     limits:
       cpu: 250m
@@ -377,7 +362,6 @@ mtheaderservice:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     URL_SPEC: --lfa_mode s3 --s3instance cp
     CAMERA: mt
@@ -400,7 +384,6 @@ mtm1m3-sim:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtm1m3_sim
-    pullPolicy: Always
   env:
     LSST_KAFKA_TLM_FLUSH_MS: 0
     LSST_KAFKA_CMDEVT_FLUSH_MS: 0
@@ -416,13 +399,12 @@ mtm2:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/m2
-    pullPolicy: Always
   resources:
     limits:
-      cpu: 850m
+      cpu: 1
       memory: 1500Mi
     requests:
-      cpu: 280m
+      cpu: 500m
       memory: 420Mi
 
 mtm2-sim:
@@ -430,7 +412,6 @@ mtm2-sim:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/m2
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -447,7 +428,6 @@ mtm2hexapod:
   image:
     revision: 1
     repository: ts-dockerhub.lsst.org/mthexapod
-    pullPolicy: Always
   env:
     RUN_ARG: 2
   nfsMountpoint:
@@ -458,10 +438,10 @@ mtm2hexapod:
     serverPath: /obs-env
   resources:
     limits:
-      cpu: 400m
+      cpu: 500m
       memory: 1400Mi
     requests:
-      cpu: 200m
+      cpu: 250m
       memory: 700Mi
 
 mtm2hexapod-sim:
@@ -470,7 +450,6 @@ mtm2hexapod-sim:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mthexapod
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate 2
   resources:
@@ -484,43 +463,36 @@ mtm2hexapod-sim:
 mtmount:
   enabled: true
   image:
-    revision: 6
+    revision: 1
     repository: ts-dockerhub.lsst.org/mtmount
-    pullPolicy: IfNotPresent
-  nodeSelector:
-    kubernetes.io/hostname: yagan14
   resources:
     limits:
-      cpu: 2
+      cpu: 3
       memory: 1000Mi
     requests:
-      cpu: 1900m
+      cpu: 2
       memory: 425Mi
 
 mtmount-ccw-only:
   enabled: false
   image:
-    revision: 0
+    revision: 1
     repository: ts-dockerhub.lsst.org/mtmount
-    pullPolicy: IfNotPresent
   env:
     CCW_ONLY: yes
-  nodeSelector:
-    kubernetes.io/hostname: yagan14
   resources:
     limits:
-      cpu: 500m
+      cpu: 3
       memory: 1000Mi
     requests:
-      cpu: 50m
-      memory: 300Mi
+      cpu: 2
+      memory: 425Mi
 
 mtmount-sim:
   enabled: false
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtmount
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -534,9 +506,8 @@ mtmount-sim:
 mtoods:
   enabled: true
   image:
-    revision: 4
+    revision: 0
     repository: ts-dockerhub.lsst.org/mtoods
-    pullPolicy: Always
   env:
     CTRL_OODS_CONFIG_FILE: /etc/mtoods.yaml
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
@@ -548,11 +519,11 @@ mtoods:
   <<: *butler-secret
   resources:
     limits:
-      cpu: 1500m
-      memory: 2100Mi
+      cpu: 2
+      memory: 8Gi
     requests:
-      cpu: 500m
-      memory: 800Mi
+      cpu: 1
+      memory: 2Gi
   configfile:
     path: /etc
     filename: mtoods.yaml
@@ -604,7 +575,6 @@ mtptg:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/ptkernel
-    pullPolicy: Always
   env:
     TELESCOPE: MT
     LSST_KAFKA_TLM_FLUSH_MS: 0
@@ -619,15 +589,14 @@ mtptg:
 mtrotator:
   enabled: true
   image:
-    revision: 1
+    revision: 0
     repository: ts-dockerhub.lsst.org/mtrotator
-    pullPolicy: Always
   resources:
     limits:
       cpu: 1
       memory: 900Mi
     requests:
-      cpu: 400m
+      cpu: 500m
       memory: 300Mi
 
 mtrotator-sim:
@@ -635,7 +604,6 @@ mtrotator-sim:
   image:
     revision: 0
     repository: ts-dockerhub.lsst.org/mtrotator
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -649,9 +617,8 @@ mtrotator-sim:
 wfoods:
   enabled: true
   image:
-    revision: 4
+    revision: 0
     repository: ts-dockerhub.lsst.org/wfoods
-    pullPolicy: Always
   env:
     CTRL_OODS_CONFIG_FILE: /etc/wfoods.yaml
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org

@@ -41,6 +41,14 @@ spec:
                 secretKeyRef:
                   name: {{ include "portal.fullname" . }}-secret
                   key: "ADMIN_PASSWORD"
+            {{- if .Values.config.cleanupSharedMax }}
+            - name: "CLEANUP_SHARED_MAX"
+              value: {{ .Values.config.cleanupSharedMax | quote }}
+            {{- end }}
+            {{- if .Values.config.cleanupWorkareaMax }}
+            - name: "CLEANUP_WORKAREA_MAX"
+              value: {{ .Values.config.cleanupWorkareaMax | quote }}
+            {{- end }}
             - name: "PROPS_redis__host"
               value: {{ include "portal.fullname" . }}-redis
             - name: "PROPS_sso__req__auth__hosts"
@@ -48,7 +56,19 @@ spec:
             - name: "PROPS_alert__viewer__fits__service__url"
               value: "{{ .Values.global.baseUrl }}/api/alerts"
             - name: "PROPS_lsst__hips__masterUrl"
-              value: "{{ .Values.global.baseUrl }}/api/hips/list"
+              value: >-
+                {{- if .Values.config.hipsListUrl }}
+                       {{ .Values.config.hipsListUrl }}
+                {{- else }}
+                       {{ .Values.global.baseUrl }}/api/hips/list
+                {{- end }}
+            - name: "PROPS_lsst__moc__masterUrl"
+              value: >-
+                {{- if .Values.config.mocListUrl }}
+                       {{ .Values.config.mocListUrl }}
+                {{- else }}
+                       {{ .Values.global.baseUrl }}/api/hips/v2/dp2/dp2-moc-list.tbl
+                {{- end }}
             - name: PROPS_job__cleanup__interval
               value: "120"
             - name: PROPS_OP_searchActionsCmdMask_0
@@ -93,26 +113,34 @@ spec:
               value: "37.98, 7.0"
             - name: PROPS_OP_dataServiceOptions_DP1ImagesSIAv2_targetPanelExampleRow2_0
               value: "95.04, -25.0 EQ_J2000"
+            - name: PROPS_OP_dataServiceOptions_DP2ImagesSIAv2_targetPanelExampleRow1_0
+              value: "NGC 1494"
+            - name: PROPS_OP_dataServiceOptions_DP2ImagesSIAv2_targetPanelExampleRow1_1
+              value: "53.01, -28.35"
+            - name: PROPS_OP_dataServiceOptions_DP2ImagesSIAv2_targetPanelExampleRow1_2
+              value: "37.98, 7.0"
+            - name: PROPS_OP_dataServiceOptions_DP2ImagesSIAv2_targetPanelExampleRow2_0
+              value: "95.04, -25.0 EQ_J2000"
             - name: PROPS_OP_hips_defHipsSources_label
-              value: "'Rubin Featured'"
+              value: "Rubin Featured"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_columnNames_0
+              value: "refBand"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_columnNames_1
+              value: "lsst_band"
             - name: PROPS_OP_hips_adhocMocSource_label
-              value: "'Rubin Featured MOC'"
-            - name: PROPS_OP_hips_adhocMocSource_sources_0
-              value: temp://lsst/dp02_dc2/hips/images/color_gri
-            - name: PROPS_OP_hips_adhocMocSource_sources_1
-              value: temp://lsst/dp02_dc2/hips/images/band_u
-            - name: PROPS_OP_hips_adhocMocSource_sources_2
-              value: temp://lsst/dp02_dc2/hips/images/band_g
-            - name: PROPS_OP_hips_adhocMocSource_sources_3
-              value: temp://lsst/dp02_dc2/hips/images/band_r
-            - name: PROPS_OP_hips_adhocMocSource_sources_4
-              value: temp://lsst/dp02_dc2/hips/images/band_i
-            - name: PROPS_OP_hips_adhocMocSource_sources_5
-              value: temp://lsst/dp02_dc2/hips/images/band_z
-            - name: PROPS_OP_hips_adhocMocSource_sources_6
-              value: temp://lsst/dp02_dc2/hips/images/band_y
-            - name: PROPS_OP_hips_adhocMocSource_sources_7
-              value: ivo://CDS/P/2MASS/color
+              value: "Rubin Featured MOC"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_order_0
+              value: "u"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_order_1
+              value: "g"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_order_2
+              value: "r"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_order_3
+              value: "i"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_order_4
+              value: "z"
+            - name: PROPS_OP_dataServiceOptions_enumConfig_order_5
+              value: "y"
             - name: PROPS_inventory.serverURLAry
               value: "[\"https://raw.githubusercontent.com/lsst-sqre/portal-config/refs/heads/main/dce-searchPage-idf.xml\"]"
             - name: PROPS_uws.history.svcs
@@ -146,6 +174,18 @@ spec:
                    "SIAv2" : {
                       "additional": {
                           "services": [
+                            {
+                               "label": "DP2 Images SIAv2",
+                               "serviceId": "DP2ImagesSIAv2",
+                               "value": "{{ .Values.global.baseUrl }}/api/sia/dp2/query",
+                               {{- if .Values.config.hipsUrl }}
+                               "hipsUrl": "{{ .Values.config.hipsUrl }}",
+                               {{- else }}
+                               "hipsUrl": "{{ .Values.global.baseUrl }}/api/hips/images/color_gri",
+                               {{- end }}
+                               "centerWP": "40.1;-34.4;EQ_J2000",
+                               "fovDeg": 10
+                            },
                             {
                                "label": "DP1 Images SIAv2",
                                "serviceId": "DP1ImagesSIAv2",
@@ -199,17 +239,6 @@ spec:
                                "fovDeg": 10
                             }
                             {{- end }}
-                            {{- if .Values.config.livetap }}
-                            ,
-                            {
-                               "label": "LSST Live ObsCore",
-                               "serviceId": "RubinLiveObsCore",
-                               "value": "{{ .Values.global.baseUrl }}/api/{{ .Values.config.livetap }}",
-                               "hipsUrl": "{{ .Values.global.baseUrl }}/api/hips/images/color_gri",
-                               "centerWP": "0;0;ECL",
-                               "fovDeg": 10
-                            }
-                            {{- end }}
                           ]
                       }
                    },
@@ -218,6 +247,10 @@ spec:
               value: "/firefly/config"
             - name: "CLEANUP_INTERVAL"
               value: "{{ .Values.config.cleanupInterval }}"
+            {{- if .Values.config.cleanupAppName }}
+            - name: "CLEANUP_APP_NAME"
+              value: "{{ .Values.config.cleanupAppName }}"
+            {{- end }}
             - name: VISUALIZE_FITS_SEARCH_PATH
               value: "{{ .Values.config.visualizeFitsSearchPath }}"
             - name: DEBUG

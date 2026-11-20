@@ -70,13 +70,13 @@ config:
 
     image:
       # -- TAP image to use
-      repository: "ghcr.io/lsst-sqre/tap-postgres-service"
+      repository: "ghcr.io/lsst-sqre/lsst-tap-service"
 
       # -- Pull policy for the TAP image
       pullPolicy: "IfNotPresent"
 
-      # -- Tag of TAP image to use
-      tag: "1.26.0"
+      # -- Tag of TAP image to use.
+      tag: "3.32.0"
 
   qserv:
     # -- QServ hostname:port to connect to
@@ -86,6 +86,17 @@ config:
     # -- Extra JDBC connection parameters
     jdbcParams: ""
 
+    # -- Schema name mappings: comma-separated list of user_schema:internal_schema pairs.
+    # Example: "dp1:dp1_pilot" dp1 queries execute against dp1_pilot.
+    schemaMappings: ""
+
+    # -- Table name mappings for query rewriting (as visible:backend pairs).
+    # The visible name is the Felis / TAP_SCHEMA table
+    # The backend name is the actual Qserv / BigQuery table name.
+    # Example: ["dp1.Object:dp1_pilot.Object"] rewrites references to
+    # dp1.Object so they query dp1_pilot.Object instead.
+    tableMappings: []
+
     image:
       # -- TAP image to use
       repository: "ghcr.io/lsst-sqre/lsst-tap-service"
@@ -94,9 +105,10 @@ config:
       pullPolicy: "IfNotPresent"
 
       # -- Tag of TAP image to use
-      tag: "3.18.0"
+      tag: "3.32.0"
 
-    # -- Whether the Qserv database is password protected
+    # -- Whether the Qserv database is password protected. Only used for
+    # direct-to-Qserv execution (`config.kafka.enabled: false`).
     # @default -- false
     passwordEnabled: false
 
@@ -112,6 +124,26 @@ config:
     # -- Schema name for table mappings (optional)
     schema: ""
 
+    # -- Table name mappings for query rewriting (as visible:backend pairs).
+    # There is no built-in default mapping for any table, so
+    # every table queryable through this schema must have an entry here.
+    # Example: ["ppdb.mpc_orbits:`ppdb-dev-5c07.ppdb_public.mpc_orbits`"]
+    tableMappings: []
+
+    # -- TAP names of the tables that have a `geo_point` column. Spatial
+    # queries on these tables use `geo_point` so that BigQuery can use the
+    # clustering on it. Other tables build the point from their own columns.
+    # @default -- DiaObject, DiaSource and DiaForcedSource in `config.bigquery.schema`
+    geoPointTables: []
+
+    upload:
+      # -- GCP project holding the dataset for uploaded tables.
+      # @default -- None, table uploads are rejected
+      project: ""
+
+      # -- BigQuery dataset that uploaded tables are loaded into
+      dataset: "tap_uploads"
+
     image:
       # -- TAP image to use
       repository: "ghcr.io/lsst-sqre/lsst-tap-service"
@@ -120,7 +152,7 @@ config:
       pullPolicy: "IfNotPresent"
 
       # -- Tag of TAP image to use
-      tag: "3.18.0"
+      tag: "3.32.0"
 
   # -- Address to a MySQL database containing TAP schema data
   tapSchemaAddress: "cadc-tap-schema-db:3306"
@@ -137,8 +169,22 @@ config:
   # -- GCS bucket type (GCS or S3)
   gcsBucketType: "GCS"
 
+  # -- Whether to mount the `google_creds.json` service account credentials.
+  # Only needed when `gcsBucketType` is GCS.
+  googleCredentialsEnabled: true
+
+  # -- Name of the bucket in which to store uploaded tables. Must be the same
+  # type as `gcsBucket`.
+  # @default -- Same as `gcsBucket`
+  gcsUploadBucket: ""
+
+  # -- Access the upload bucket as the pod's Workload Identity
+  # (`cloudsql.serviceAccount`) instead of the `google_creds.json`.
+  # Requires `cloudsql.enabled` and a separate `gcsUploadBucket`.
+  gcsUploadWorkloadIdentity: false
+
   # -- Data Database name
-  database: "dp02"
+  database: "dp2"
 
   # -- Java heap size, which will set the maximum size of the heap. Otherwise
   # Java would determine it based on how much memory is available and black
@@ -180,7 +226,9 @@ config:
     # @default -- "tap"
     consumerGroupId: "tap"
 
-    # -- Whether kafka is enabled
+    # -- Whether kafka is enabled. For the `qserv` backend this also selects the
+    # execution mode: `true` dispatches queries to qserv-kafka, `false` runs the
+    # legacy direct-to-Qserv mode.
     enabled: false
 
   # -- Output limit value for TAP queries advertised in capabilities.
@@ -195,9 +243,30 @@ config:
   # Leave empty to use the default (100000000).
   maxRec: ""
 
+  # -- Maximum execution duration for TAP queries in seconds.
+  # Also used for sizing the signed result upload URL's expiration
+  # Leave empty to use the default (14400, 4 hours).
+  maxExecutionDuration: "43200"
+
+  # -- Maximum size in bytes of an uploaded table (TAP_UPLOAD).
+  # Leave empty to use the TAP service default (33554432, 32 MiB).
+  maxUploadSize: "104857600"
+
+  # -- Maximum UWS job destruction time in seconds.
+  # Leave empty to use the default (604800, 1 week).
+  maxDestruction: ""
+
+  # -- Maximum UWS job quote in seconds.
+  # Leave empty to use the default (86400, 24 hours).
+  maxQuote: ""
+
   # -- Whether to advertise VOParquet (application/vnd.apache.parquet) as a
   # supported output format in the TAP capabilities.
   voParquet: false
+
+  # -- List of Qserv director tables for dependent upload partition detection.
+  # Format: ["database.table:idCol", ...]
+  uploadPartitionDirectors: []
 
   # -- Rules for renaming Columns
   urlRewrite:
@@ -205,8 +274,9 @@ config:
     # -- Whether it is enabled
     enabled: true
 
-    # -- String with a comma-separated list of schema.table:column rules
-    rules: "ivoa.ObsCore:access_url"
+    # -- List of schema.table:column rules for URL rewriting
+    rules:
+      - "ivoa.ObsCore:access_url"
 
 mockdb:
   # -- Spin up a container to pretend to be the database.
@@ -271,7 +341,12 @@ tapSchema:
     # -- Maximum active connections (maxIdle will be set to this value)
     maxActive: 2
 
-  # -- Connection pool configuration for jdbc/tapuser (query planning and tap_upload)
+  # -- Connection pool configuration for jdbc/tapschemauser
+  tapschemauser:
+    # -- Maximum active connections (maxIdle will be set to this value)
+    maxActive: 3
+
+  # -- Connection pool configuration for jdbc/tapuser
   tapuser:
     # -- Maximum active connections (maxIdle will be set to this value)
     maxActive: 3
@@ -359,7 +434,7 @@ uws:
     pullPolicy: "IfNotPresent"
 
     # -- Tag of UWS database image to use
-    tag: "3.18.0"
+    tag: "3.27.0"
 
   # -- Resource limits and requests for the UWS database pod
   # @default -- See `values.yaml`
@@ -398,7 +473,7 @@ cloudsql:
     repository: "gcr.io/cloudsql-docker/gce-proxy"
 
     # -- Cloud SQL Auth Proxy tag to use
-    tag: "1.38.0"
+    tag: "1.38.5"
 
     # -- Pull policy for Cloud SQL Auth Proxy images
     pullPolicy: "IfNotPresent"

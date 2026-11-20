@@ -5,6 +5,7 @@ redis:
 config:
   slackAlerts: true
   databaseUrl: "postgresql://gafaelfawr@squoint.tu.lsst.org/gafaelfawr"
+  updateSchema: true
 
   github:
     clientId: "49533cbd8a8079730dcf"
@@ -13,9 +14,22 @@ config:
   oidcServer:
     enabled: true
 
+  # Add some additional scopes.
+  knownScopes:
+    "write:consdb": >-
+      Write access to the ConsDB API
+
   # Allow access by GitHub team.
   groupMapping:
     "admin:jupyterlab":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
+    "admin:oidc":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
+    "admin:token":
       - github:
           organization: "lsst-sqre"
           team: "square"
@@ -112,6 +126,16 @@ config:
       - github:
           organization: "rubin-summit"
           team: "rsp-access"
+    "write:consdb":
+      - github:
+          organization: "lsst-sqre"
+          team: "square"
+      - github:
+          organization: "lsst-ts"
+          team: "tts-access"
+      - github:
+          organization: "rubin-summit"
+          team: "rsp-access"
     "write:sasquatch":
       - github:
           organization: "lsst-sqre"
@@ -122,12 +146,3 @@ config:
       - github:
           organization: "rubin-summit"
           team: "rsp-access"
-
-  initialAdmins:
-    - "afausti"
-    - "athornton"
-    - "fajpunk"
-    - "frossie"
-    - "jonathansick"
-    - "rra"
-    - "stvoutsin"

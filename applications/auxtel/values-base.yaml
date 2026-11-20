@@ -1,7 +1,6 @@
 ataos:
   image:
     repository: ts-dockerhub.lsst.org/ataos
-    pullPolicy: Always
   resources:
     limits:
       cpu: 450m
@@ -14,7 +13,6 @@ atbuilding-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/atbuilding
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -22,14 +20,13 @@ atbuilding-sim:
       cpu: 120m
       memory: 350Mi
     requests:
-      cpu: 12m
+      cpu: 20m
       memory: 170Mi
 
 atdome-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/atdome
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -37,13 +34,12 @@ atdome-sim:
       cpu: 170m
       memory: 320Mi
     requests:
-      cpu: 17m
+      cpu: 20m
       memory: 160Mi
 
 atdometrajectory:
   image:
     repository: ts-dockerhub.lsst.org/atdometrajectory
-    pullPolicy: Always
   resources:
     limits:
       cpu: 350m
@@ -55,7 +51,6 @@ atdometrajectory:
 atheaderservice:
   image:
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     URL_SPEC: --lfa_mode s3 --s3instance ls
     TSTAND_HEADERSERVICE: BASE
@@ -78,22 +73,20 @@ athexapod-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/athexapod
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
     limits:
-      cpu: 90m
+      cpu: 100m
       memory: 320Mi
     requests:
-      cpu: 10m
+      cpu: 20m
       memory: 160Mi
 
 atmcs-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/atmcs
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -107,7 +100,6 @@ atmcs-sim:
 atoods:
   image:
     repository: ts-dockerhub.lsst.org/atoods
-    pullPolicy: Always
   env:
     CTRL_OODS_CONFIG_FILE: /etc/atoods.yaml
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.ls.lsst.org
@@ -126,10 +118,10 @@ atoods:
     - *bs-fn
   resources:
     limits:
-      cpu: 1
+      cpu: 2
       memory: 1600Mi
     requests:
-      cpu: 500m
+      cpu: 1
       memory: 800Mi
   configfile:
     path: /etc
@@ -176,7 +168,6 @@ atpneumatics-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/at_pneumatics
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -184,13 +175,12 @@ atpneumatics-sim:
       cpu: 120m
       memory: 350Mi
     requests:
-      cpu: 12m
+      cpu: 15m
       memory: 170Mi
 
 atptg:
   image:
     repository: ts-dockerhub.lsst.org/ptkernel
-    pullPolicy: Always
   env:
     TELESCOPE: AT
     LSST_KAFKA_TLM_FLUSH_MS: 0
@@ -206,7 +196,6 @@ atspectrograph-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/atspec
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:

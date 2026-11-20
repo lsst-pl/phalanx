@@ -12,31 +12,11 @@ strimzi-kafka:
       enabled: true
   controller:
     enabled: true
-    affinity:
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-                - key: "strimzi.io/pool-name"
-                  operator: "In"
-                  values:
-                    - "controller"
-            topologyKey: "kubernetes.io/hostname"
   broker:
     enabled: true
     storage:
       size: 100Gi
       storageClassName: "premium-rwo"
-    affinity:
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-                - key: "strimzi.io/pool-name"
-                  operator: "In"
-                  values:
-                    - "kafka"
-            topologyKey: "kubernetes.io/hostname"
   connect:
     enabled: false
   mirrormaker2:
@@ -51,6 +31,20 @@ influxdb:
 customInfluxDBIngress:
   enabled: true
   hostname: roundtable.lsst.cloud
+
+influxdb-users:
+  enabled: true
+  targets:
+    - name: influxdb
+      hostname: sasquatch-influxdb
+      users:
+        - username: metrics-reader
+          passwordSecretRef:
+            name: sasquatch
+            key: influxdb-metrics-reader-password
+          databases:
+            - name: lsst.square.metrics
+              privilege: READ
 
 telegraf:
   enabled: false
@@ -92,6 +86,12 @@ app-metrics:
   enabled: true
   apps:
     - gafaelfawr
+    - docverse
 
 squareEvents:
   enabled: true
+
+square-events:
+  topics:
+    slackViewSubmission:
+      retentionMs: 7776000000  # 90 days

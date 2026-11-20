@@ -1,3 +1,14 @@
+x-topology-spread:
+  &topology-spread
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchExpressions:
+      - key: pod-template-hash
+        operator: Exists
+
 love-commander:
   image:
     repository: ts-dockerhub.lsst.org/love-commander
@@ -10,6 +21,13 @@ love-commander:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  efdCredentials:
+    containerPath: &efd-credentials-path /home/saluser/.lsst
+    secretFilename: &efd-credentials-filename .efdauth.json
+  secretFixup:
+    containerPath: *efd-credentials-path
+    filenames:
+    - *efd-credentials-filename
   service:
     enabled: true
     port: 5000
@@ -58,6 +76,7 @@ x-manager-producer:
     AUTH_LDAP_BIND_PASSWORD: auth-ldap-bind-password
     DB_PASS: db-pass
     REDIS_PASS: redis-pass
+  <<: *topology-spread
   resources:
     requests:
       cpu: 150m
@@ -184,7 +203,7 @@ love-manager:
 love-nginx:
   image:
     repository: nginx
-    tag: 1.25.1
+    tag: 1.31.3
     pullPolicy: Always
   ingress:
     hostname: tucson-teststand.lsst.codes
@@ -399,6 +418,7 @@ love-producer:
   image:
     repository: ts-dockerhub.lsst.org/love-producer
     pullPolicy: Always
+  <<: *topology-spread
   resources:
     requests:
       cpu: 10m

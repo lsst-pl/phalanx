@@ -2,9 +2,9 @@ argo-cd:
   global:
     env:
       - name: "HTTP_PROXY"
-        value: "http://squid.slac.stanford.edu:3128"
+        value: "http://sdfproxy.sdf.slac.stanford.edu:3128"
       - name: "HTTPS_PROXY"
-        value: "http://squid.slac.stanford.edu:3128"
+        value: "http://sdfproxy.sdf.slac.stanford.edu:3128"
       - name: "NO_PROXY"
         value: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local,argocd-repo-server,.stanford.edu,.slac.stanford.edu,.sdf.slac.stanford.edu"
 
@@ -37,6 +37,9 @@ argo-cd:
         p, role:developer, logs, get, */*, allow
         p, role:developer, logs, get, infrastructure/*, allow
 
+        p, role:drp, applications, *, drp/*, allow
+        p, role:drp, logs, get, drp/*, allow
+
         g, afausti@slac.stanford.edu, role:admin
         g, atani@slac.stanford.edu, role:admin
         g, athor@slac.stanford.edu, role:admin
@@ -61,8 +64,10 @@ argo-cd:
 
         g, ameisner@slac.stanford.edu, role:developer
         g, bbrond@slac.stanford.edu, role:developer
+        g, couger01@slac.stanford.edu, role:developer
         g, cyab05@slac.stanford.edu, role:developer
         g, dirving@slac.stanford.edu, role:developer
+        g, guymw@slac.stanford.edu, role:developer
         g, fritzm@slac.stanford.edu, role:developer
         g, gmegias@slac.stanford.edu, role:developer
         g, hchiang2@slac.stanford.edu, role:developer
@@ -88,6 +93,12 @@ argo-cd:
         g, loi@slac.stanford.edu, role:developer
         g, kpuri@slac.stanford.edu, role:developer
         g, youtsumi@slac.stanford.edu, role:developer
+        g, eali@slac.stanford.edu, role:developer
+        g, tobyj@slac.stanford.edu, role:developer
+        g, graha@slac.stanford.edu, role:developer
+        g, ribeiro@slac.stanford.edu, role:developer
+
+        g, tnoble@slac.stanford.edu, role:drp
       scopes: "[email]"
 
   server:

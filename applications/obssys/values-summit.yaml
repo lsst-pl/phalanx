@@ -1,22 +1,24 @@
+x-secret-file-path: &secret-file-path /home/saluser/.lsst
+
 x-butler-lfa-combo: &butler-lfa-combo
   s3Credentials:
   - lfa-credentials.ini
   - butler-credentials.ini
   butlerSecret:
-    containerPath: &bs-cp /home/saluser/.lsst
+    containerPath: *secret-file-path
     dbUser: oods
     secretFilename: &bs-fn postgres-credentials.txt
-  secretFixup:
-    containerPath: *bs-cp
-    filenames:
-    - *bs-fn
+
+x-efd-auth: &efd-auth
+  efdCredentials:
+    containerPath: *secret-file-path
+    secretFilename: &efd-credentials-filename .efdauth.json
 
 atqueue:
   classifier: scriptqueue2
   image:
-    revision: 4
+    revision: 0
     repository: ts-dockerhub.lsst.org/scriptqueue
-    pullPolicy: Always
   env:
     DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
     RUN_ARG: 2 --state enabled
@@ -25,124 +27,12 @@ atqueue:
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
     AWS_SHARED_CREDENTIALS_FILE: /home/saluser/.lsst/aws-credentials.ini
-  <<: *butler-lfa-combo
-  nfsMountpoint:
-  - name: auxtel-gen3-data
-    containerPath: /repo/LATISS
-    readOnly: false
-    server: nfs-auxtel.cp.lsst.org
-    serverPath: /auxtel/repo/LATISS
-  - name: auxtel-gen3-data-temp
-    containerPath: /data/lsstdata/base/auxtel
-    readOnly: true
-    server: nfs-auxtel.cp.lsst.org
-    serverPath: /auxtel/lsstdata/base/auxtel
-  - name: auxtel-data
-    containerPath: /readonly/lsstdata/auxtel
-    readOnly: true
-    server: nfs-auxtel.cp.lsst.org
-    serverPath: /auxtel/lsstdata
-  - name: project-shared
-    containerPath: /project
-    readOnly: false
-    server: nfs-project.cp.lsst.org
-    serverPath: /project
-  - name: obs-env
-    containerPath: /net/obs-env
-    readOnly: true
-    server: nfs-obs-env.cp.lsst.org
-    serverPath: /obs-env
-  affinity:
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            csc-class: scriptqueue
-        topologyKey: "kubernetes.io/hostname"
-  resources:
-    limits:
-      cpu: 8
-      memory: 48Gi
-    requests:
-      cpu: 4
-      memory: 8Gi
-
-atscheduler:
-  classifier: scheduler2
-  image:
-    revision: 6
-    repository: ts-dockerhub.lsst.org/scheduler
-    pullPolicy: Always
-  env:
-    INDEX: 2
-    AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
-  envSecrets:
-  - name: AWS_ACCESS_KEY_ID
-    key: aws-access-key-id
-  - name: AWS_SECRET_ACCESS_KEY
-    key: aws-secret-access-key
-  nfsMountpoint:
-  - name: rubin-sim-data
-    containerPath: /home/saluser/rubin_sim_data
-    readOnly: false
-    server: nfs-project.cp.lsst.org
-    serverPath: /project/scheduler
-  - name: obs-env
-    containerPath: /net/obs-env
-    readOnly: true
-    server: nfs-obs-env.cp.lsst.org
-    serverPath: /obs-env
-  affinity:
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            csc-class: scheduler
-        topologyKey: "kubernetes.io/hostname"
-  resources:
-    limits:
-      cpu: 2500m
-      memory: 10000Mi
-    requests:
-      cpu: 250m
-      memory: 3100Mi
-
-gis:
-  enabled: true
-  image:
-    revision: 2
-    repository: ts-dockerhub.lsst.org/gis
-    pullPolicy: Always
+  <<: [*butler-lfa-combo, *efd-auth]
   secretFixup:
-    containerPath: /home/saluser/.store
+    containerPath: *secret-file-path
     filenames:
-    - id_gis_bastion
-    - id_gis_bastion.pub
-    specialInstructions: >-
-      chmod 0644 /secrets/*.*
-  resources:
-    limits:
-      cpu: 300m
-      memory: 512Mi
-    requests:
-      cpu: 30m
-      memory: 256Mi
-
-mtqueue:
-  classifier: scriptqueue1
-  image:
-    revision: 4
-    repository: ts-dockerhub.lsst.org/scriptqueue
-    pullPolicy: Always
-  env:
-    DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
-    RUN_ARG: 1 --state enabled
-    USER_USERNAME: user
-    IMAGE_SERVER_URL: http://lsstcam-mcm.cp.lsst.org
-    AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
-    LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
-    AWS_SHARED_CREDENTIALS_FILE: /home/saluser/.lsst/aws-credentials.ini
-  <<: *butler-lfa-combo
+    - *bs-fn
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: auxtel-gen3-data
     containerPath: /repo/LATISS
@@ -181,23 +71,27 @@ mtqueue:
       cpu: 12
       memory: 48Gi
     requests:
-      cpu: 6
+      cpu: 8
       memory: 8Gi
 
-mtscheduler:
-  classifier: scheduler1
+atscheduler:
+  classifier: scheduler2
   image:
-    revision: 6
+    revision: 2
     repository: ts-dockerhub.lsst.org/scheduler
-    pullPolicy: Always
   env:
-    INDEX: 1
+    INDEX: 2
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
   envSecrets:
   - name: AWS_ACCESS_KEY_ID
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: rubin-sim-data
     containerPath: /home/saluser/rubin_sim_data
@@ -218,26 +112,51 @@ mtscheduler:
         topologyKey: "kubernetes.io/hostname"
   resources:
     limits:
-      cpu: 10
-      memory: 20000Mi
+      cpu: 2500m
+      memory: 10000Mi
     requests:
-      cpu: 6
-      memory: 15000Mi
+      cpu: 250m
+      memory: 3100Mi
 
-ocsqueue:
-  classifier: scriptqueue3
+gis:
+  enabled: true
   image:
-    revision: 4
+    revision: 0
+    repository: ts-dockerhub.lsst.org/gis
+  secretFixup:
+    containerPath: /home/saluser/.store
+    filenames:
+    - id_gis_bastion
+    - id_gis_bastion.pub
+    specialInstructions: >-
+      chmod 0644 /secrets/*.*
+  resources:
+    limits:
+      cpu: 300m
+      memory: 512Mi
+    requests:
+      cpu: 30m
+      memory: 256Mi
+
+mtqueue:
+  classifier: scriptqueue1
+  image:
+    revision: 0
     repository: ts-dockerhub.lsst.org/scriptqueue
-    pullPolicy: Always
   env:
     DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
-    RUN_ARG: 3 --state enabled
+    RUN_ARG: 1 --state enabled
+    USER_USERNAME: user
     IMAGE_SERVER_URL: http://lsstcam-mcm.cp.lsst.org
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
     LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
     AWS_SHARED_CREDENTIALS_FILE: /home/saluser/.lsst/aws-credentials.ini
-  <<: *butler-lfa-combo
+  <<: [*butler-lfa-combo, *efd-auth]
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *bs-fn
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: auxtel-gen3-data
     containerPath: /repo/LATISS
@@ -273,18 +192,120 @@ ocsqueue:
         topologyKey: "kubernetes.io/hostname"
   resources:
     limits:
-      cpu: 5
+      cpu: 12
+      memory: 48Gi
+    requests:
+      cpu: 8
+      memory: 10Gi
+
+mtscheduler:
+  classifier: scheduler1
+  image:
+    revision: 2
+    repository: ts-dockerhub.lsst.org/scheduler
+  env:
+    INDEX: 1
+    AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+  envSecrets:
+  - name: AWS_ACCESS_KEY_ID
+    key: aws-access-key-id
+  - name: AWS_SECRET_ACCESS_KEY
+    key: aws-secret-access-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
+  nfsMountpoint:
+  - name: rubin-sim-data
+    containerPath: /home/saluser/rubin_sim_data
+    readOnly: false
+    server: nfs-project.cp.lsst.org
+    serverPath: /project/scheduler
+  - name: obs-env
+    containerPath: /net/obs-env
+    readOnly: true
+    server: nfs-obs-env.cp.lsst.org
+    serverPath: /obs-env
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            csc-class: scheduler
+        topologyKey: "kubernetes.io/hostname"
+  resources:
+    limits:
+      cpu: 10
+      memory: 20000Mi
+    requests:
+      cpu: 6
+      memory: 15000Mi
+
+ocsqueue:
+  classifier: scriptqueue3
+  image:
+    revision: 0
+    repository: ts-dockerhub.lsst.org/scriptqueue
+  env:
+    DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
+    RUN_ARG: 3 --state enabled
+    IMAGE_SERVER_URL: http://lsstcam-mcm.cp.lsst.org
+    AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+    LSST_RESOURCES_S3_PROFILE_butler: https://s3-butler.cp.lsst.org
+    AWS_SHARED_CREDENTIALS_FILE: /home/saluser/.lsst/aws-credentials.ini
+  <<: [*butler-lfa-combo, *efd-auth]
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *bs-fn
+    - *efd-credentials-filename
+  nfsMountpoint:
+  - name: auxtel-gen3-data
+    containerPath: /repo/LATISS
+    readOnly: false
+    server: nfs-auxtel.cp.lsst.org
+    serverPath: /auxtel/repo/LATISS
+  - name: auxtel-gen3-data-temp
+    containerPath: /data/lsstdata/base/auxtel
+    readOnly: true
+    server: nfs-auxtel.cp.lsst.org
+    serverPath: /auxtel/lsstdata/base/auxtel
+  - name: auxtel-data
+    containerPath: /readonly/lsstdata/auxtel
+    readOnly: true
+    server: nfs-auxtel.cp.lsst.org
+    serverPath: /auxtel/lsstdata
+  - name: project-shared
+    containerPath: /project
+    readOnly: false
+    server: nfs-project.cp.lsst.org
+    serverPath: /project
+  - name: obs-env
+    containerPath: /net/obs-env
+    readOnly: true
+    server: nfs-obs-env.cp.lsst.org
+    serverPath: /obs-env
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            csc-class: scriptqueue
+        topologyKey: "kubernetes.io/hostname"
+  resources:
+    limits:
+      cpu: 8
       memory: 10Gi
     requests:
-      cpu: 1
+      cpu: 2
       memory: 2Gi
 
 ocsscheduler:
   classifier: scheduler3
   image:
-    revision: 6
+    revision: 2
     repository: ts-dockerhub.lsst.org/scheduler
-    pullPolicy: Always
   env:
     INDEX: 3
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -293,6 +314,11 @@ ocsscheduler:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: rubin-sim-data
     containerPath: /home/saluser/rubin_sim_data
@@ -321,15 +347,21 @@ ocsscheduler:
 
 watcher:
   image:
-    revision: 3
+    revision: 2
     repository: ts-dockerhub.lsst.org/watcher
-    pullPolicy: Always
   envSecrets:
   - name: ESCALATION_KEY
     key: squadcast-escalation-key
   resources:
     limits:
-      cpu: 3000m
+      cpu: 5
+      memory: 6Gi
     requests:
-      cpu: 1000m
-      memory: 1500Mi
+      cpu: 4
+      memory: 5Gi
+  nfsMountpoint:
+  - name: obs-env
+    containerPath: /net/obs-env
+    readOnly: true
+    server: nfs-obs-env.cp.lsst.org
+    serverPath: /obs-env

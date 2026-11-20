@@ -1,7 +1,32 @@
+x-pod-antiaffinity:
+  &pod-antiaffinity
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: pod-template-hash
+              operator: Exists
+          topologyKey: kubernetes.io/hostname
+
+x-topology-spread:
+  &topology-spread
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchExpressions:
+      - key: pod-template-hash
+        operator: Exists
+
 audio-broadcaster:
   image:
     repository: ts-dockerhub.lsst.org/audio_broadcaster
     pullPolicy: Always
+    revision: 0
   ingress:
     hostname: summit-lsp.lsst.codes
     httpPath: /audio-broadcaster
@@ -25,6 +50,7 @@ audio-broadcaster:
   - name: tma1
     host: tma-rpi-audio01.cp.lsst.org
     port: 4444
+  <<: *pod-antiaffinity
   resources:
     requests:
       cpu: 5m
@@ -35,7 +61,7 @@ audio-broadcaster:
 
 love-commander:
   image:
-    revision: 3
+    revision: 0
     repository: ts-dockerhub.lsst.org/love-commander
     pullPolicy: Always
   env:
@@ -45,22 +71,29 @@ love-commander:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  efdCredentials:
+    containerPath: &efd-credentials-path /home/saluser/.lsst
+    secretFilename: &efd-credentials-filename .efdauth.json
+  secretFixup:
+    containerPath: *efd-credentials-path
+    filenames:
+    - *efd-credentials-filename
   service:
     enabled: true
     port: 5000
     type: ClusterIP
   resources:
     requests:
-      cpu: 500m
+      cpu: 1
       memory: 1500Mi
     limits:
-      cpu: 1000m
+      cpu: 2
       memory: 2Gi
 
 x-manager-producer:
   &base-manager-producer
   image:
-    revision: 3
+    revision: 0
     repository: ts-dockerhub.lsst.org/love-manager
     pullPolicy: Always
   env:
@@ -94,12 +127,13 @@ x-manager-producer:
     AUTH_LDAP_BIND_PASSWORD: auth-ldap-bind-password
     DB_PASS: db-pass
     REDIS_PASS: redis-pass
+  <<: *topology-spread
   resources:
     requests:
-      cpu: 150m
+      cpu: 500m
       memory: 200Mi
     limits:
-      cpu: 1000m
+      cpu: 1
       memory: 1500Mi
   readinessProbe:
     tcpSocket:
@@ -113,7 +147,7 @@ love-manager:
   manager:
     frontend:
       image:
-        revision: 3
+        revision: 1
         repository: ts-dockerhub.lsst.org/love-manager
         pullPolicy: Always
       env:
@@ -211,6 +245,7 @@ love-manager:
     enabled: true
     image:
       repository: ts-dockerhub.lsst.org/love-view-backup
+      revision: 0
       pullPolicy: Always
     schedule: 0 12 * * *
     resources:
@@ -224,7 +259,7 @@ love-manager:
 love-nginx:
   image:
     repository: nginx
-    tag: 1.25.1
+    tag: 1.31.3
     pullPolicy: Always
   ingress:
     hostname: summit-lsp.lsst.codes
@@ -234,7 +269,7 @@ love-nginx:
   initContainers:
     frontend:
       image:
-        revision: 6
+        revision: 1
         repository: ts-dockerhub.lsst.org/love-frontend-k8s
         pullPolicy: Always
     manager:
@@ -254,10 +289,10 @@ love-nginx:
   resources:
     requests:
       cpu: 120m
-      memory: 140Mi
+      memory: 200Mi
     limits:
       cpu: 500m
-      memory: 300Mi
+      memory: 500Mi
   nginxConfig: |
     server {
       listen 80;
@@ -487,9 +522,10 @@ x-love-producer-vms-resources:
 
 love-producer:
   image:
-    revision: 3
+    revision: 0
     repository: ts-dockerhub.lsst.org/love-producer
     pullPolicy: Always
+  <<: *topology-spread
   resources:
     requests:
       cpu: 10m
@@ -507,6 +543,13 @@ love-producer:
   - name: atcamera
     csc: ATCamera:0
     WEBSOCKET_HOST: love-nginx-service/love/manager/atcs/ws/subscription
+    resources:
+      requests:
+        cpu: 100m
+        memory: 200Mi
+      limits:
+        cpu: 1
+        memory: 600Mi
   - name: atdome
     csc: ATDome:0
     WEBSOCKET_HOST: love-nginx-service/love/manager/atcs/ws/subscription
@@ -763,6 +806,19 @@ love-producer:
     csc: ESS:117
     WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
     <<: *love-producer-envsys-resources
+  - name: m1m3essflowmeter130
+    csc: ESS:130 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
+    <<: *love-producer-envsys-resources
+  - name: m1m3essflowmeter131
+    csc: ESS:131 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
+    <<: *love-producer-envsys-resources
+  - name: m1m3essthermalgradients132
+    csc: ESS:132 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
+    <<: *love-producer-envsys-resources
+
   - name: m1m3mtvms1
     csc: MTVMS:1
     WEBSOCKET_HOST: love-nginx-service/love/manager/producers/ws/subscription
@@ -817,10 +873,10 @@ love-producer:
     WEBSOCKET_HOST: love-nginx-service/love/manager/mtcs/ws/subscription
     resources:
       requests:
-        cpu: 100m
+        cpu: 500m
         memory: 300Mi
       limits:
-        cpu: 1
+        cpu: 2
         memory: 600Mi
   - name: mtdome
     csc: MTDome:0
@@ -1048,16 +1104,15 @@ love-producer:
     csc: ESS:311 --log-level 10
     WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-2/ws/subscription
     <<: *love-producer-envsys-resources
-
   - name: watcher
     csc: Watcher:0
     WEBSOCKET_HOST: love-nginx-service/love/manager/obssys/ws/subscription
     resources:
       requests:
-        cpu: 50m
+        cpu: 100m
         memory: 150Mi
       limits:
-        cpu: 500m
+        cpu: 1
         memory: 300Mi
   - name: weatherforecast
     csc: WeatherForecast:0

@@ -1,6 +1,3 @@
-image:
-  pullPolicy: "Always"
-
 config:
   logLevel: "DEBUG"
   databaseUrl: "postgresql://docverse@localhost/docverse"
@@ -10,12 +7,22 @@ config:
     - "jonathansick"
   keeperSync:
     enabled: true
+    pushHotPathEnabled: true
   maintenance:
     enabled: true
     gitRefAuditEnabled: true
+  buildProcessing:
+    # Sized from the DM-56964 pipelines upload test (lsst-sqre/docverse#868):
+    # a 390 MB / 8,600-object weekly processes in 105–127 s, so 600 s is
+    # about twice the measured wall clock with room for retries and growth.
+    jobTimeoutSeconds: 600
   sentry:
     enabled: true
   metrics:
+    enabled: true
+  memoryDiagnostics:
+    # Sampler stays on; tracemalloc was only for the lsst-sqre/docverse#753
+    # dev runs, all recorded on lsst-sqre/docverse#751.
     enabled: true
 
 cloudsql:

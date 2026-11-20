@@ -2,22 +2,20 @@ cbp-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/cbp
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
     limits:
       cpu: 110m
-      memory: 320Mi
+      memory: 400Mi
     requests:
-      cpu: 11m
-      memory: 160Mi
+      cpu: 15m
+      memory: 200Mi
 
 electrometer101-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/electrometer
-    pullPolicy: Always
   env:
     RUN_ARG: 101 --simulate 1
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -38,7 +36,6 @@ electrometer102-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/electrometer
-    pullPolicy: Always
   env:
     RUN_ARG: 102 --simulate 1
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -59,7 +56,6 @@ electrometer103-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/electrometer
-    pullPolicy: Always
   env:
     RUN_ARG: 103 --simulate 1
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -73,14 +69,13 @@ electrometer103-sim:
       cpu: 100m
       memory: 360Mi
     requests:
-      cpu: 14m
+      cpu: 16m
       memory: 180Mi
 
 electrometer201-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/electrometer
-    pullPolicy: Always
   env:
     RUN_ARG: 201 --simulate 1
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -94,14 +89,13 @@ electrometer201-sim:
       cpu: 100m
       memory: 320Mi
     requests:
-      cpu: 14m
+      cpu: 20m
       memory: 160Mi
 
 fiberspectrograph101-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/fiberspectrograph
-    pullPolicy: Always
   env:
     RUN_ARG: 101 --simulate 1
   resources:
@@ -116,7 +110,6 @@ fiberspectrograph102-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/fiberspectrograph
-    pullPolicy: Always
   env:
     RUN_ARG: 102 --simulate 1
   resources:
@@ -131,7 +124,6 @@ gcheaderservice1:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/headerservice
-    pullPolicy: Always
   env:
     CAMERA: gc1
     TSTAND_HEADERSERVICE: BASE
@@ -154,22 +146,20 @@ ledprojector-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/ledprojector
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
     limits:
       cpu: 100m
-      memory: 360Mi
+      memory: 500Mi
     requests:
-      cpu: 10m
-      memory: 180Mi
+      cpu: 20m
+      memory: 250Mi
 
 linearstage101-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/linearstage
-    pullPolicy: Always
   env:
     RUN_ARG: 101 --simulate
   resources:
@@ -177,14 +167,13 @@ linearstage101-sim:
       cpu: 100m
       memory: 360Mi
     requests:
-      cpu: 12m
+      cpu: 20m
       memory: 180Mi
 
 linearstage102-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/linearstage
-    pullPolicy: Always
   env:
     RUN_ARG: 102 --simulate
   resources:
@@ -192,14 +181,13 @@ linearstage102-sim:
       cpu: 120m
       memory: 360Mi
     requests:
-      cpu: 12m
+      cpu: 20m
       memory: 180Mi
 
 linearstage103-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/linearstage
-    pullPolicy: Always
   env:
     RUN_ARG: 103 --simulate
   resources:
@@ -207,14 +195,13 @@ linearstage103-sim:
       cpu: 100m
       memory: 400Mi
     requests:
-      cpu: 12m
+      cpu: 20m
       memory: 200Mi
 
 linearstage104-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/linearstage
-    pullPolicy: Always
   env:
     RUN_ARG: 104 --simulate
   resources:
@@ -222,14 +209,13 @@ linearstage104-sim:
       cpu: 100m
       memory: 400Mi
     requests:
-      cpu: 12m
+      cpu: 20m
       memory: 200Mi
 
 mtreflector-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/mtreflector
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
   resources:
@@ -237,7 +223,7 @@ mtreflector-sim:
       cpu: 100m
       memory: 320Mi
     requests:
-      cpu: 13m
+      cpu: 20m
       memory: 160Mi
 
 simulation-gencam:
@@ -245,7 +231,6 @@ simulation-gencam:
   classifier: genericcamera1
   image:
     repository: ts-dockerhub.lsst.org/genericcamera
-    pullPolicy: Always
   env:
     RUN_ARG: 1
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -270,13 +255,12 @@ tunablelaser-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/tunablelaser
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate 1
   resources:
     limits:
-      cpu: "2"
+      cpu: 1
       memory: 1000Mi
     requests:
       cpu: 50m
-      memory: 200Mi
+      memory: 250Mi

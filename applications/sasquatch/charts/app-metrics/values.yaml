@@ -7,6 +7,16 @@
 # for the structure of this value.
 # @default -- See `values.yaml`
 globalAppConfig:
+  bigquerykafka:
+    influxTags:
+      - "username"
+      - "queue"
+  conesearch:
+    influxTags:
+      - "username"
+  datalinker:
+    influxTags:
+      - "username"
   docverse:
     influxTags:
       - "organization"
@@ -19,6 +29,13 @@ globalAppConfig:
       - "ci_platform"
       - "success"
       - "github_repository"
+      - "method"
+      - "route"
+      - "status_class"
+      - "authenticated"
+      - "event_type"
+      - "outcome"
+      - "enqueued"
   gafaelfawr:
     influxTags:
       - "service"
@@ -43,10 +60,6 @@ globalAppConfig:
   nublado:
     influxTags:
       - "username"
-  bigquerykafka:
-    influxTags:
-      - "username"
-      - "queue"
   qservkafka:
     influxTags:
       - "username"

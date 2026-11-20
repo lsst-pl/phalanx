@@ -158,6 +158,12 @@ prompt-keda:
     # -- How many failed jobs should be kept available in Kubernetes.
     failedJobsHistoryLimit: 5
 
+    rollout:
+      # --  Which Rollout Strategy KEDA will use.
+      strategy: immediate
+      # -- Kubernetes propagation policy for cleaning up existing jobs during rollout.
+      propagationPolicy: foreground
+
     redisStreams:
       # -- Address of Redis Streams Cluster
       host: prompt-redis.prompt-redis
@@ -242,6 +248,8 @@ prompt-keda:
     exportOutputs: true
     # -- Whether `dax_apdb` should run in debug mode and log metrics.
     monitorDaxApdb: false
+    # -- Log per-file transfer details when slow or failing. 0 disables.
+    slowTransferLogSeconds: 0
 
 
   # -- Kubernetes resource requests and limits

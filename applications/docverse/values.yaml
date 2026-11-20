@@ -20,6 +20,11 @@ image:
   # @default -- The appVersion of the chart
   tag: null
 
+  # -- Top-level Python module of the server in this image. Images built
+  # after the DM-55658 packaging restructure use "docverse_server";
+  # earlier images use "docverse". Must match the deployed image tag.
+  pythonModule: "docverse_server"
+
 config:
   # -- Logging level
   logLevel: "INFO"
@@ -86,8 +91,109 @@ config:
     # provide `docverse.worker.main.KeeperSyncWorkerSettings`.
     enabled: false
 
-    # -- Per-job timeout, in seconds, for keeper-sync arq jobs.
+    # -- Per-job timeout, in seconds, for keeper-sync arq jobs. The
+    # server derives its two neighbours from this value: the slice budget
+    # (`sliceBudgetSeconds`) to this less 600 s and the stuck-run reaper
+    # threshold (`config.reaperThresholds.keeperSyncSeconds`) to this plus
+    # 1800 s, so the three read as one ladder, budget < timeout < reaper.
+    # Raising it is also the escape hatch for an edition too large to copy
+    # inside one slice, since the budget follows it up.
     jobTimeoutSeconds: 3600
+
+    # -- How long, in seconds, one `keeper_sync_project` job keeps starting
+    # editions before it completes its row and hands the rest of the
+    # project to a continuation job, so a project of any size converges
+    # across a chain of jobs that each finish inside `jobTimeoutSeconds`.
+    # Checked before each edition, never mid-copy. Leave unset to let the
+    # server derive it as `jobTimeoutSeconds` less a 600 s margin (3000 s
+    # at the default timeout); an explicit value must be greater than 0 and
+    # less than `jobTimeoutSeconds` or the server refuses to start. Set it
+    # low (for example 300) on a development environment to exercise the
+    # continuation chain on a mid-size project.
+    # @default -- Derived by the server (`jobTimeoutSeconds` - 600)
+    sliceBudgetSeconds: null
+
+    # -- Attempts, including the first, that the keeper-sync worker spends
+    # on one presigned upload of a copied object before failing the build
+    # copy. Transport failures and retryable statuses (429, 5xx) share the
+    # budget; backoff starts at 0.5 s and doubles. At the default of 6 an
+    # object rides out an R2 connect outage of roughly 65 s.
+    uploadMaxAttempts: 6
+
+    # -- Ceiling, in seconds, on any single wait between attempts of a
+    # keeper-sync presigned upload, including a server-requested
+    # `Retry-After`. At the default attempt count the exponential backoff
+    # peaks at 8 s, so this only bites for a longer `Retry-After`.
+    uploadMaxBackoffSeconds: 30.0
+
+    # -- Process-wide cap on concurrent presigned uploads across every
+    # running keeper-sync job in the sync worker. Each concurrent upload
+    # holds one outbound connection, and the copy client keeps that many
+    # (plus 10 of headroom) connections alive, so this bounds the NAT
+    # source ports one sync-worker pod consumes. 32 fits the default 64
+    # static Cloud NAT ports per GKE node; raise it toward
+    # `DOCVERSE_KEEPER_SYNC_MAX_JOBS` x `DOCVERSE_KEEPER_SYNC_COPY_CONCURRENCY` (80 at the defaults) once the Cloud NAT
+    # allocation is raised and the NAT drop logs stay at zero through a
+    # full backfill.
+    uploadConcurrency: 32
+
+    # -- Seconds the keeper-sync worker waits before re-running a build
+    # copy that failed on a transport error at either end (an R2 outage
+    # that outlasted the per-object budget, or an LTD S3 timeout during a
+    # download). The copy is re-run exactly once; any other failure fails
+    # the edition as before.
+    copyRetryDelaySeconds: 30.0
+
+    # -- Whether a GitHub `push` delivery puts the keeper-synced projects
+    # bound to the pushed repository on keeper-sync's fast polling path
+    # (lsst-sqre/docverse#803). On, the webhook stamps the pushed branch or
+    # tag onto each project's sync state and `keeper_sync_tier_main`
+    # checks that ref on LTD Keeper every tick for `pushWindowSeconds`,
+    # publishing a `keeper_sync_push_check` event per visit. Off, the
+    # webhook stamps nothing and keeper-sync polls on its ordinary cohort
+    # cadence. Needs the GitHub App installed on the pushed repository's
+    # organization, or the delivery never reaches Docverse.
+    pushHotPathEnabled: true
+
+    # -- How long, in seconds, a pushed ref stays on keeper-sync's fast
+    # polling path after its latest push. The push only hints that LTD
+    # Keeper is about to change, since the repository's CI builds and
+    # uploads the docs afterwards, so the window has to cover a CI run. A
+    # ref whose window closes without an LTD rebuild drops back to the
+    # project's ordinary cadence; a repeated push restarts its window.
+    # Only read while `pushHotPathEnabled` is on.
+    pushWindowSeconds: 3600
+
+  memoryDiagnostics:
+    # -- Enable the in-process memory sampler in every Docverse process
+    # (API, worker, Keeper-sync worker, maintenance worker). When on, each
+    # process logs one `Memory sample` line per interval carrying its
+    # resident size, resident high-water mark, and garbage-collector
+    # counts, so a pod's memory growth can be read from its logs without
+    # attaching a profiler (the pods run on a read-only root filesystem
+    # with every capability dropped, so nothing can be attached).
+    enabled: false
+
+    # -- Seconds between memory samples.
+    intervalSeconds: 60
+
+    # -- Also trace Python allocations with `tracemalloc` and add the
+    # traced heap size, its peak, the live object count, and the top
+    # allocation sites by growth since the previous sample to each
+    # `Memory sample` line. Roughly doubles the heap a process needs, so
+    # leave it off in production and enable it on a development
+    # environment while chasing a leak. Has no effect unless `enabled` is
+    # also set.
+    tracemallocEnabled: false
+
+    # -- Stack depth `tracemalloc` records per allocation. Deeper traces
+    # attribute growth to the calling code rather than to the library
+    # that allocated, at more overhead per allocation.
+    tracemallocFrames: 5
+
+    # -- Number of allocation sites, ranked by growth since the previous
+    # sample, included in each sample when `tracemallocEnabled` is on.
+    topN: 10
 
   maintenance:
     # -- Enable the maintenance worker that consumes the
@@ -96,13 +202,73 @@ config:
     enabled: false
 
     # -- Per-job timeout, in seconds, for maintenance-pool jobs (lifecycle
-    # evaluation and git ref audits).
+    # evaluation, git ref audits, and purgatory cleanup).
     jobTimeoutSeconds: 3600
 
     # -- Whether to enable auditing the git ref lifecycle rule.
     # Enabling this will cause docverse to make GitHub API calls to determine
     # if the git ref associated with an edition still exists.
     gitRefAuditEnabled: false
+
+    # -- Enable the edition reconcile loop that re-drives editions whose
+    # recorded publish state has drifted from what the CDN serves. The cron
+    # stays registered either way; disabling only makes each tick a no-op.
+    editionReconcileEnabled: true
+
+    # -- Maximum number of republish plus unpublish actions one per-org
+    # `edition_reconcile` job applies per tick; the remainder is reported as
+    # capped and picked up on the next tick.
+    editionReconcileMaxActionsPerJob: 100
+
+    # -- Whether to run the daily purgatory_cleanup sweep that permanently
+    # deletes the object-store content (unpacked tree and staging tarball) of
+    # soft-deleted builds once the organization's purgatory retention has
+    # elapsed and stamps `date_purged` on the row. The cron is registered
+    # either way, so flipping this does not require a worker restart.
+    purgatoryCleanupEnabled: true
+
+    # -- Cap on the builds a single per-org purgatory_cleanup job reclaims per
+    # daily tick, oldest deletion first; anything past the cap is picked up by
+    # the next tick.
+    purgatoryCleanupMaxBuildsPerJob: 500
+
+    # -- UTC hour at which the daily purgatory_cleanup dispatcher cron runs.
+    purgatoryCleanupCronHour: 3
+
+    # -- UTC minute of `purgatoryCleanupCronHour` at which the daily
+    # purgatory_cleanup dispatcher cron runs.
+    purgatoryCleanupCronMinute: 23
+
+  buildProcessing:
+    # -- Per-job timeout, in seconds, for `build_processing` jobs on the
+    # default pool: arq cancels a job that runs past it, failing its
+    # `queue_jobs` row and its build with reason `job_timeout`. One job
+    # downloads the uploaded tarball, unpacks every file into the
+    # organization's object store, registers the build, and enqueues its
+    # edition publishes, so its wall clock grows with the size of the build.
+    # The default is arq's own implicit 300 s, which the job ran under
+    # before it was a setting; size it from a measured upload of the largest
+    # build the deployment takes, at about twice that wall clock. It must sit
+    # at least 1800 s below `config.reaperThresholds.buildProcessingSeconds`
+    # (so at most 27000 at the stock 8 h threshold) or the server refuses to
+    # start, since the reaper must never fail a job arq is still running.
+    jobTimeoutSeconds: 300
+
+  # -- Whether a long-profile edition publish is followed by a purge of the
+  # project's hostname from the Cloudflare edge cache. Leave this off until
+  # the Docverse Worker edge-caches edition responses: today a purge
+  # invalidates nothing while still spending calls against Cloudflare's
+  # per-account purge rate limit (5 per minute on the Free plan), which a
+  # keeper-sync backfill across many hostnames exceeds within seconds.
+  # Re-enabling is tracked in lsst-sqre/docverse#683.
+  cdnPurgeEnabled: false
+
+  # -- Value of `MALLOC_ARENA_MAX` for every Docverse process. Capping
+  # glibc malloc arenas at 2 halved the resident memory the Keeper-sync
+  # worker keeps after a burst of build copies (lsst-sqre/docverse#760,
+  # dev run 4 on lsst-sqre/docverse#751) at no visible cost. Set to the
+  # empty string to leave glibc's default.
+  mallocArenaMax: "2"
 
   # -- Set true during a credential-encryption (Fernet) key rotation to deliver
   # the retired key (DOCVERSE_CREDENTIAL_ENCRYPTION_KEY_RETIRED) to all pods so
@@ -111,11 +277,26 @@ config:
   credentialKeyRotation: false
 
   reaperThresholds:
-    # -- Stuck-run reaper threshold, in seconds, for keeper-sync jobs.
-    keeperSyncSeconds: 21600
+    # -- Stuck-run reaper threshold, in seconds, for keeper-sync jobs. Leave
+    # unset to let the server derive it as `config.keeperSync.jobTimeoutSeconds`
+    # plus a 1800 s margin (5400 s at the default timeout). The keeper-sync
+    # functions run with a single attempt, so arq has already cancelled any
+    # job that reached its timeout and a row still in progress past that
+    # point is dead; the old flat 21600 s pin only kept the project parked
+    # behind the active-job index for hours. An explicit value only lowers
+    # the threshold: anything above timeout + 1800 is capped there and the
+    # sync worker logs a warning at startup naming both values.
+    # @default -- Derived by the server (`config.keeperSync.jobTimeoutSeconds` + 1800)
+    keeperSyncSeconds: null
     # -- Stuck-run reaper threshold, in seconds, for lifecycle_eval and
     # git_ref_audit jobs (maintenance pool).
     lifecycleSeconds: 21600
+    # -- Stuck-run reaper threshold, in seconds, for purgatory_cleanup jobs
+    # (maintenance pool).
+    purgatoryCleanupSeconds: 21600
+    # -- Stuck-run reaper threshold, in seconds, for excluded_path_scrub jobs
+    # (maintenance pool).
+    excludedPathScrubSeconds: 21600
     # -- Stuck-run reaper threshold, in seconds, for dashboard_build jobs.
     dashboardBuildSeconds: 1800
     # -- Stuck-run reaper threshold, in seconds, for publish_edition jobs.
@@ -124,6 +305,13 @@ config:
     buildProcessingSeconds: 28800
     # -- Stuck-run reaper threshold, in seconds, for dashboard_sync jobs.
     dashboardSyncSeconds: 21600
+    # -- Stuck-run reaper threshold, in seconds, for edition_reconcile jobs.
+    # Leave unset to let the server derive it as
+    # `config.maintenance.jobTimeoutSeconds` plus a 1800 s margin; an explicit
+    # value must be strictly greater than that timeout or the server refuses
+    # to start.
+    # @default -- Derived by the server (`jobTimeoutSeconds` + 1800)
+    editionReconcileSeconds: null
 
 ingress:
   # -- Additional annotations for the ingress rule
@@ -149,30 +337,59 @@ resources:
     cpu: "50m"
     memory: "100Mi"
 
+# -- Size limit of the disk-backed `emptyDir` mounted at `/tmp` in the
+# docverse worker pod. `build_processing` spools each staging tarball
+# there while unpacking it (the extracted files never touch disk), so
+# this must hold the largest tarball for every build_processing job
+# that can run at once, within the pod's ephemeral-storage limit.
+workerTmpSizeLimit: "512Mi"
+
 # -- Resource limits and requests for the docverse worker pod
 # @default -- See `values.yaml`
 workerResources:
   limits:
     cpu: "1"
-    memory: "512Mi"
+    # -- The worker idles at roughly 480Mi after a keeper-sync backfill
+    # and was OOM-killed at 512Mi while running ten concurrent
+    # publish_edition and dashboard_build jobs (roundtable-prod,
+    # 2026-09-23). A killed worker strands in-flight publishes until the
+    # 4 h reaper runs, so leave headroom for a full burst.
+    memory: "1Gi"
   requests:
     # -- GKE Autopilot requires a minimum CPU request of 50m
     cpu: "50m"
-    memory: "128Mi"
+    memory: "256Mi"
 
 syncWorker:
   # -- Number of Keeper-sync worker pods to start
   replicaCount: 1
+
+  # -- Additional environment variables for the Keeper-sync worker
+  # container, as a list of `name`/`value` pairs. Meant for runtime
+  # experiments that need no chart change (lsst-sqre/docverse#753).
+  extraEnv: []
 
   # -- Resource limits and requests for the Keeper-sync worker pod
   # @default -- See `values.yaml`
   resources:
     limits:
       cpu: "1"
-      memory: "512Mi"
+      # -- Higher than the other workers because keeper-sync buffers whole
+      # LTD objects in memory while copying builds, across several
+      # concurrent jobs. Measured idle RSS after a 477-project backfill
+      # is about 840Mi (roundtable-prod, 2026-09-23). The 2Gi limit was
+      # OOM-killed twice (2026-10-30) while importing T&S builds that
+      # ship Sphinx `.doctrees/` caches with a 119 MB
+      # `environment.pickle` per build.
+      memory: "4Gi"
     requests:
-      cpu: "50m"
-      memory: "128Mi"
+      # -- The hourly `keeper_sync_tier_other` pass runs at 0.6-0.7 cores
+      # for five to six minutes, and the worker averaged 113% of the
+      # earlier 75m request (roundtable-prod, 2026-11-18, docverse
+      # 1.0.0b17). 250m covers the hourly average with room for the pass
+      # to grow; the bursts still run above it, under the limit.
+      cpu: "250m"
+      memory: "512Mi"
 
   # -- Affinity rules for the Keeper-sync worker pod
   affinity: {}
@@ -225,7 +442,7 @@ cloudsql:
     repository: "gcr.io/cloudsql-docker/gce-proxy"
 
     # -- Cloud SQL Auth Proxy tag to use
-    tag: "1.38.0"
+    tag: "1.38.5"
 
     # -- Pull policy for Cloud SQL Auth Proxy images
     pullPolicy: "IfNotPresent"
@@ -234,7 +451,7 @@ cloudsql:
   # @default -- See `values.yaml`
   resources:
     limits:
-      cpu: "100m"
+      cpu: "1"
       memory: "30Mi"
     requests:
       cpu: "5m"

@@ -12,6 +12,8 @@ fullnameOverride: ""
 image:
   # -- Portal image to use
   repository: "ghcr.io/lsst/suit"
+  # for testing use docker hub
+  #repository: "ipac/suit"
 
   # -- Pull policy for the Portal image
   pullPolicy: "IfNotPresent"
@@ -56,12 +58,29 @@ config:
   # -- Set to `TRUE` to enable service debugging
   debug: "FALSE"
 
-  # -- How long results should be retained before being deleted
-  cleanupInterval: "36h"
+  # -- How often the Firefly cleanup sweep runs over the work areas
+  cleanupInterval: "1h"
 
-  # -- URL for default HiPS service
+  # -- The subdirectory under /firefly/workarea and /firefly/shared-workarea to cleanup
+  cleanupAppName: "suit"
+
+  # -- If set, how big (SI units) the shared workarea is allowed to get. <n>%: 1-99, percent of the work area's filesystem in use, as df's Use% reports it. Counts everything on that filesystem; best when the volume is dedicated. <size>: <n>K, <n>M, <n>G or <n>T, binary (1G = 1024M); Kubernetes' Ki/Mi/Gi/Ti also work. Measured with du of the work area. Use <n>% to keep the volume itself from filling.
+  cleanupSharedMax: null
+
+  # -- If set, how big the per-node workarea is allowed to get. <n>%: 1-99, percent of the work area's filesystem in use, as df's Use% reports it. Counts everything on that filesystem; best when the volume is dedicated. <size>: <n>K, <n>M, <n>G or <n>T, binary (1G = 1024M); Kubernetes' Ki/Mi/Gi/Ti also work. Measured with du of the work area. Use <n>% to keep the volume itself from filling.
+  cleanupWorkareaMax: null
+
+  # -- URL for master list of Rubin-featured HiPS datasets
+  # @default -- `/api/hips/list` in the local Science Platform
+  hipsListUrl: ""
+
+  # -- URL for default HiPS map to be used for coverage displays
   # @default -- `/api/hips/images/color_gri` in the local Science Platform
   hipsUrl: ""
+
+  # -- URL for master list of Rubin-featured MOC datasets
+  # @default -- `/api/hips/v2/dp2/dp2-moc-list.tbl` in the local Science Platform
+  mocListUrl: ""
 
   # -- Whether to show information about the logged-in user
   showUserInfo: "true"
@@ -69,11 +88,9 @@ config:
   # -- Search path for FITS files
   visualizeFitsSearchPath: "/datasets"
 
-  # -- Endpoint under `/api/` for the DP0.3 SSO TAP service on the instance, if present
+  # -- Endpoint under `/api/` for the DP0.3 SSO TAP service on the instance,
+  # if present
   ssotap: ""
-
-  # -- Endpoint under `/api/` for the live TAP service on the instance, if present
-  livetap: ""
 
   # -- Maximum number of recent TAP queries to show in history
   tapHistoryLimit: "1000"

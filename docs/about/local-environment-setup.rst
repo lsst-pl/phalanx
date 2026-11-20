@@ -21,7 +21,7 @@ You will likely need to make changes to Phalanx and create pull requests, so you
 
 Members of the https://github.com/lsst-sqre/phalanx repository on GitHub can clone the repository directly and create a ticket branch, per the `Data Management workflow guide`_.
 
-Otherwise, fork lsst-sqre/phalanx `following GitHub's guide <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`__.
+Otherwise, fork lsst-sqre/phalanx `following GitHub's guide <https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo>`__.
 
 Install uv
 ==========
@@ -64,7 +64,7 @@ From the ``phalanx`` directory, with the virtualenv from the previous step activ
 
    make init
 
-This step populates your virtual environment with Phalanx's dependencies, installs tox_ (used for testing and other build steps), and installs prek_ (used to check and sometimes reformat your changes before committing them).
+This step populates your virtual environment with Phalanx's dependencies, installs nox_ (used for testing and other build steps), and installs prek_ (used to check and sometimes reformat your changes before committing them).
 
 .. _about-helm-docs:
 
@@ -88,7 +88,7 @@ To see which binary is most appropriate for a Linux system, run :command:`uname 
    Alternately, find the binary release matching the desired version in the releases page and download that version.
 
    The required version of helm-docs will be updated periodically.
-   If :command:`tox run -e lint` creates lots of spurious changes to generated documentation, your version of helm-docs is probably out of date and should be updated to a matching version.
+   If :command:`nox -s lint` creates lots of spurious changes to generated documentation, your version of helm-docs is probably out of date and should be updated to a matching version.
 
 If you don't want to (or don't have access to) install helm-docs globally on your system, you can put the binary in the :file:`bin` directory of the virtual environment you created in :ref:`about-venv`.
 
@@ -107,6 +107,16 @@ If you don't want to (or don't have access to) install helm globally on your sys
 
    The Python PyPI package ``helm`` is something entirely different and is not what Phalanx uses.
    Don't try to install Helm from PyPI; follow the above instructions instead.
+
+.. _about-kube-linter:
+
+Install kube-linter
+===================
+
+:command:`phalanx application lint` checks the rendered Kubernetes resources of a chart with kube-linter_ as well as running :command:`helm lint`, so kube-linter must be available on your PATH.
+Download the binary for your platform from the `kube-linter releases page <https://github.com/stackrox/kube-linter/releases>`__ and put it on your PATH (or in the :file:`bin` directory of your virtual environment, as with helm-docs).
+To see what version is used by GitHub Actions, look for ``KUBE_LINTER_VERSION`` in :file:`.github/workflows/ci.yaml`.
+The checks that are run are configured in :file:`.kube-linter.yaml` at the top level of the Phalanx repository.
 
 Next steps
 ==========

@@ -5,6 +5,7 @@ set:
       acceptedGithubOrgs:
         - "org1"
         - "org2"
+    sentryEnvironment: "minikube"
   global:
     host: "example.com"
 tests:
@@ -36,8 +37,6 @@ tests:
           path: "data['config.yaml']"
           value: |
             autostart: []
-            gafaelfawrTimeout: null
-            githubCiApp: null
             githubRefreshApp:
               acceptedGithubOrgs:
               - org1
@@ -53,6 +52,6 @@ tests:
                 registryUrl: http://sasquatch-schema-registry.sasquatch.svc.cluster.local:8081
                 suffix: ""
             pathPrefix: /mobu
-            sentryEnvironment: null
+            sentryEnvironment: minikube
             sentryTracesSampleConfig: 0
             slackAlerts: true

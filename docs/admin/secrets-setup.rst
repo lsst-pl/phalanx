@@ -15,7 +15,7 @@ See :px-app-bootstrap:`onepassword-connect` for more information.
    The environments :px-env:`base` and :px-env:`summit` are still using an old secrets management system that sometimes used multiple secrets per application and sometimes pointed multiple applications at the same secret.
    New enviroments should use the system described here, but be aware that you will see remnants of the old system lingering in application configuration.
 
-   For documentation of how to convert an existing environment to the new secrets management system, see :doc:`migrating-secrets`.
+   For documentation of how to convert an existing environment to the new secrets management system, see :doc:`secrets/migrating-secrets`.
 
 Basic Vault structure
 =====================
@@ -137,7 +137,7 @@ This will print a template for the required static secrets to standard output.
 Then, store this file in a secure location and fill in the ``value`` keys and, if necessary, the ``oidc-clients`` and ``pull-secret`` block with the appropriate values.
 You can, if you choose, also store the Vault write token for your environment in this file, which will allow you to skip setting the VAULT_TOKEN environment variable each time you want to run a :command:`phalanx secrets` command.
 
-You will provide this file to :command:`phalanx` when performing secret sync or audit operations (see :doc:`sync-secrets`) with the ``--secrets`` command-line flag.
+You will provide this file to :command:`phalanx` when performing secret sync or audit operations (see :doc:`secrets/sync-secrets`) with the ``--secrets`` command-line flag.
 
 .. _admin-secrets-onepassword:
 
@@ -169,20 +169,6 @@ The keys under applications are the names of applications and should be the name
 The next-level key should be used as the key of a field in that entry.
 Fill in the value with the value of that secret.
 
-.. _admin-onepassword-oidc-clients:
-
-OIDC clients
-^^^^^^^^^^^^
-
-If the environment has OpenID Connect clients, create a 1Password item of type :menuselection:`Server` and title ``oidc-clients``.
-Delete all of the pre-defined sections.
-Then, for each OpenID Connect client, create a section with a title that explains to humans what that client is for.
-Every section should have three fields: ``id``, ``secret``, and ``return_uri``.
-The first is the client ID, the second is the password, and the third is the URI to which the user will be sent after authentication.
-The ``id`` and ``return_uri`` fields should have type text, and ``secret`` should have type password.
-
-See :doc:`/applications/gafaelfawr/add-oidc-client` for more information.
-
 .. _admin-onepassword-pull-secret:
 
 Pull secret
@@ -202,7 +188,7 @@ Vault write token
 ^^^^^^^^^^^^^^^^^
 
 The Vault write token for the environment can also be stored in 1Password.
-If you do this, you will not have to set the VAULT_TOKEN environment variable before :doc:`auditing <audit-secrets>` or :doc:`syncing <sync-secrets>` secrets.
+If you do this, you will not have to set the VAULT_TOKEN environment variable before :doc:`auditing <secrets/audit-secrets>` or :doc:`syncing <secrets/sync-secrets>` secrets.
 
 To do this, create a 1Password item of type :menuselection:`Server` and title ``vault-write-token``.
 Delete all of the pre-defined sections.
@@ -241,7 +227,7 @@ Finally, before installing a Phalanx environment, you will need to perform the i
 
 Secrets syncing is an operation that can be done repeatedly.
 There is nothing that special about the first run except that it will have more to do.
-You can therefore follow the :doc:`normal secrets syncing procedure <sync-secrets>` for the first secrets sync.
+You can therefore follow the :doc:`normal secrets syncing procedure <secrets/sync-secrets>` for the first secrets sync.
 
 Next steps
 ==========

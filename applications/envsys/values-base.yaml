@@ -1,9 +1,28 @@
+x-efd-auth: &efd-auth
+  efdCredentials:
+    containerPath: &secret-file-path /home/saluser/.lsst
+    secretFilename: &efd-credentials-filename .efdauth.json
+
+aurora-cloud-sensor-ess307-sim:
+  enabled: true
+  classifier: ess307
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+  env:
+    RUN_ARG: 307 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 180Mi
+    limits:
+      cpu: 190m
+      memory: 360Mi
+
 automatic-transfer-switch-ess309-sim:
   enabled: true
   classifier: ess309
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 309 --simulate
   resources:
@@ -19,7 +38,6 @@ auxtel-ess201-sim:
   classifier: ess201
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 201 --simulate
   resources:
@@ -35,7 +53,6 @@ auxtel-ess202-sim:
   classifier: ess202
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 202 --simulate
   resources:
@@ -51,7 +68,6 @@ auxtel-ess308-sim:
   classifier: ess308
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 308 --simulate
   resources:
@@ -67,7 +83,6 @@ auxtel-ess204-sim:
   classifier: ess204
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 204 --simulate
   resources:
@@ -83,7 +98,6 @@ calibhill-ess301-sim:
   classifier: ess301
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 301 --simulate
   resources:
@@ -99,7 +113,6 @@ camera-ess111-sim:
   classifier: ess111
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 111 --simulate
   resources:
@@ -115,7 +128,6 @@ cleanroom-ess109-sim:
   classifier: ess109
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 109 --simulate
   resources:
@@ -130,7 +142,6 @@ dimm1-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/dimm
-    pullPolicy: Always
   env:
     RUN_ARG: 1 --simulate
   resources:
@@ -145,7 +156,6 @@ dimm2-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/dimm
-    pullPolicy: Always
   env:
     RUN_ARG: 2 --simulate
   resources:
@@ -160,7 +170,6 @@ dream-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/dream
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -181,7 +190,6 @@ dsm1-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/dsm
-    pullPolicy: Always
   env:
     CSC_INDEX: 1
     RUN_ARG: --simulate 1 --state enabled
@@ -197,7 +205,6 @@ dsm2-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/dsm
-    pullPolicy: Always
   env:
     CSC_INDEX: 2
     RUN_ARG: --simulate 2 --state enabled
@@ -213,9 +220,13 @@ eas-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/eas
-    pullPolicy: Always
   env:
     RUN_ARG: --simulate
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   resources:
     limits:
       cpu: 750m
@@ -229,7 +240,6 @@ epm-ess303-sim:
   classifier: ess303
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 303 --simulate
   resources:
@@ -245,15 +255,14 @@ epm-generator-ess305-sim:
   classifier: ess305
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 305 --simulate
   resources:
     requests:
-      cpu: 50m
+      cpu: 100m
       memory: 160Mi
     limits:
-      cpu: 250m
+      cpu: 500m
       memory: 320Mi
 
 epm-generator-ess306-sim:
@@ -261,22 +270,20 @@ epm-generator-ess306-sim:
   classifier: ess306
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 306 --simulate
   resources:
     requests:
-      cpu: 50m
+      cpu: 100m
       memory: 160Mi
     limits:
-      cpu: 250m
+      cpu: 500m
       memory: 320Mi
 
 hvac-sim:
   enabled: true
   image:
     repository: ts-dockerhub.lsst.org/hvac
-    pullPolicy: Always
   env:
     RUN_ARG: --state enabled --simulate
   resources:
@@ -292,7 +299,6 @@ louver-h1-ess441-sim:
   classifier: ess441
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 441 --simulate
   resources:
@@ -308,7 +314,6 @@ louver-h1h2-ess442-sim:
   classifier: ess442
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 442 --simulate
   resources:
@@ -324,7 +329,6 @@ louver-h2-ess443-sim:
   classifier: ess443
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 443 --simulate
   resources:
@@ -340,7 +344,6 @@ m1m3-ess113-sim:
   classifier: ess113
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 113 --simulate
   resources:
@@ -356,7 +359,6 @@ m1m3-ess114-sim:
   classifier: ess114
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 114 --simulate
   resources:
@@ -372,7 +374,6 @@ m1m3-ess115-sim:
   classifier: ess115
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 115 --simulate
   resources:
@@ -388,7 +389,6 @@ m1m3-ess116-sim:
   classifier: ess116
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 116 --simulate
   resources:
@@ -404,9 +404,53 @@ m1m3-ess117-sim:
   classifier: ess117
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 117 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
+
+m1m3-flowmeter-ess130-sim:
+  enabled: true
+  classifier: ess130
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+  env:
+    RUN_ARG: 130 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
+
+m1m3-flowmeter-ess131-sim:
+  enabled: true
+  classifier: ess131
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+  env:
+    RUN_ARG: 131 --simulate
+  resources:
+    requests:
+      cpu: 19m
+      memory: 160Mi
+    limits:
+      cpu: 190m
+      memory: 480Mi
+
+m1m3-thermal-gradients-ess132-sim:
+  enabled: true
+  classifier: ess132
+  image:
+    repository: ts-dockerhub.lsst.org/ess
+  env:
+    RUN_ARG: 132
   resources:
     requests:
       cpu: 19m
@@ -420,7 +464,6 @@ m2-ess106-sim:
   classifier: ess106
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 106 --simulate
   resources:
@@ -436,7 +479,6 @@ m2-ess112-sim:
   classifier: ess112
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 112 --simulate
   resources:
@@ -452,7 +494,6 @@ mtdome-ess404-sim:
   classifier: ess404
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 404 --simulate
   resources:
@@ -468,7 +509,6 @@ mtdome-ess405-sim:
   classifier: ess405
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 405 --simulate
   resources:
@@ -484,7 +524,6 @@ partsens-ess127-sim:
   classifier: ess127
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 127 --simulate
   resources:
@@ -500,7 +539,6 @@ partsens-ess128-sim:
   classifier: ess128
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 128 --simulate
   resources:
@@ -516,7 +554,6 @@ partsens-ess129-sim:
   classifier: ess129
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 129 --simulate
   resources:
@@ -532,7 +569,6 @@ ringss-ess304-sim:
   classifier: ess304
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 304 --simulate
   resources:
@@ -548,7 +584,6 @@ tea-ess123-sim:
   classifier: ess123
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 123 --simulate
   resources:
@@ -564,7 +599,6 @@ tea-ess124-sim:
   classifier: ess124
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 124 --simulate
   resources:
@@ -580,7 +614,6 @@ tea-ess125-sim:
   classifier: ess125
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 125 --simulate
   resources:
@@ -596,7 +629,6 @@ tea-ess126-sim:
   classifier: ess126
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 126 --simulate
   resources:
@@ -612,7 +644,6 @@ tma-ess121-sim:
   classifier: ess121
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 121 --simulate
   resources:
@@ -628,7 +659,6 @@ tma-ess122-sim:
   classifier: ess122
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 122 --simulate
   resources:
@@ -644,7 +674,6 @@ tma-ess104-sim:
   classifier: ess104
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 104 --simulate
   resources:
@@ -660,7 +689,6 @@ tma-ess105-sim:
   classifier: ess105
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 105 --simulate
   resources:
@@ -676,7 +704,6 @@ tma-ess110-sim:
   classifier: ess110
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 110 --simulate
   resources:
@@ -692,7 +719,6 @@ ups-server-room1-ess310-sim:
   classifier: ess310
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 310 --simulate
   resources:
@@ -708,7 +734,6 @@ ups-server-room2-ess311-sim:
   classifier: ess311
   image:
     repository: ts-dockerhub.lsst.org/ess
-    pullPolicy: Always
   env:
     RUN_ARG: 311 --simulate
   resources:
@@ -722,16 +747,20 @@ ups-server-room2-ess311-sim:
 weatherforecast:
   image:
     repository: ts-dockerhub.lsst.org/weatherforecast
-    pullPolicy: Always
   env:
     RUN_ARG: --state enabled
   envSecrets:
   - name: METEOBLUE_API_KEY
     key: meteoblue-api-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   resources:
     requests:
       cpu: 100m
       memory: 250Mi
     limits:
-      cpu: 500m
+      cpu: 1
       memory: 512Mi

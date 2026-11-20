@@ -8,11 +8,6 @@ alert-brokers:
     - name: alerts-simulated
       partitions: 45
       replicas: 3
-    - name: lsst-alerts-v10.0
-      partitions: 45
-      replicas: 3
-      bytesRetained: "300000000000"
-      millisecondsRetained: "2629740000"
     - name: lsst-alerts-v11
       partitions: 45
       replicas: 3
@@ -35,45 +30,14 @@ alert-brokers:
       groups:
         - "rubin-devel-idfint"
 
-    # The community broker users
-    - username: "alerce-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "alerce-usdf"
-    - username: "ampel-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "ampel-usdf"
-    - username: "antares-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "antares-usdf"
-    - username: "babamul-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "babamul-usdf"
-    - username: "fink-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "fink-usdf"
-    - username: "lasair-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "lasair-usdf"
-    - username: "pittgoogle-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "pittgoogle-usdf"
-    - username: "poi-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "poi-usdf"
-    - username: "snaps-usdf"
-      topics: *communityReadonlyTopics
-      groups:
-        - "snaps-usdf"
+  serviceAccountsReadWrite:
 
-  serviceAccounts:
+    - username: "alert-test"
+      topics: *communityReadonlyTopics
+      additionalTopics:
+        - "alert-stream-test"
+
+  serviceAccountsWrite:
 
     - username: "prompt-alert"
       topics: *communityReadonlyTopics
@@ -86,7 +50,7 @@ alert-database:
   ingester:
     # The image can use either a tag or a digest to determine which is being used.
     image:
-      tag: v4.1.0
+      tag: v4.2.0
 
     logLevel: verbose
 
@@ -99,6 +63,19 @@ alert-database:
       topic:
         - lsst-alerts-v11
 
+    terminationGracePeriodSeconds: 60
+
+    autoscaling:
+      enabled: true
+      minReplicaCount: 1
+      maxReplicaCount: 20
+      lagThreshold: "100"
+      activationLagThreshold: "10"
+      pollingInterval: 30
+      cooldownPeriod: 900
+      consumerGroup: "alertdb-ingester"
+      offsetResetPolicy: "latest"
+
   ingress:
     enabled: true
     host: usdfdev-prompt-processing.slac.stanford.edu
@@ -107,7 +84,7 @@ alert-stream-schema-sync:
   enabled: true
   schemaSync:
     image:
-      tag: w.2026.19
+      tag: tickets-DM-56879
 
 chronograf:
   enabled: false

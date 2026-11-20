@@ -17,52 +17,66 @@ IVOA TAP service
 | cloudsql.enabled | bool | `false` | Enable the Cloud SQL Auth Proxy sidecar, used with Cloud SQL databases on Google Cloud |
 | cloudsql.image.pullPolicy | string | `"IfNotPresent"` | Pull policy for Cloud SQL Auth Proxy images |
 | cloudsql.image.repository | string | `"gcr.io/cloudsql-docker/gce-proxy"` | Cloud SQL Auth Proxy image to use |
-| cloudsql.image.tag | string | `"1.38.0"` | Cloud SQL Auth Proxy tag to use |
+| cloudsql.image.tag | string | `"1.38.5"` | Cloud SQL Auth Proxy tag to use |
 | cloudsql.instanceConnectionName | string | `""` | Instance connection name for a Cloud SQL PostgreSQL instance |
 | cloudsql.resources | object | See `values.yaml` | Resource limits and requests for the Cloud SQL Proxy container |
 | cloudsql.serviceAccount | string | None, must be set | The Google service account that has an IAM binding to the `cadc-tap` Kubernetes service accounts and has the `cloudsql.client` role, access |
 | config.backend | string | None, must be set to `pg`, `qserv` or `bigquery` | What type of backend are we connecting to? |
 | config.bigquery.dataset | string | None, must be set if backend is `bigquery` | BigQuery dataset name |
+| config.bigquery.geoPointTables | list | DiaObject, DiaSource and DiaForcedSource in `config.bigquery.schema` | TAP names of the tables that have a `geo_point` column. Spatial queries on these tables use `geo_point` so that BigQuery can use the clustering on it. Other tables build the point from their own columns. |
 | config.bigquery.image.pullPolicy | string | `"IfNotPresent"` | Pull policy for the TAP image |
 | config.bigquery.image.repository | string | `"ghcr.io/lsst-sqre/lsst-tap-service"` | TAP image to use |
-| config.bigquery.image.tag | string | `"3.18.0"` | Tag of TAP image to use |
+| config.bigquery.image.tag | string | `"3.32.0"` | Tag of TAP image to use |
 | config.bigquery.project | string | None, must be set if backend is `bigquery` | BigQuery project ID |
 | config.bigquery.schema | string | `""` | Schema name for table mappings (optional) |
-| config.database | string | `"dp02"` | Data Database name |
+| config.bigquery.tableMappings | list | `[]` | Table name mappings for query rewriting (as visible:backend pairs). There is no built-in default mapping for any table, so every table queryable through this schema must have an entry here. Example: ["ppdb.mpc_orbits:`ppdb-dev-5c07.ppdb_public.mpc_orbits`"] |
+| config.bigquery.upload.dataset | string | `"tap_uploads"` | BigQuery dataset that uploaded tables are loaded into |
+| config.bigquery.upload.project | string | None, table uploads are rejected | GCP project holding the dataset for uploaded tables. |
+| config.database | string | `"dp2"` | Data Database name |
 | config.datalinkPayloadUrl | string | `"https://github.com/lsst/sdm_schemas/releases/download/w.2026.01/datalink-snippets.zip"` | Datalink payload URL |
 | config.gcsBucket | string | `"async-results.lsst.codes"` | Name of GCS bucket in which to store results |
 | config.gcsBucketType | string | `"GCS"` | GCS bucket type (GCS or S3) |
 | config.gcsBucketUrl | string | `"https://storage.googleapis.com"` | Base URL for results stored in GCS bucket |
+| config.gcsUploadBucket | string | Same as `gcsBucket` | Name of the bucket in which to store uploaded tables. Must be the same type as `gcsBucket`. |
+| config.gcsUploadWorkloadIdentity | bool | `false` | Access the upload bucket as the pod's Workload Identity (`cloudsql.serviceAccount`) instead of the `google_creds.json`. Requires `cloudsql.enabled` and a separate `gcsUploadBucket`. |
+| config.googleCredentialsEnabled | bool | `true` | Whether to mount the `google_creds.json` service account credentials. Only needed when `gcsBucketType` is GCS. |
 | config.jvmMaxHeapSize | string | `"31G"` | Java heap size, which will set the maximum size of the heap. Otherwise Java would determine it based on how much memory is available and black maths. |
 | config.kafka | object | `{"consumerGroupId":"tap","enabled":false,"kafkaUserName":"tap","topics":{"jobDelete":"lsst.tap.job-delete","jobRun":"lsst.tap.job-run","jobStatus":"lsst.tap.job-status"}}` | Kafka configuration |
 | config.kafka.consumerGroupId | string | "tap" | Kafka consumer group ID. |
-| config.kafka.enabled | bool | `false` | Whether kafka is enabled |
+| config.kafka.enabled | bool | `false` | Whether kafka is enabled. For the `qserv` backend this also selects the execution mode: `true` dispatches queries to qserv-kafka, `false` runs the legacy direct-to-Qserv mode. |
 | config.kafka.kafkaUserName | string | "tap" | Name of the KafkaUser to use for authentication |
 | config.kafka.topics | object | `{"jobDelete":"lsst.tap.job-delete","jobRun":"lsst.tap.job-run","jobStatus":"lsst.tap.job-status"}` | Kafka topics |
 | config.kafka.topics.jobDelete | string | `"lsst.tap.job-delete"` | Job Delete topic |
 | config.kafka.topics.jobRun | string | `"lsst.tap.job-run"` | Job Run topic |
 | config.kafka.topics.jobStatus | string | `"lsst.tap.job-status"` | Job Status topic |
+| config.maxDestruction | string | `""` | Maximum UWS job destruction time in seconds. Leave empty to use the default (604800, 1 week). |
+| config.maxExecutionDuration | string | `"43200"` | Maximum execution duration for TAP queries in seconds. Also used for sizing the signed result upload URL's expiration Leave empty to use the default (14400, 4 hours). |
+| config.maxQuote | string | `""` | Maximum UWS job quote in seconds. Leave empty to use the default (86400, 24 hours). |
 | config.maxRec | string | `""` | Maximum row limit (MAXREC) enforced server-side. Leave empty to use the default (100000000). |
+| config.maxUploadSize | string | `"104857600"` | Maximum size in bytes of an uploaded table (TAP_UPLOAD). Leave empty to use the TAP service default (33554432, 32 MiB). |
 | config.outputLimit | string | `""` | Output limit value for TAP queries advertised in capabilities. Leave empty to use the default (100000000). |
 | config.outputLimitUnit | string | `""` | Unit for the output limit: "byte" or "row". Leave empty to use the default ("row"). |
 | config.pg.database | string | None, must be set if backend is `pg` | Database to connect to |
 | config.pg.host | string | None, must be set if backend is `pg` | Host to connect to |
 | config.pg.image.pullPolicy | string | `"IfNotPresent"` | Pull policy for the TAP image |
-| config.pg.image.repository | string | `"ghcr.io/lsst-sqre/tap-postgres-service"` | TAP image to use |
-| config.pg.image.tag | string | `"1.26.0"` | Tag of TAP image to use |
+| config.pg.image.repository | string | `"ghcr.io/lsst-sqre/lsst-tap-service"` | TAP image to use |
+| config.pg.image.tag | string | `"3.32.0"` | Tag of TAP image to use. |
 | config.pg.username | string | None, must be set if backend is `pg` | Username to connect with |
 | config.qserv.host | string | `"mock-db:3306"` (the mock QServ) | QServ hostname:port to connect to |
 | config.qserv.image.pullPolicy | string | `"IfNotPresent"` | Pull policy for the TAP image |
 | config.qserv.image.repository | string | `"ghcr.io/lsst-sqre/lsst-tap-service"` | TAP image to use |
-| config.qserv.image.tag | string | `"3.18.0"` | Tag of TAP image to use |
+| config.qserv.image.tag | string | `"3.32.0"` | Tag of TAP image to use |
 | config.qserv.jdbcParams | string | `""` | Extra JDBC connection parameters |
-| config.qserv.passwordEnabled | bool | false | Whether the Qserv database is password protected |
+| config.qserv.passwordEnabled | bool | false | Whether the Qserv database is password protected. Only used for direct-to-Qserv execution (`config.kafka.enabled: false`). |
+| config.qserv.schemaMappings | string | `""` | Schema name mappings: comma-separated list of user_schema:internal_schema pairs. Example: "dp1:dp1_pilot" dp1 queries execute against dp1_pilot. |
+| config.qserv.tableMappings | list | `[]` | Table name mappings for query rewriting (as visible:backend pairs). The visible name is the Felis / TAP_SCHEMA table The backend name is the actual Qserv / BigQuery table name. Example: ["dp1.Object:dp1_pilot.Object"] rewrites references to dp1.Object so they query dp1_pilot.Object instead. |
 | config.sentryEnabled | bool | `false` | Whether Sentry is enabled in this environment |
 | config.serviceName | string | None, must be set | Name of the service from Gafaelfawr's perspective, used for metrics reporting |
 | config.tapSchemaAddress | string | `"cadc-tap-schema-db:3306"` | Address to a MySQL database containing TAP schema data |
-| config.urlRewrite | object | `{"enabled":true,"rules":"ivoa.ObsCore:access_url"}` | Rules for renaming Columns |
+| config.uploadPartitionDirectors | list | `[]` | List of Qserv director tables for dependent upload partition detection. Format: ["database.table:idCol", ...] |
+| config.urlRewrite | object | `{"enabled":true,"rules":["ivoa.ObsCore:access_url"]}` | Rules for renaming Columns |
 | config.urlRewrite.enabled | bool | `true` | Whether it is enabled |
-| config.urlRewrite.rules | string | `"ivoa.ObsCore:access_url"` | String with a comma-separated list of schema.table:column rules |
+| config.urlRewrite.rules | list | `["ivoa.ObsCore:access_url"]` | List of schema.table:column rules for URL rewriting |
 | config.vaultSecretName | string | `""` | Vault secret name, this is appended to the global path to find the vault secrets associated with this deployment. |
 | config.voParquet | bool | `false` | Whether to advertise VOParquet (application/vnd.apache.parquet) as a supported output format in the TAP capabilities. |
 | fullnameOverride | string | `"cadc-tap"` | Override the full name for resources (includes the release name) |
@@ -105,7 +119,9 @@ IVOA TAP service
 | tapSchema.resources | object | See `values.yaml` | Resource limits and requests for the TAP schema database pod |
 | tapSchema.tapadm | object | `{"maxActive":2}` | Connection pool configuration for jdbc/tapadm |
 | tapSchema.tapadm.maxActive | int | `2` | Maximum active connections (maxIdle will be set to this value) |
-| tapSchema.tapuser | object | `{"maxActive":3}` | Connection pool configuration for jdbc/tapuser (query planning and tap_upload) |
+| tapSchema.tapschemauser | object | `{"maxActive":3}` | Connection pool configuration for jdbc/tapschemauser |
+| tapSchema.tapschemauser.maxActive | int | `3` | Maximum active connections (maxIdle will be set to this value) |
+| tapSchema.tapuser | object | `{"maxActive":3}` | Connection pool configuration for jdbc/tapuser |
 | tapSchema.tapuser.maxActive | int | `3` | Maximum active connections (maxIdle will be set to this value) |
 | tapSchema.tolerations | list | Tolerate GKE arm64 taint | Tolerations for the TAP schema database pod |
 | tapSchema.type | string | "containerized" | Database backend type: "containerized", "cloudsql", or "external" |
@@ -119,7 +135,7 @@ IVOA TAP service
 | uws.external.port | int | `5432` | Port of external PostgreSQL server |
 | uws.image.pullPolicy | string | `"IfNotPresent"` | Pull policy for the UWS database image |
 | uws.image.repository | string | `"ghcr.io/lsst-sqre/lsst-tap-uws-db"` | UWS database image to use |
-| uws.image.tag | string | `"3.18.0"` | Tag of UWS database image to use |
+| uws.image.tag | string | `"3.27.0"` | Tag of UWS database image to use |
 | uws.maxActive | int | `5` | Maximum active connections (maxIdle will be set to this value) |
 | uws.nodeSelector | object | `{}` | Node selection rules for the UWS database pod |
 | uws.podAnnotations | object | `{}` | Annotations for the UWS databse pod |

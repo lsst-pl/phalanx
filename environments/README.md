@@ -5,6 +5,7 @@
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | appOfAppsName | string | `"app-of-apps"` | Name of the parent Argo CD app-of-apps that manages all the applications enabled for this environment |
+| applications.apdb-backups-gcp | bool | `false` | Enable the apdb-backups-gcp application |
 | applications.argo-workflows | bool | `false` | Enable the argo-workflows application |
 | applications.argocd | bool | `true` | Enable the Argo CD application. This must be enabled for all environments and is present here only because it makes parsing easier |
 | applications.atlantis | bool | `false` | Enable the atlantis application |
@@ -15,12 +16,14 @@
 | applications.cert-manager | bool | `true` | Enable the cert-manager application, required unless the environment makes separate arrangements to inject a current TLS certificate |
 | applications.checkerboard | bool | `false` | Enable the checkerboard application |
 | applications.cm-service | bool | `false` | Enable the cm-service application |
+| applications.conesearch | bool | `false` | Enable the conesearch application |
 | applications.consdbtap | bool | `false` | Enable the consdbtap application |
 | applications.control-system-test | bool | `false` | Enable the control-system-test application |
 | applications.csc-versions | bool | `false` | Enable the csc-versions application |
 | applications.datalinker | bool | `false` | Eanble the datalinker application |
 | applications.docverse | bool | `false` | Enable the docverse application |
 | applications.envsys | bool | `false` | Enable the envsys control system application |
+| applications.ephemcache | bool | `false` | Enable the ephemcache application |
 | applications.eups-distributor | bool | `false` | Enable the eups-distributor application |
 | applications.exposure-checker | bool | `false` | Enable the exposure-checker application |
 | applications.exposurelog | bool | `false` | Enable the exposurelog application |
@@ -38,7 +41,7 @@
 | applications.ingress-nginx | bool | `true` | Enable the ingress-nginx application. This is required for all environments, but is still configurable because currently USDF uses an unsupported configuration with ingress-nginx deployed in a different cluster. |
 | applications.jira-data-proxy | bool | `false` | Enable the jira-data-proxy application |
 | applications.keda | bool | `false` | Enable the keda application |
-| applications.livetap | bool | `false` | Enable the livetap application |
+| applications.log-explorer | bool | `false` | Enable the log-explorer application |
 | applications.love | bool | `false` | Enable the love control system application |
 | applications.mobu | bool | `false` | Enable the mobu application |
 | applications.mpsky | bool | `false` | Enable the mpsky application |
@@ -48,10 +51,14 @@
 | applications.noteburst | bool | `false` | Enable the noteburst application (required by times-square) |
 | applications.nublado | bool | `false` | Enable the nublado application (v3 of the Notebook Aspect) |
 | applications.nvr-control | bool | `false` | Enable the nvr-control application |
+| applications.obsforge | bool | `false` | Enable the obsforge application |
+| applications.obsforgetap | bool | `false` | Enable the obsforgetap application |
 | applications.obsloctap | bool | `false` | Enable the obsloctap application |
 | applications.obssys | bool | `false` | Enable the obssys control system application |
 | applications.onepassword-connect | bool | `false` | Enable the onepassword-connect application |
 | applications.ook | bool | `false` | Enable the ook application |
+| applications.opensearch-cluster | bool | `false` | Enable the opensearch-cluster application |
+| applications.opensearch-operator | bool | `false` | Enable the opensearch-operator application |
 | applications.plot-navigator | bool | `false` | Enable the plot-navigator application |
 | applications.portal | bool | `false` | Enable the portal application |
 | applications.postgres | bool | `false` | Enable the in-cluster PostgreSQL server. Use of this server is discouraged in favor of using infrastructure SQL, but will remain supported for use cases such as minikube test deployments. |
@@ -59,13 +66,13 @@
 | applications.ppdbtap | bool | `false` | Enable the ppdbtap application |
 | applications.production-tools | bool | `false` | Enable the production-tools application |
 | applications.prompt-kafka | bool | `false` | Enable the prompt-kafka application |
-| applications.prompt-keda-hsc | bool | `false` | Enable the prompt-keda-hsc application |
 | applications.prompt-keda-latiss | bool | `false` | Enable the prompt-keda-latiss application |
 | applications.prompt-keda-lsstcam | bool | `false` | Enable the prompt-keda-lsstcam application |
 | applications.prompt-pub | bool | `false` | Enable the prompt-pub application |
 | applications.prompt-redis | bool | `false` | Enable the prompt-redis application |
 | applications.qserv-kafka | bool | `false` | Enable the qserv-kafka application |
 | applications.repertoire | bool | `true` | Enable the Repertoire application. This provides service discovery for many other Phalanx applications, all of which assume that it is running. |
+| applications.river-next | bool | `false` | Enable the river-next application |
 | applications.rubin-rag | bool | `false` | Enable the rubin-rag application |
 | applications.rubin-too-producer | bool | `false` | Enable the rubin-too-producer application |
 | applications.rubintv | bool | `false` | Enable the rubintv application |
@@ -74,27 +81,30 @@
 | applications.s3proxy | bool | `false` | Enable the s3proxy application |
 | applications.sasquatch | bool | `false` | Enable the sasquatch application |
 | applications.sasquatch-backpack | bool | `false` | Enable the sasquatch-backpack application |
-| applications.schedview-snapshot | bool | `false` | Enable the schedview-snapshot application |
-| applications.schedview-static-pages | bool | `false` | Enable the schedview-static-pages application |
 | applications.semaphore | bool | `false` | Enable the semaphore application |
 | applications.sia | bool | `false` | Enable the sia over butler application |
 | applications.simonyitel | bool | `false` | Enable the simonyitel control system application |
+| applications.skyviewer | bool | `false` | Enable the skyviewer application |
+| applications.so-evening-tailgate | bool | `false` | Enable the so-evening-tailgate application |
 | applications.squarebot | bool | `false` | Enable the squarebot application |
 | applications.squareone | bool | `false` | Enable the squareone application |
 | applications.ssotap | bool | `false` | Enable the ssotap application |
 | applications.strimzi | bool | `false` | Enable the strimzi application |
 | applications.strimzi-access-operator | bool | `false` | Enable the strimzi-access-operator application |
 | applications.strimzi-registry-operator | bool | `false` | Enable the strimzi-registry-operator application |
+| applications.svab-slack-bot | bool | `false` | Enable the svab-slack-bot application |
 | applications.tap | bool | `false` | Enable the tap application |
-| applications.tasso | bool | `false` | Enable the tasso application |
 | applications.templatebot | bool | `false` | Enable the templatebot application |
 | applications.times-square | bool | `false` | Enable the times-square application |
 | applications.turborepo-cache | bool | `false` | Enable the turborepo-cache application |
 | applications.unfurlbot | bool | `false` | Enable the unfurlbot application |
+| applications.usertap | bool | `false` | Enable the usertap application |
 | applications.uws | bool | `false` | Enable the uws application. This includes the dmocps control system application. |
 | applications.vault | bool | `false` | Enable the vault application. This is the actual vault storage and there should only be one production and one development instance globally. |
 | applications.vault-secrets-operator | bool | `true` | Enable the vault-secrets-operator application. This is required for all environments. |
 | applications.vo-cutouts | bool | `false` | Enable the vo-cutouts application |
+| applications.weatherbroadcaster | bool | `false` | Enable the weatherbroadcaster application |
+| applications.weathernbeats | bool | `false` | Enable the weathernbeats application |
 | applications.wobbly | bool | `false` | Enable the wobbly application, required if the environment will be running any Safir-based UWS services |
 | butlerServerRepositories | object | None, must be set | Butler repositories that can be accessed via Butler server, as a dictionary from repository label to URI. |
 | controlSystem.appNamespace | string | None, must be set | Application namespacce for the control system deployment |
@@ -106,11 +116,14 @@
 | controlSystem.siteTag | string | None, must be set | Site tag for the control system deployment |
 | controlSystem.topicName | string | `"sal"` | Topic name tag for the control system deployment |
 | defaultComputeClass | string | `nil` | Whether to deploy workloads using Autopilot or Standard mode. If this is null, the workloads will use the compute class that corresponds to the cluster type. Here's an [example of setting an Autopilot compute class](https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-classes-standard-clusters#built-in-class) |
+| description | string | None, must be set | Description of the environment |
 | fqdn | string | None, must be set | Fully-qualified domain name where the environment is running |
 | name | string | None, must be set | Name of the environment |
 | namespaceLabels | object | `{}` | Add labels for application namespaces |
 | repoUrl | string | `"https://github.com/lsst-sqre/phalanx.git"` | URL of the repository for all applications |
 | revisions | object | `{}` | Mapping of applications to branches to run some applications from revisions other than main |
 | targetRevision | string | `"main"` | Revision of repository to use for all applications unless overridden by branches below |
+| title | string | Value of `name` | Short human-readable title for the environment |
+| titleLong | string | Value of `title` | Longer one-line human-readable title for the environment |
 | vaultPathPrefix | string | None, must be set | Prefix for Vault secrets for this environment |
 | vaultUrl | string | `"https://vault.lsst.cloud/"` | URL of Vault server for this environment |

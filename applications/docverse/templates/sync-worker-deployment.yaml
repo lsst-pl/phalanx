@@ -39,10 +39,13 @@ spec:
       containers:
         - name: "docverse-sync-worker"
           command: ["arq"]
-          args: ["docverse.worker.main.KeeperSyncWorkerSettings"]
+          args: ["{{ .Values.image.pythonModule }}.worker.main.KeeperSyncWorkerSettings"]
           env:
             {{- include "docverse.envVars" . | nindent 12 }}
             {{- include "docverse.kafkaEnvVars" . | nindent 12 }}
+            {{- with .Values.syncWorker.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: "docverse"

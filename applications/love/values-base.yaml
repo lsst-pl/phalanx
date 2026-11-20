@@ -1,3 +1,14 @@
+x-topology-spread:
+  &topology-spread
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchExpressions:
+      - key: pod-template-hash
+        operator: Exists
+
 love-commander:
   image:
     repository: ts-dockerhub.lsst.org/love-commander
@@ -10,6 +21,13 @@ love-commander:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  efdCredentials:
+    containerPath: &efd-credentials-path /home/saluser/.lsst
+    secretFilename: &efd-credentials-filename .efdauth.json
+  secretFixup:
+    containerPath: *efd-credentials-path
+    filenames:
+    - *efd-credentials-filename
   service:
     enabled: true
     port: 5000
@@ -58,6 +76,7 @@ x-manager-producer:
     AUTH_LDAP_BIND_PASSWORD: auth-ldap-bind-password
     DB_PASS: db-pass
     REDIS_PASS: redis-pass
+  <<: *topology-spread
   resources:
     requests:
       cpu: 150m
@@ -184,7 +203,7 @@ love-manager:
 love-nginx:
   image:
     repository: nginx
-    tag: 1.25.1
+    tag: 1.31.3
     pullPolicy: Always
   ingress:
     hostname: base-lsp.lsst.codes
@@ -436,6 +455,7 @@ love-producer:
   image:
     repository: ts-dockerhub.lsst.org/love-producer
     pullPolicy: Always
+  <<: *topology-spread
   resources:
     requests:
       cpu: 15m
@@ -499,6 +519,10 @@ love-producer:
     WEBSOCKET_HOST: love-nginx-service/love/manager/atcs/ws/subscription
   - name: automatic-transfer-switch-ess309
     csc: ESS:309 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-2/ws/subscription
+    <<: *love-producer-envsys-resources
+  - name: aurora-cloud-sensor-ess307
+    csc: ESS:307 --log-level 10
     WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-2/ws/subscription
     <<: *love-producer-envsys-resources
   - name: auxteless201
@@ -647,6 +671,18 @@ love-producer:
     <<: *love-producer-envsys-resources
   - name: m1m3ess117
     csc: ESS:117 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
+    <<: *love-producer-envsys-resources
+  - name: m1m3essflowmeter130
+    csc: ESS:130 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
+    <<: *love-producer-envsys-resources
+  - name: m1m3essflowmeter131
+    csc: ESS:131 --log-level 10
+    WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
+    <<: *love-producer-envsys-resources
+  - name: m1m3essthermalgradients132
+    csc: ESS:132 --log-level 10
     WEBSOCKET_HOST: love-nginx-service/love/manager/envsys-1/ws/subscription
     <<: *love-producer-envsys-resources
   - name: m2ess106

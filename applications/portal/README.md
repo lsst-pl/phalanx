@@ -13,10 +13,14 @@ Rubin Science Platform Portal Aspect
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Affinity rules for the Portal pod |
 | config.alertMessage | string | `nil` | If not null, display this alert to all users in a banner |
-| config.cleanupInterval | string | `"36h"` | How long results should be retained before being deleted |
+| config.cleanupAppName | string | `"suit"` | The subdirectory under /firefly/workarea and /firefly/shared-workarea to cleanup |
+| config.cleanupInterval | string | `"1h"` | How often the Firefly cleanup sweep runs over the work areas |
+| config.cleanupSharedMax | string | `nil` | If set, how big (SI units) the shared workarea is allowed to get. <n>%: 1-99, percent of the work area's filesystem in use, as df's Use% reports it. Counts everything on that filesystem; best when the volume is dedicated. <size>: <n>K, <n>M, <n>G or <n>T, binary (1G = 1024M); Kubernetes' Ki/Mi/Gi/Ti also work. Measured with du of the work area. Use <n>% to keep the volume itself from filling. |
+| config.cleanupWorkareaMax | string | `nil` | If set, how big the per-node workarea is allowed to get. <n>%: 1-99, percent of the work area's filesystem in use, as df's Use% reports it. Counts everything on that filesystem; best when the volume is dedicated. <size>: <n>K, <n>M, <n>G or <n>T, binary (1G = 1024M); Kubernetes' Ki/Mi/Gi/Ti also work. Measured with du of the work area. Use <n>% to keep the volume itself from filling. |
 | config.debug | string | `"FALSE"` | Set to `TRUE` to enable service debugging |
-| config.hipsUrl | string | `/api/hips/images/color_gri` in the local Science Platform | URL for default HiPS service |
-| config.livetap | string | `""` | Endpoint under `/api/` for the live TAP service on the instance, if present |
+| config.hipsListUrl | string | `/api/hips/list` in the local Science Platform | URL for master list of Rubin-featured HiPS datasets |
+| config.hipsUrl | string | `/api/hips/images/color_gri` in the local Science Platform | URL for default HiPS map to be used for coverage displays |
+| config.mocListUrl | string | `/api/hips/v2/dp2/dp2-moc-list.tbl` in the local Science Platform | URL for master list of Rubin-featured MOC datasets |
 | config.showUserInfo | string | `"true"` | Whether to show information about the logged-in user |
 | config.ssotap | string | `""` | Endpoint under `/api/` for the DP0.3 SSO TAP service on the instance, if present |
 | config.tapHistoryLimit | string | `"1000"` | Maximum number of recent TAP queries to show in history |

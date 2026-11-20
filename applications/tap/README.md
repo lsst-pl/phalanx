@@ -12,10 +12,12 @@ IVOA TAP service
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | cadc-tap.config.backend | string | `"qserv"` | What type of backend? |
+| cadc-tap.config.googleCredentialsEnabled | bool | `true` | Whether to mount google_creds.json (false for S3 environments) |
 | cadc-tap.config.outputLimit | string | `"3221225472"` | 3GB byte limit for Qserv |
 | cadc-tap.config.outputLimitUnit | string | `"byte"` |  |
 | cadc-tap.config.sentryEnabled | bool | `false` | Whether Sentry is enabled in this environment |
 | cadc-tap.config.serviceName | string | `"tap"` | Name of the service from Gafaelfawr's perspective |
+| cadc-tap.config.uploadPartitionDirectors | list | `["dp1.Object:objectId","dp1.Source:sourceId","dp1.DiaObject:diaObjectId","dp2.Object:objectId","dp2.Source:sourceId","dp2.ShearObject:shearObjectId","dp2.IsolatedStarStellarMotions:isolated_star_id","dp2.DiaObject:diaObjectId"]` | Director tables for TAP_UPLOAD spatial partitioning |
 | cadc-tap.config.vaultSecretName | string | `"tap"` | Vault secret name: the final key in the vault path |
 | cadc-tap.config.voParquet | bool | `true` | Advertise VOParquet as a supported output format |
 | cadc-tap.ingress.path | string | `"tap"` | Ingress path that should be routed to this service |

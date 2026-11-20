@@ -40,6 +40,9 @@ ingress-nginx:
       # -- Enable the `X-Forwarded-For` processing
       use-forwarded-headers: "true"
 
+      # -- Disable HTTP/2 to mitigate CVE-2026-123633 and CVE-2026-123007
+      use-http2: "false"
+
       # -- Add additional per-server configuration used by Gafaelfawr to
       # report errors from the authorization layer
       # @default -- See `values.yaml`
@@ -78,9 +81,9 @@ ingress-nginx:
     image:
       registry: ghcr.io
       image: lsst-sqre/ingress-nginx-controller
-      tag: "v1.15.2-devsquare"
-      digest: "sha256:ad37060a7aca08908bff09308f26e31b5eb4d155a8b77df65c926a4618078039"
-      digestChroot: "sha256:2dfeb83efdbf162a325a2bccd729104ddaf13da117c68f71f977c1dc868beabd"
+      tag: "v1.15.15-lsstsqre-chainguard"
+      digest: "sha256:e026f52ee5ed2b90def28591972e7bbfc64bceb52c2d059d7a5bc36b7c94639c"
+      digestChroot: "sha256:943785844831cbe0176215cd880b9855085f7824d77c4f26d2c5b56c5b399494"
       pullPolicy: IfNotPresent
 
     metrics:

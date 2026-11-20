@@ -13,7 +13,8 @@ redis:
       memory: "50Mi"
 
 config:
-  internalDatabase: true
+  databaseUrl: postgresql://gafaelfawr@rsp-db-rw.postgres-db:5432/gafaelfawr
+  slackAlerts: true
 
   sentry:
     enabled: true
@@ -47,7 +48,14 @@ config:
     gidAttr: gidNumber
     nameAttr: gecos
 
+  # Add some additional scopes.
+  knownScopes:
+    "write:consdb": >-
+      Write access to the ConsDB API
   groupMapping:
+    "admin:oidc":
+      - "rubinmgr"
+      - "unix-admin"
     "admin:token":
       - "rubinmgr"
       - "unix-admin"
@@ -261,13 +269,3 @@ config:
     "write:sasquatch":
       - "rubinmgr"
       - "unix-admin"
-
-  initialAdmins:
-    - "afausti"
-    - "athor"
-    - "frossie"
-    - "jonathansick"
-    - "rra"
-    - "ytl"
-    - "ppascual"
-    - "pav"

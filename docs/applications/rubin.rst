@@ -11,9 +11,11 @@ Argo CD project: ``rubin``
 
    cm-service/index
    consdb/index
+   ephemcache/index
    exposurelog/index
    exposure-checker/index
    fastapi-bootcamp/index
+   log-explorer/index
    mpsky/index
    nvr-control/index
    rubin-rag/index
@@ -25,9 +27,12 @@ Argo CD project: ``rubin``
    ppdb-replication/index
    production-tools/index
    rapid-analysis/index
+   river-next/index
    rubintv/index
    rubintv-dev/index
    s3proxy/index
-   schedview-snapshot/index
-   schedview-static-pages/index
-   tasso/index
+   skyviewer/index
+   so-evening-tailgate/index
+   svab-slack-bot/index
+   weatherbroadcaster/index
+   weathernbeats/index

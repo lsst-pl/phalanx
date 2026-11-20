@@ -33,7 +33,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: "{{ .Chart.Name }}-daemon"
-          image: "{{ .Values.daemon.image.repository }}:{{ .Values.daemon.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.daemon.image.repository }}:{{ .Values.daemon.image.tag | default .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.daemon.image.pullPolicy }}
           ports:
             - name: "http"
@@ -77,20 +77,13 @@ spec:
             - name: NOTIFICATIONS__SLACK_WEBHOOK_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.config.slack.secretName }}
-                  key: {{ .Values.config.slack.webhookUrlSecretKey }}
-# {{- with .Values.config.aws }}
-#             - name: AWS_ACCESS_KEY_ID
-#               valueFrom:
-#                 secretKeyRef:
-#                   name: {{ .secretName }}
-#                   key: {{ .defaultAccessKeyIdSecretKey }}
-#             - name: AWS_SECRET_ACCESS_KEY
-#               valueFrom:
-#                 secretKeyRef:
-#                   name: {{ .secretName }}
-#                   key: {{ .defaultSecretAccessKeySecretKey }}
-# {{- end }}
+                  name: {{ .Values.config.notifications.secretName }}
+                  key: {{ .Values.config.notifications.webhookUrlSecretKey }}
+            - name: NOTIFICATIONS__FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.notifications.secretName }}
+                  key: {{ .Values.config.notifications.fernetSecretKey }}
           resources:
             {{- toYaml .Values.daemon.resources | nindent 12 }}
           securityContext:

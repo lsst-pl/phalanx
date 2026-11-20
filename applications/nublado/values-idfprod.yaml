@@ -20,7 +20,7 @@ controller:
     fileserver:
       enabled: true
       nodeSelector:
-        node_pool: "user-lab-pool"
+        node_pool: "user-lab-pool-amd"
       tolerations:
         - key: "nublado.lsst.io/permitted"
           operator: "Exists"
@@ -37,7 +37,7 @@ controller:
         image: "sciplat-lab"
     lab:
       env:
-        CULL_TERMINAL_INACTIVE_TIMEOUT: "432000"  # 5 days
+        CULL_TERMINAL_INACTIVE_TIMEOUT: "432000" # 5 days
         DAF_BUTLER_REPOSITORY_INDEX: "https://data.lsst.cloud/api/butler/configs/idf-repositories.yaml"
         RUBIN_DIR: "/rubin"
         S3_ENDPOINT_URL: "https://sdfdatas3.slac.stanford.edu"
@@ -46,22 +46,22 @@ controller:
         TUTORIAL_DATA: "/rubin/cst_repos/tutorial-notebooks/data"
         TUTORIAL_NOTEBOOKS_CACHE_DIR: "/rubin/cst_repos/tutorial-notebooks"
       nodeSelector:
-        node_pool: "user-lab-pool"
+        node_pool: "user-lab-pool-amd"
       secrets:
         - secretName: "nublado-lab-secret"
           secretKey: "rubin-epo-cit-sci-pipeline.json"
           path: "/opt/lsst/software/jupyterlab/secrets/rubin-epo-cit-sci-pipeline.json"
       sizes:
-        # Double the memory because these are running on nodes with a 2x ratio
-        # of mem to CPU compared to standard nodes
+        # Double the memory for a large because these are running on nodes
+        # with a 2x ratio of memory to CPU compared to standard nodes.
         - size: "small"
           resources:
             limits:
               cpu: 1.0
-              memory: "8Gi"
+              memory: "4Gi"
             requests:
               cpu: 0.25
-              memory: "1.5Gi"
+              memory: "1Gi"
         - size: "large"
           resources:
             limits:
@@ -106,7 +106,8 @@ hub:
 
 jupyterhub:
   cull:
-    timeout: 90000  # 25hrs
+    timeout: 90000 # 25 hours
+    maxAge: 432000 # 5 days
 
   hub:
     config:
@@ -122,7 +123,7 @@ jupyterhub:
 
 purger:
   enabled: true
-  schedule: "32 05 * * 0"  # Sunday morning, 12:32 AM (UTC-5)
+  schedule: "32 05 * * 0" # Sunday morning, 12:32 AM (UTC-5)
   volumeName: "deleted-sundays"
   policy:
     directories:
@@ -144,14 +145,12 @@ cronjob:
     targetVolume:
       mountPath: "/rubin"
       volumeName: "rubin"
-    gid: 2000005
   artifacts:
     enabled: true
     gitTarget: "/rubin/cst_repos/tutorial-notebooks-data"
     targetVolume:
       mountPath: "/rubin"
       volumeName: "rubin"
-    gid: 2000005
 
 cloudsql:
   enabled: true

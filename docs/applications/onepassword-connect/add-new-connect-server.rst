@@ -8,7 +8,7 @@ See :ref:`admin-static-secrets` for more background.
 SQuaRE-run Phalanx environments already have 1Password Connect servers set up.
 The one in the :px-env:`roundtable-dev` environment serves the vaults for development environments, and one in the :px-env:`roundtable-prod` environment serves the vaults for production environments.
 
-When following these instructions, you will be creating a new `Secrets Automation workflow <https://developer.1password.com/docs/connect/get-started/>`__.
+When following these instructions, you will be creating a new `Secrets Automation workflow <https://www.1password.dev/connect/get-started>`__.
 You will need to have permissions to create that workflow for the vault for your environment.
 
 .. warning::
@@ -86,9 +86,9 @@ In the following steps, you'll deploy the new 1Password Connect server.
 
 #. If you are following this process, you are presumably using 1Password to manage your static secrets.
    Go to the 1Password vault for the environment where the 1Password Connect server will be running.
-   Create a new application secret item for the application ``onepassword-connect`` (see :doc:`/admin/add-new-secret` for more details), and add a key named ``op-session`` whose value is the base64-encoded 1Password credentials.
+   Create a new application secret item for the application ``onepassword-connect`` (see :doc:`/admin/secrets/add-new-secret` for more details), and add a key named ``op-session`` whose value is the base64-encoded 1Password credentials.
 
-#. Synchronize secrets for that environment following the instructions in :doc:`/admin/sync-secrets`.
+#. Synchronize secrets for that environment following the instructions in :doc:`/admin/secrets/sync-secrets`.
 
 .. note::
 

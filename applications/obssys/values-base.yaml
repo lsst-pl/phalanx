@@ -1,21 +1,23 @@
+x-secret-file-path: &secret-file-path /home/saluser/.lsst
+
 x-butler-lfa-combo: &butler-lfa-combo
   s3Credentials:
   - lfa-credentials.ini
   - butler-credentials.ini
   butlerSecret:
-    containerPath: &bs-cp /home/saluser/.lsst
+    containerPath: *secret-file-path
     dbUser: oods
     secretFilename: &bs-fn postgres-credentials.txt
-  secretFixup:
-    containerPath: *bs-cp
-    filenames:
-    - *bs-fn
+
+x-efd-auth: &efd-auth
+  efdCredentials:
+    containerPath: *secret-file-path
+    secretFilename: &efd-credentials-filename .efdauth.json
 
 atqueue:
   classifier: scriptqueue2
   image:
     repository: ts-dockerhub.lsst.org/scriptqueue
-    pullPolicy: Always
   env:
     DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
     RUN_ARG: 2 --state enabled
@@ -27,7 +29,12 @@ atqueue:
   envSecrets:
   - name: USER_USER_PASS
     key: user-user-pass
-  <<: *butler-lfa-combo
+  <<: [*butler-lfa-combo, *efd-auth]
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *bs-fn
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: project-shared
     containerPath: /project
@@ -48,17 +55,16 @@ atqueue:
         topologyKey: "kubernetes.io/hostname"
   resources:
     limits:
-      cpu: 3
-      memory: 10Gi
+      cpu: 8
+      memory: 16Gi
     requests:
-      cpu: 500m
-      memory: 2Gi
+      cpu: 4
+      memory: 8Gi
 
 atscheduler:
   classifier: scheduler2
   image:
     repository: ts-dockerhub.lsst.org/scheduler
-    pullPolicy: Always
   env:
     INDEX: 2
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -67,6 +73,11 @@ atscheduler:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: rubin-sim-data
     containerPath: /home/saluser/rubin_sim_data
@@ -97,7 +108,6 @@ mtqueue:
   classifier: scriptqueue1
   image:
     repository: ts-dockerhub.lsst.org/scriptqueue
-    pullPolicy: Always
   env:
     DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
     RUN_ARG: 1 --state enabled
@@ -109,7 +119,12 @@ mtqueue:
   envSecrets:
   - name: USER_USER_PASS
     key: user-user-pass
-  <<: *butler-lfa-combo
+  <<: [*butler-lfa-combo, *efd-auth]
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *bs-fn
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: project-shared
     containerPath: /project
@@ -140,7 +155,6 @@ mtscheduler:
   classifier: scheduler1
   image:
     repository: ts-dockerhub.lsst.org/scheduler
-    pullPolicy: Always
   env:
     INDEX: 1
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -149,6 +163,11 @@ mtscheduler:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: rubin-sim-data
     containerPath: /home/saluser/rubin_sim_data
@@ -179,7 +198,6 @@ ocsqueue:
   classifier: scriptqueue3
   image:
     repository: ts-dockerhub.lsst.org/scriptqueue
-    pullPolicy: Always
   env:
     DAF_BUTLER_REPOSITORY_INDEX: /project/data-repos.yaml
     RUN_ARG: 3 --state enabled
@@ -191,7 +209,12 @@ ocsqueue:
   envSecrets:
   - name: USER_USER_PASS
     key: user-user-pass
-  <<: *butler-lfa-combo
+  <<: [*butler-lfa-combo, *efd-auth]
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *bs-fn
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: project-shared
     containerPath: /project
@@ -212,17 +235,16 @@ ocsqueue:
         topologyKey: "kubernetes.io/hostname"
   resources:
     limits:
-      cpu: 3
-      memory: 10Gi
+      cpu: 8
+      memory: 16Gi
     requests:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 4
+      memory: 8Gi
 
 ocsscheduler:
   classifier: scheduler3
   image:
     repository: ts-dockerhub.lsst.org/scheduler
-    pullPolicy: Always
   env:
     INDEX: 3
     AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
@@ -231,6 +253,11 @@ ocsscheduler:
     key: aws-access-key-id
   - name: AWS_SECRET_ACCESS_KEY
     key: aws-secret-access-key
+  <<: *efd-auth
+  secretFixup:
+    containerPath: *secret-file-path
+    filenames:
+    - *efd-credentials-filename
   nfsMountpoint:
   - name: rubin-sim-data
     containerPath: /home/saluser/rubin_sim_data
@@ -260,11 +287,16 @@ ocsscheduler:
 watcher:
   image:
     repository: ts-dockerhub.lsst.org/watcher
-    pullPolicy: Always
   resources:
     limits:
-      cpu: 3
-      memory: 2Gi
+      cpu: 5
+      memory: 6Gi
     requests:
-      cpu: 240m
-      memory: 1Gi
+      cpu: 4
+      memory: 5Gi
+  nfsMountpoint:
+  - name: obs-env
+    containerPath: /net/obs-env
+    readOnly: true
+    server: nfs-obsenv.ls.lsst.org
+    serverPath: /obs-env
